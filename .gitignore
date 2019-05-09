@@ -94,3 +94,6 @@ model
 
 incubator-mxnet/
 *.JPEG
+data/ILSVRC2015/Data
+data/ILSVRC2015/Annotations
+data/cache/
