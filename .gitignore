@@ -91,3 +91,6 @@ output
 model
 
 .db
+
+incubator-mxnet/
+*.JPEG

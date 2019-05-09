@@ -78,7 +78,8 @@ If you find Flow-Guided Feature Aggregation useful in your research, please cons
 2. Python packages might missing: cython, opencv-python >= 3.2.0, easydict. If `pip` is set up on your system, those packages should be able to be fetched and installed by running
 	```
 	pip install Cython
-	pip install opencv-python==3.2.0.6
+	- pip install opencv-python==3.2.0.6
+	+ pip install opencv-python==3.4.0.12
 	pip install easydict==1.6
 	```
 3. For Windows users, Visual Studio 2015 is needed to compile cython module.
@@ -104,16 +105,21 @@ git clone https://github.com/msracver/Flow-Guided-Feature-Aggregation.git
 	git clone --recursive https://github.com/apache/incubator-mxnet.git
 	cd incubator-mxnet
 	git checkout v0.10.0
-	git submodule update
+	- git submodule update
+	+ git submodule update --init --recursive
+	+ rm -r cub
+	+ git clone https://github.com/NVlabs/cub.git
 	```
 	3.2 Copy operators in `$(FGFA_ROOT)/fgfa_rfcn/operator_cxx` to `$(YOUR_MXNET_FOLDER)/src/operator/contrib` by
 	```
-	cp -r $(FGFA_ROOT)/fgfa_rfcn/operator_cxx/* $(MXNET_ROOT)/src/operator/contrib/
+	- cp -r $(FGFA_ROOT)/fgfa_rfcn/operator_cxx/* $(MXNET_ROOT)/src/operator/contrib/
+	+ cp -r ../fgfa_rfcn/operator_cxx/* src/operator/contrib/
 	```
 	3.3 Compile MXNet
 	```
 	cd ${MXNET_ROOT}
-	make -j4
+	- make -j4
+	+ make -j $(nproc) USE_OPENCV=1 USE_BLAS=openblas USE_CUDA=1 USE_CUDA_PATH=/usr/local/cuda USE_CUDNN=0
 	```
 	3.4 Install the MXNet Python binding by
 
