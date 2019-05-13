@@ -48,15 +48,25 @@ config.network.NUM_ANCHORS = len(config.network.ANCHOR_SCALES) * len(config.netw
 config.network.FGFA_FEAT_DIM = 1024 + 2048 # 1024 for feature network, 2048 for embedding network
 
 # dataset related params
+# config.dataset = edict()
+# config.dataset.dataset = 'ImageNetVID'
+# config.dataset.image_set = 'DET_train_30classes+VID_train_15frames'
+# config.dataset.test_image_set = 'VID_val_videos'
+# config.dataset.root_path = './data'
+# config.dataset.dataset_path = './data/ILSVRC2015'
+# config.dataset.motion_iou_path = './lib/dataset/imagenet_vid_groundtruth_motion_iou.mat'
+# config.dataset.enable_detailed_eval = True
+# config.dataset.NUM_CLASSES = 31
+
 config.dataset = edict()
-config.dataset.dataset = 'ImageNetVID'
-config.dataset.image_set = 'DET_train_30classes+VID_train_15frames'
+config.dataset.dataset = 'VidORVID'
+config.dataset.image_set = 'VID_train_15frames'
 config.dataset.test_image_set = 'VID_val_videos'
 config.dataset.root_path = './data'
-config.dataset.dataset_path = './data/ILSVRC2015'
-config.dataset.motion_iou_path = './lib/dataset/imagenet_vid_groundtruth_motion_iou.mat'
+config.dataset.dataset_path = './data/VidOR'
+# config.dataset.motion_iou_path = './lib/dataset/imagenet_vid_groundtruth_motion_iou.mat'
 config.dataset.enable_detailed_eval = True
-config.dataset.NUM_CLASSES = 31
+config.dataset.NUM_CLASSES = 81
 
 
 config.TRAIN = edict()
