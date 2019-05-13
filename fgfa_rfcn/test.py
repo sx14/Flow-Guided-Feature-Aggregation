@@ -43,7 +43,7 @@ sys.path.insert(0, os.path.join(curr_path, '../external/mxnet', config.MXNET_VER
 
 import mxnet as mx
 from function.test_rcnn import test_rcnn
-from utils.create_logger import create_logger
+from lib.utils.create_logger import create_logger
 
 
 def main():

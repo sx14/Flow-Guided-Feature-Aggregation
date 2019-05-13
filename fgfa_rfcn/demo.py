@@ -18,7 +18,7 @@ import pprint
 import cv2
 from config.config import config as cfg
 from config.config import update_config
-from utils.image import resize, transform
+from lib.utils.image import resize, transform
 import numpy as np
 from collections import deque
 
