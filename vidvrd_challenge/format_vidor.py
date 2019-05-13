@@ -61,7 +61,7 @@ def prepare_ImageSets(tgt_ds_root):
     print('ImageSets: VID_val_frames.txt')
     val_frames = []
     val_frame_cnt = 1   # start from 1
-    val_root = os.path.join(tgt_ds_root, 'vidor', 'val')
+    val_root = os.path.join(tgt_ds_root, 'Data', 'VID', 'val')
     for pkg in os.listdir(val_root):
         pkg_root = os.path.join(val_root, pkg)
 
