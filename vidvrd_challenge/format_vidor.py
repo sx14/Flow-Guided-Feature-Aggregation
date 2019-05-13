@@ -3,6 +3,7 @@ import json
 
 import cv2
 
+from vidvrd_challenge.to_ilsvrc_vid_format import *
 
 
 def prepare_Data(org_ds_root, tgt_ds_root):
@@ -19,7 +20,9 @@ def prepare_Data(org_ds_root, tgt_ds_root):
 
         # original path
         org_split_root = os.path.join(org_data_root, split[0])
-        for pkg in os.listdir(org_split_root):
+        pkgs = os.listdir(org_split_root)
+        for p, pkg in enumerate(pkgs):
+            print('Data: [%d/%d]' % (len(pkgs), p+1))
             org_pkg_root = os.path.join(org_split_root, pkg)
 
             # new package
@@ -29,7 +32,6 @@ def prepare_Data(org_ds_root, tgt_ds_root):
 
             for vid in os.listdir(org_pkg_root):
                 vid_path = os.path.join(org_pkg_root, vid)
-                print(vid_path)
                 # load video
                 video = cv2.VideoCapture(vid_path)
                 has_next = video.isOpened()
@@ -54,7 +56,9 @@ def prepare_ImageSets(tgt_ds_root):
     tgt_imageset_root = os.path.join(tgt_ds_root, 'ImageSets')
     if not os.path.exists(tgt_imageset_root):
         os.makedirs(tgt_imageset_root)
+
     # 1. VID_val_frames.txt
+    print('ImageSets: VID_val_frames.txt')
     val_frames = []
     val_frame_cnt = 1   # start from 1
     val_root = os.path.join(tgt_ds_root, 'vidor', 'val')
@@ -75,6 +79,7 @@ def prepare_ImageSets(tgt_ds_root):
         f.writelines(val_frames)
 
     # 2. VID_val_videos.txt
+    print('ImageSets: VID_val_videos.txt')
     val_videos = []
     video_frame_start = 1   # start from 1
     for pkg in os.listdir(val_root):
@@ -93,6 +98,7 @@ def prepare_ImageSets(tgt_ds_root):
         f.writelines(val_videos)
 
     # 3. VID_train_15frames.txt
+    print('ImageSets: VID_train_15frames.txt')
     train_key_frames = []
     train_root = os.path.join(tgt_ds_root, 'vidor', 'train')
     n_seg = 15  # TODO: need tune
@@ -113,7 +119,6 @@ def prepare_ImageSets(tgt_ds_root):
     with open(train_key_frame_file_path, 'w') as f:
         f.writelines(train_key_frames)
 
-
 def prepare_Annotations(org_ds_root, tgt_ds_root):
     org_anno_root = os.path.join(org_ds_root, 'annotation')
     tgt_anno_root = os.path.join(tgt_ds_root, 'Annotations', 'VID')
@@ -127,7 +132,9 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
 
         # original path
         org_split_root = os.path.join(org_anno_root, split[0])
-        for pkg in os.listdir(org_split_root):
+        pkgs = os.listdir(org_split_root)
+        for p, pkg in enumerate(pkgs):
+            print('Annotations: [%d/%d]' % (len(pkgs), p + 1))
             org_pkg_root = os.path.join(org_split_root, pkg)
 
             # new package
@@ -136,14 +143,47 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
                 os.mkdir(tgt_pkg_root)
 
             for vid in os.listdir(org_pkg_root):
+                # org video annotation
+                vid_anno_path = os.path.join(org_pkg_root, vid)
+                vid_anno = json.load(open(vid_anno_path))
+                vid_width = vid_anno['width']
+                vid_height = vid_anno['height']
+                vid_obj_clss = vid_anno['subject/objects']
+                tid2cls = dict()
+                for obj_cls in vid_obj_clss:
+                    tid2cls[obj_cls['tid']] = obj_cls['category']
+
                 # frame annotation dir
                 video_frame_root = os.path.join(tgt_pkg_root, vid.split('.')[0])
                 if not os.path.exists(video_frame_root):
                     os.mkdir(video_frame_root)
 
-                vid_anno_path = os.path.join(org_pkg_root, vid)
-                with open(vid_anno_path) as f:
-                    vid_anno = json.load(f)
+                # for each frame
+                vid_frame_objs = vid_anno['trajectories']
+                for f in range(len(vid_frame_objs)):
+                    mid_anno = dict()
+                    mid_anno['folder'] = '%s/%s' % (pkg, vid.split('.')[0])
+                    mid_anno['width'] = vid_width
+                    mid_anno['height'] = vid_height
+                    mid_anno['dababase'] = 'VidOR'
+                    mid_anno['filename'] = '%06d.JPEG' % f
+                    mid_objs = []
+                    for obj in vid_frame_objs[f]:
+                        mid_obj = dict()
+                        tid = obj['tid']
+                        mid_obj['trackid'] = tid
+                        mid_obj['xmax'] = obj['bbox']['xmax']
+                        mid_obj['ymax'] = obj['bbox']['ymax']
+                        mid_obj['xmin'] = obj['bbox']['xmin']
+                        mid_obj['ymin'] = obj['bbox']['ymin']
+                        mid_obj['generated'] = obj['generated']
+                        mid_obj['tracker'] = obj['tracker']
+                        mid_obj['name'] = tid2cls[tid]
+                        mid_objs.append(mid_obj)
+                    mid_anno['objects'] = mid_objs
+
+                    output_path = os.path.join(video_frame_root, mid_anno['filename'])
+                    output_ilsvrc_vid_format(mid_anno, output_path)
 
 
 if __name__ == '__main__':
@@ -151,6 +191,6 @@ if __name__ == '__main__':
     tgt_ds_root = '/home/magus/dataset3/VidOR/vidor-ilsvrc'
     prepare_Data(org_ds_root, tgt_ds_root)
     prepare_ImageSets(tgt_ds_root)
-    # TODO: prepare_Annotations(org_ds_root, tgt_ds_root)
+    prepare_Annotations(org_ds_root, tgt_ds_root)
 
 
