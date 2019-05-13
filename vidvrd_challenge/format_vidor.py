@@ -93,14 +93,14 @@ def prepare_ImageSets(tgt_ds_root):
             val_videos.append(video_info)
             video_frame_start += n_frame
 
-    val_video_file_path = os.path.join(tgt_imageset_root, 'VID_val_frames.txt')
+    val_video_file_path = os.path.join(tgt_imageset_root, 'VID_val_videos.txt')
     with open(val_video_file_path, 'w') as f:
         f.writelines(val_videos)
 
     # 3. VID_train_15frames.txt
     print('ImageSets: VID_train_15frames.txt')
     train_key_frames = []
-    train_root = os.path.join(tgt_ds_root, 'vidor', 'train')
+    train_root = os.path.join(tgt_ds_root, 'Data', 'VID', 'train')
     n_seg = 15  # TODO: need tune
     for pkg in os.listdir(train_root):
         pkg_root = os.path.join(train_root, pkg)
