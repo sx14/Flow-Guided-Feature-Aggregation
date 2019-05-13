@@ -47,8 +47,8 @@ def output_ilsvrc_vid_format(mid_data, output_path):
     des_size_node = des_xml_dom.createElement('size')
     des_width_node = des_xml_dom.createElement('width')
     des_height_node = des_xml_dom.createElement('height')
-    des_width = des_xml_dom.createTextNode(mid_data['width'])
-    des_height = des_xml_dom.createTextNode(mid_data['height'])
+    des_width = des_xml_dom.createTextNode(str(mid_data['width']))
+    des_height = des_xml_dom.createTextNode(str(mid_data['height']))
     des_width_node.appendChild(des_width)
     des_height_node.appendChild(des_height)
     des_size_node.appendChild(des_width_node)
@@ -69,12 +69,12 @@ def output_ilsvrc_vid_format(mid_data, output_path):
         if y_min <= 0:
             org_object['ymin'] = '1'
         if x_max >= int(mid_data['width']):
-            org_object['xmax'] = int(mid_data['width']) - 1
+            org_object['xmax'] = str(int(mid_data['width']) - 1)
         if y_max >= int(mid_data['height']):
-            org_object['ymax'] = int(mid_data['height']) - 1
+            org_object['ymax'] = str(int(mid_data['height']) - 1)
 
         # track id
-        des_track_id = des_xml_dom.createTextNode(org_object['trackid'])
+        des_track_id = des_xml_dom.createTextNode(str(org_object['trackid']))
         des_track_id_node = des_xml_dom.createElement('trackid')
         des_track_id_node.appendChild(des_track_id)
         des_object_node.appendChild(des_track_id_node)
@@ -87,16 +87,16 @@ def output_ilsvrc_vid_format(mid_data, output_path):
 
         # bndbox
         des_xmax_node = des_xml_dom.createElement('xmax')
-        des_xmax = des_xml_dom.createTextNode(org_object['xmax'])
+        des_xmax = des_xml_dom.createTextNode(str(org_object['xmax']))
         des_xmax_node.appendChild(des_xmax)
         des_xmin_node = des_xml_dom.createElement('xmin')
-        des_xmin = des_xml_dom.createTextNode(org_object['xmin'])
+        des_xmin = des_xml_dom.createTextNode(str(org_object['xmin']))
         des_xmin_node.appendChild(des_xmin)
         des_ymax_node = des_xml_dom.createElement('ymax')
-        des_ymax = des_xml_dom.createTextNode(org_object['ymax'])
+        des_ymax = des_xml_dom.createTextNode(str(org_object['ymax']))
         des_ymax_node.appendChild(des_ymax)
         des_ymin_node = des_xml_dom.createElement('ymin')
-        des_ymin = des_xml_dom.createTextNode(org_object['ymin'])
+        des_ymin = des_xml_dom.createTextNode(str(org_object['ymin']))
         des_ymin_node.appendChild(des_ymin)
         des_object_box_node = des_xml_dom.createElement('bndbox')
         des_object_box_node.appendChild(des_xmax_node)
@@ -113,7 +113,7 @@ def output_ilsvrc_vid_format(mid_data, output_path):
         des_object_node.appendChild(des_occluded_node)
 
         # generated
-        des_generated = des_xml_dom.createTextNode(org_object['generated'])
+        des_generated = des_xml_dom.createTextNode(str(org_object['generated']))
         des_generated_node = des_xml_dom.createElement('generated')
         des_generated_node.appendChild(des_generated)
         des_object_node.appendChild(des_generated_node)

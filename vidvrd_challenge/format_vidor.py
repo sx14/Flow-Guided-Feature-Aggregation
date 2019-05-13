@@ -165,7 +165,7 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
                     mid_anno['folder'] = '%s/%s' % (pkg, vid.split('.')[0])
                     mid_anno['width'] = vid_width
                     mid_anno['height'] = vid_height
-                    mid_anno['dababase'] = 'VidOR'
+                    mid_anno['database'] = 'VidOR'
                     mid_anno['filename'] = '%06d.JPEG' % f
                     mid_objs = []
                     for obj in vid_frame_objs[f]:
