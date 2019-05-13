@@ -22,8 +22,8 @@ from imdb import IMDB
 from imagenet_vid_eval import vid_eval
 from imagenet_vid_eval_motion import vid_eval_motion
 from ds_utils import unique_boxes, filter_small_boxes
-from nms.seq_nms import seq_nms
-from nms.nms import py_nms_wrapper, cpu_nms_wrapper, gpu_nms_wrapper
+from lib.nms.seq_nms import seq_nms
+from lib.nms.nms import py_nms_wrapper, cpu_nms_wrapper, gpu_nms_wrapper
 
 
 class ImageNetVID(IMDB):
