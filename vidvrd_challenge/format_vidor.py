@@ -70,7 +70,7 @@ def prepare_ImageSets(tgt_ds_root):
 
             n_frame = len(os.listdir(vid_path))
             for i in range(n_frame):
-                frame_info = os.path.join('val/%s/%s/%06d.JPEG %d\n' % (pkg, vid, i, val_frame_cnt))
+                frame_info = os.path.join('val/%s/%s/%06d %d\n' % (pkg, vid, i, val_frame_cnt))
                 val_frames.append(frame_info)
                 val_frame_cnt += 1
 
@@ -182,14 +182,14 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
                         mid_objs.append(mid_obj)
                     mid_anno['objects'] = mid_objs
 
-                    output_path = os.path.join(video_frame_root, mid_anno['filename'])
+                    output_path = os.path.join(video_frame_root, mid_anno['filename'].replace('JPEG', 'xml'))
                     output_ilsvrc_vid_format(mid_anno, output_path)
 
 
 if __name__ == '__main__':
     org_ds_root = '/home/magus/dataset3/VidOR/vidor-dataset'
     tgt_ds_root = '/home/magus/dataset3/VidOR/vidor-ilsvrc'
-    prepare_Data(org_ds_root, tgt_ds_root)
+    # prepare_Data(org_ds_root, tgt_ds_root)
     prepare_ImageSets(tgt_ds_root)
     prepare_Annotations(org_ds_root, tgt_ds_root)
 
