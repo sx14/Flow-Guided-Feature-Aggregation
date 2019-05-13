@@ -48,11 +48,11 @@ from symbols import *
 from core import callback, metric
 from core.loader import AnchorLoader
 from core.module import MutableModule
-from utils.create_logger import create_logger
-from utils.load_data import load_gt_roidb, merge_roidb, filter_roidb
-from utils.load_model import load_param
-from utils.PrefetchingIter import PrefetchingIter
-from utils.lr_scheduler import WarmupMultiFactorScheduler
+from lib.utils.create_logger import create_logger
+from lib.utils.load_data import load_gt_roidb, merge_roidb, filter_roidb
+from lib.utils.load_model import load_param
+from lib.utils.PrefetchingIter import PrefetchingIter
+from lib.utils.lr_scheduler import WarmupMultiFactorScheduler
 
 def train_net(args, ctx, pretrained, pretrained_flow, epoch, prefix, begin_epoch, end_epoch, lr, lr_step):
     logger, final_output_path = create_logger(config.output_path, args.cfg, config.dataset.image_set)

@@ -16,9 +16,9 @@ import numpy as np
 import mxnet as mx
 from mxnet.executor_manager import _split_input_slice
 
-from config.config import config
-from utils.image import tensor_vstack
-from rpn.rpn import get_rpn_testbatch, get_rpn_triple_batch, assign_anchor
+from fgfa_rfcn.config.config import config
+from lib.utils.image import tensor_vstack
+from lib.rpn.rpn import get_rpn_testbatch, get_rpn_triple_batch, assign_anchor
 from rcnn import get_rcnn_testbatch, get_rcnn_batch
 
 class TestLoader(mx.io.DataIter):

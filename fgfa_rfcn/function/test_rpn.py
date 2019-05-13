@@ -16,11 +16,11 @@ import pprint
 import logging
 import mxnet as mx
 
-from symbols import *
-from dataset import *
-from core.loader import TestLoader
-from core.tester import Predictor, generate_proposals
-from utils.load_model import load_param
+from fgfa_rfcn.symbols import *
+from lib.dataset import *
+from fgfa_rfcn.core.loader import TestLoader
+from fgfa_rfcn.core.tester import Predictor, generate_proposals
+from lib.utils.load_model import load_param
 
 
 def test_rpn(cfg, dataset, image_set, root_path, dataset_path,

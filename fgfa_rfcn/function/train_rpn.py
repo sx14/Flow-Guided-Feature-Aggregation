@@ -16,14 +16,14 @@ import logging
 import pprint
 import mxnet as mx
 
-from symbols import *
-from core import callback, metric
-from core.loader import AnchorLoader
-from core.module import MutableModule
-from utils.load_data import load_gt_roidb, merge_roidb, filter_roidb
-from utils.load_model import load_param
-from utils.PrefetchingIter import PrefetchingIter
-from utils.lr_scheduler import WarmupMultiFactorScheduler
+from fgfa_rfcn.symbols import *
+from fgfa_rfcn.core import callback, metric
+from fgfa_rfcn.core.loader import AnchorLoader
+from fgfa_rfcn.core.module import MutableModule
+from lib.utils.load_data import load_gt_roidb, merge_roidb, filter_roidb
+from lib.utils.load_model import load_param
+from lib.utils.PrefetchingIter import PrefetchingIter
+from lib.utils.lr_scheduler import WarmupMultiFactorScheduler
 
 
 def train_rpn(cfg, dataset, image_set, root_path, dataset_path,

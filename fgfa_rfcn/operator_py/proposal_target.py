@@ -22,7 +22,7 @@ from easydict import EasyDict as edict
 import cPickle
 
 
-from core.rcnn import sample_rois
+from fgfa_rfcn.core.rcnn import sample_rois
 
 DEBUG = False
 

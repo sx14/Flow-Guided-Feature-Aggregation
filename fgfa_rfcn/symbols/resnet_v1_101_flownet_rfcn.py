@@ -8,12 +8,12 @@
 import cPickle
 import mxnet as mx
 
-from utils.symbol import Symbol
-from operator_py.proposal import *
-from operator_py.proposal_target import *
-from operator_py.box_annotator_ohem import *
-from operator_py.rpn_inv_normalize import *
-from operator_py.tile_as import *
+from lib.utils.symbol import Symbol
+from fgfa_rfcn.operator_py.proposal import *
+from fgfa_rfcn.operator_py.proposal_target import *
+from fgfa_rfcn.operator_py.box_annotator_ohem import *
+from fgfa_rfcn.operator_py.rpn_inv_normalize import *
+from fgfa_rfcn.operator_py.tile_as import *
 
 
 

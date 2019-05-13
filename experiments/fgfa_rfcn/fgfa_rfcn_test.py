@@ -13,7 +13,8 @@ os.environ['MXNET_ENABLE_GPU_P2P'] = '0'
 this_dir = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(this_dir, '..', '..', 'fgfa_rfcn'))
 
-import test
+from fgfa_rfcn import test
+# import test
 
 if __name__ == "__main__":
     test.main()

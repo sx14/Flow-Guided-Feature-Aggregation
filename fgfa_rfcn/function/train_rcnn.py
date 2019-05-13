@@ -17,15 +17,15 @@ import pprint
 import os
 import mxnet as mx
 
-from symbols import *
-from core import callback, metric
-from core.loader import ROIIter
-from core.module import MutableModule
-from bbox.bbox_regression import add_bbox_regression_targets
-from utils.load_data import load_proposal_roidb, merge_roidb, filter_roidb
-from utils.load_model import load_param
-from utils.PrefetchingIter import PrefetchingIter
-from utils.lr_scheduler import WarmupMultiFactorScheduler
+from fgfa_rfcn.symbols import *
+from fgfa_rfcn.core import callback, metric
+from fgfa_rfcn.core.loader import ROIIter
+from fgfa_rfcn.core.module import MutableModule
+from lib.bbox.bbox_regression import add_bbox_regression_targets
+from lib.utils.load_data import load_proposal_roidb, merge_roidb, filter_roidb
+from lib.utils.load_model import load_param
+from lib.utils.PrefetchingIter import PrefetchingIter
+from lib.utils.lr_scheduler import WarmupMultiFactorScheduler
 
 
 def train_rcnn(cfg, dataset, image_set, root_path, dataset_path,

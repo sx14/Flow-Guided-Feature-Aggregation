@@ -19,11 +19,11 @@ import mxnet as mx
 import numpy as np
 import dill
 from module import MutableModule
-from utils import image
-from bbox.bbox_transform import bbox_pred, clip_boxes
-from nms.nms import py_nms_wrapper, cpu_nms_wrapper, gpu_nms_wrapper
-from nms.seq_nms import seq_nms
-from utils.PrefetchingIter import PrefetchingIter
+from lib.utils import image
+from lib.bbox.bbox_transform import bbox_pred, clip_boxes
+from lib.nms.nms import py_nms_wrapper, cpu_nms_wrapper, gpu_nms_wrapper
+from lib.nms.seq_nms import seq_nms
+from lib.utils.PrefetchingIter import PrefetchingIter
 from collections import deque
 
 
