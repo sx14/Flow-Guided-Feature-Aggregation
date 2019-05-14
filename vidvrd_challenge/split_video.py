@@ -4,6 +4,7 @@ import cv2
 
 
 def split_video_cv2(video_path, output_path):
+    # provide higher quality frames
 
     video = cv2.VideoCapture(video_path)
     frame_sum = video.get(cv2.CAP_PROP_FRAME_COUNT)
@@ -25,9 +26,10 @@ def split_video_cv2(video_path, output_path):
 def split_video_ffmpeg(video_path, output_path):
     if not os.path.exists(output_path):
         os.makedirs(output_path)
-    cmd = 'ffmpeg -i ' + video_path + ' ' + output_path + '/%06d.JPEG -hide_banner'
+    cmd = 'ffmpeg -i ' + video_path + ' ' + output_path + '/%06d.JPEG -loglevel quiet'
     os.system(cmd)
 
+    # frame id 1 base -> 0 base
     frame_n = len(os.listdir(output_path))
     for fid in range(frame_n):
         org_frame_path = '%s/%06d.JPEG' % (output_path, fid+1)
@@ -36,11 +38,11 @@ def split_video_ffmpeg(video_path, output_path):
 
 
 
-if __name__ == '__main__':
-    video_path = '/home/magus/dataset3/VidOR/vidor-dataset/vidor/training/0000/2401075277.mp4'
-
-    output_path = 'frame'
-    split_video_cv2(video_path, output_path)
-
-    output_path = 'frame1'
-    split_video_ffmpeg(video_path, output_path)
+# if __name__ == '__main__':
+#     video_path = '/home/magus/dataset3/VidOR/vidor-dataset/vidor/training/0000/2401075277.mp4'
+#
+#     output_path = 'frame'
+#     split_video_cv2(video_path, output_path)
+#
+#     output_path = 'frame1'
+#     split_video_ffmpeg(video_path, output_path)
