@@ -53,7 +53,7 @@ def prepare_ImageSets(tgt_ds_root):
     print('ImageSets: VID_val_frames.txt')
     val_frames = []
     val_frame_cnt = 1   # start from 1
-    val_root = os.path.join(tgt_ds_root, 'Data', 'VID', 'val')
+    val_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', 'val')
     for pkg in os.listdir(val_root):
         pkg_root = os.path.join(val_root, pkg)
 
@@ -92,7 +92,7 @@ def prepare_ImageSets(tgt_ds_root):
     # 3. VID_train_15frames.txt
     print('ImageSets: VID_train_15frames.txt')
     train_key_frames = []
-    train_root = os.path.join(tgt_ds_root, 'Data', 'VID', 'train')
+    train_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', 'train')
     n_seg = 35  # TODO: need tune
     n_frm_max = 900
     for pkg in os.listdir(train_root):
@@ -150,12 +150,20 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
                     tid2cls[obj_cls['tid']] = obj_cls['category']
 
                 # frame annotation dir
-                video_frame_root = os.path.join(tgt_pkg_root, vid.split('.')[0])
-                if not os.path.exists(video_frame_root):
-                    os.mkdir(video_frame_root)
+                anno_frame_root = os.path.join(tgt_pkg_root, vid.split('.')[0])
+                if not os.path.exists(anno_frame_root):
+                    os.mkdir(anno_frame_root)
+
+                data_frame_root = anno_frame_root.replace('Annotations', 'Data')
+                data_frame_n = len(os.listdir(data_frame_root))
 
                 # for each frame
                 vid_frame_objs = vid_anno['trajectories']
+                anno_frame_n = len(vid_frame_objs)
+
+                if data_frame_n != anno_frame_n:
+                    print('%s: F(%d) | A(%d)' % (anno_frame_root, data_frame_n, anno_frame_n))
+
                 for f in range(len(vid_frame_objs)):
                     mid_anno = dict()
                     mid_anno['folder'] = '%s/%s' % (pkg, vid.split('.')[0])
@@ -178,7 +186,7 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
                         mid_objs.append(mid_obj)
                     mid_anno['objects'] = mid_objs
 
-                    output_path = os.path.join(video_frame_root, mid_anno['filename']+'.xml')
+                    output_path = os.path.join(anno_frame_root, mid_anno['filename']+'.xml')
                     output_ilsvrc_vid_format(mid_anno, output_path)
 
 
