@@ -166,7 +166,7 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
                     mid_anno['width'] = vid_width
                     mid_anno['height'] = vid_height
                     mid_anno['database'] = 'VidOR'
-                    mid_anno['filename'] = '%06d.JPEG' % f
+                    mid_anno['filename'] = '%06d' % f
                     mid_objs = []
                     for obj in vid_frame_objs[f]:
                         mid_obj = dict()
@@ -182,7 +182,7 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
                         mid_objs.append(mid_obj)
                     mid_anno['objects'] = mid_objs
 
-                    output_path = os.path.join(video_frame_root, mid_anno['filename'].replace('JPEG', 'xml'))
+                    output_path = os.path.join(video_frame_root, mid_anno['filename']+'.xml')
                     output_ilsvrc_vid_format(mid_anno, output_path)
 
 
