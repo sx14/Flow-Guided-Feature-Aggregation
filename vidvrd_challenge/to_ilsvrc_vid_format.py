@@ -64,10 +64,10 @@ def output_ilsvrc_vid_format(mid_data, output_path):
         y_min = int(org_object['ymin'])
         x_max = int(org_object['xmax'])
         y_max = int(org_object['ymax'])
-        if x_min <= 0:
-            org_object['xmin'] = '1'
-        if y_min <= 0:
-            org_object['ymin'] = '1'
+        if x_min < 0:
+            org_object['xmin'] = '0'
+        if y_min < 0:
+            org_object['ymin'] = '0'
         if x_max >= int(mid_data['width']):
             org_object['xmax'] = str(int(mid_data['width']) - 1)
         if y_max >= int(mid_data['height']):

@@ -183,7 +183,7 @@ if __name__ == '__main__':
     org_ds_root = '/home/magus/dataset3/VidOR/vidor-dataset'
     tgt_ds_root = '/home/magus/dataset3/VidOR/vidor-ilsvrc'
     # prepare_Data(org_ds_root, tgt_ds_root)
-    prepare_ImageSets(tgt_ds_root)
-    # prepare_Annotations(org_ds_root, tgt_ds_root)
+    # prepare_ImageSets(tgt_ds_root)
+    prepare_Annotations(org_ds_root, tgt_ds_root)
 
 
