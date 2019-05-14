@@ -40,7 +40,8 @@ def prepare_Data(org_ds_root, tgt_ds_root):
 
                     # load video
                     video_path = os.path.join(org_pkg_root, vid)
-                    split_video_ffmpeg(video_path, video_frame_root)
+                    split_video_cv2(video_path, video_frame_root)
+                    # split_video_ffmpeg(video_path, video_frame_root)
 
 
 def prepare_ImageSets(tgt_ds_root):
@@ -162,7 +163,7 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
                 anno_frame_n = len(vid_frame_objs)
 
                 if data_frame_n != anno_frame_n:
-                    print('%s: F(%d) | A(%d)' % (anno_frame_root, data_frame_n, anno_frame_n))
+                    print('[WARNING]%s: F(%d) | A(%d)' % (anno_frame_root, data_frame_n, anno_frame_n))
 
                 for f in range(len(vid_frame_objs)):
                     mid_anno = dict()
@@ -193,8 +194,9 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
 if __name__ == '__main__':
     org_ds_root = '/home/magus/dataset3/VidOR/vidor-dataset'
     tgt_ds_root = '/home/magus/dataset3/VidOR/vidor-ilsvrc'
-    # prepare_Data(org_ds_root, tgt_ds_root)
+    prepare_Data(org_ds_root, tgt_ds_root)
+    prepare_Annotations(org_ds_root, tgt_ds_root)
     prepare_ImageSets(tgt_ds_root)
-    # prepare_Annotations(org_ds_root, tgt_ds_root)
+
 
 
