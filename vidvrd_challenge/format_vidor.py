@@ -4,6 +4,7 @@ import json
 import cv2
 
 from vidvrd_challenge.to_ilsvrc_vid_format import *
+from vidvrd_challenge.split_video import *
 
 
 def prepare_Data(org_ds_root, tgt_ds_root):
@@ -31,25 +32,15 @@ def prepare_Data(org_ds_root, tgt_ds_root):
                 os.mkdir(tgt_pkg_root)
 
             for vid in os.listdir(org_pkg_root):
-                vid_path = os.path.join(org_pkg_root, vid)
-                # load video
-                video = cv2.VideoCapture(vid_path)
-                frame_sum = video.get(cv2.CAP_PROP_FRAME_COUNT)
-                has_next = video.isOpened()
-                assert has_next
 
                 # frame dir
                 video_frame_root = os.path.join(tgt_pkg_root, vid.split('.')[0])
                 if not os.path.exists(video_frame_root):
                     os.mkdir(video_frame_root)
 
-                    # extract and save frames
-                    fid = 0
-                    while has_next:
-                        has_next, frame = video.read()
-                        frame_path = os.path.join(video_frame_root, '%06d.JPEG' % fid)
-                        cv2.imwrite(frame_path, frame)
-                        fid += 1
+                    # load video
+                    video_path = os.path.join(org_pkg_root, vid)
+                    split_video_ffmpeg(video_path, video_frame_root)
 
 
 def prepare_ImageSets(tgt_ds_root):
@@ -119,6 +110,7 @@ def prepare_ImageSets(tgt_ds_root):
     train_key_frame_file_path = os.path.join(tgt_imageset_root, 'VID_train_15frames.txt')
     with open(train_key_frame_file_path, 'w') as f:
         f.writelines(train_key_frames)
+
 
 def prepare_Annotations(org_ds_root, tgt_ds_root):
     org_anno_root = os.path.join(org_ds_root, 'annotation')
