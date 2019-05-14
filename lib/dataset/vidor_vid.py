@@ -276,7 +276,7 @@ class VidORVID(IMDB):
         :return: None
         """
 
-        print 'Writing {} ImageNetVID results file'.format('all')
+        print 'Writing {} VidORVID results file'.format('all')
         filename = self.get_result_file_template(gpu_id).format('all')
         frame_seg_len = self.frame_seg_len
         nms = py_nms_wrapper(0.3)
@@ -337,7 +337,7 @@ class VidORVID(IMDB):
         :param all_boxes: boxes to be processed [bbox, confidence]
         :return: None
         """
-        print 'Writing {} ImageNetVID results file'.format('all')
+        print 'Writing {} VidORVID results file'.format('all')
         filename = self.get_result_file_template().format('all')
         with open(filename, 'wt') as f:
             for im_ind, index in enumerate(self.image_set_index):
@@ -359,7 +359,7 @@ class VidORVID(IMDB):
         :param all_boxes: boxes to be processed [bbox, confidence]
         :return: None
         """
-        print 'Writing {} ImageNetVID results file'.format('all')
+        print 'Writing {} VidORVID results file'.format('all')
         filename = self.get_result_file_template().format('all')
         with open(filename, 'wt') as f:
             for detection in detections:
