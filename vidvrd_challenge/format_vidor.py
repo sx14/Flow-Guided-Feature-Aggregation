@@ -103,7 +103,7 @@ def prepare_ImageSets(tgt_ds_root):
             n_seg_frame = max(n_frame * 1.0 / n_seg, 1.0)
             key_frame_id = int(n_seg_frame / 2.0)
             while key_frame_id <= (n_frame-1):
-                key_frame_info = os.path.join('val/%s/%s %d %d %d\n' % (pkg, vid, 1, int(key_frame_id), n_frame))
+                key_frame_info = os.path.join('train/%s/%s %d %d %d\n' % (pkg, vid, 1, int(key_frame_id), n_frame))
                 train_key_frames.append(key_frame_info)
                 key_frame_id += n_seg_frame
 
@@ -182,8 +182,8 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
 if __name__ == '__main__':
     org_ds_root = '/home/magus/dataset3/VidOR/vidor-dataset'
     tgt_ds_root = '/home/magus/dataset3/VidOR/vidor-ilsvrc'
-    prepare_Data(org_ds_root, tgt_ds_root)
+    # prepare_Data(org_ds_root, tgt_ds_root)
     prepare_ImageSets(tgt_ds_root)
-    prepare_Annotations(org_ds_root, tgt_ds_root)
+    # prepare_Annotations(org_ds_root, tgt_ds_root)
 
 
