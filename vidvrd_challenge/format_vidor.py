@@ -93,13 +93,16 @@ def prepare_ImageSets(tgt_ds_root):
     print('ImageSets: VID_train_15frames.txt')
     train_key_frames = []
     train_root = os.path.join(tgt_ds_root, 'Data', 'VID', 'train')
-    n_seg = 15  # TODO: need tune
+    n_seg = 35  # TODO: need tune
+    n_frm_max = 900
     for pkg in os.listdir(train_root):
         pkg_root = os.path.join(train_root, pkg)
 
         for vid in os.listdir(pkg_root):
             frame_root = os.path.join(pkg_root, vid)
             n_frame = len(os.listdir(frame_root))
+            n_frame = min(n_frame, n_frm_max)
+
             n_seg_frame = max(n_frame * 1.0 / n_seg, 1.0)
             key_frame_id = int(n_seg_frame / 2.0)
             while key_frame_id <= (n_frame-1):
@@ -183,7 +186,7 @@ if __name__ == '__main__':
     org_ds_root = '/home/magus/dataset3/VidOR/vidor-dataset'
     tgt_ds_root = '/home/magus/dataset3/VidOR/vidor-ilsvrc'
     # prepare_Data(org_ds_root, tgt_ds_root)
-    # prepare_ImageSets(tgt_ds_root)
-    prepare_Annotations(org_ds_root, tgt_ds_root)
+    prepare_ImageSets(tgt_ds_root)
+    # prepare_Annotations(org_ds_root, tgt_ds_root)
 
 
