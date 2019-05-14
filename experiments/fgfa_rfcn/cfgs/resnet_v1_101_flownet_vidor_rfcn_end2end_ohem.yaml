@@ -1,6 +1,6 @@
 ---
 MXNET_VERSION: ""
-output_path: "./output/fgfa_rfcn/vidor"
+output_path: "./output/fgfa_rfcn/vidor_vid"
 symbol: resnet_v1_101_flownet_rfcn
 gpus: '0'
 # gpus: '0,1,2,3'
@@ -48,7 +48,7 @@ network:
   NUM_ANCHORS: 9
 dataset:
   NUM_CLASSES: 81
-  dataset: VidOR
+  dataset: VidORVID
   dataset_path: "./data/VidOR"
   image_set: VID_train_15frames
   root_path: "./data"
