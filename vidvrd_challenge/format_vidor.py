@@ -34,6 +34,7 @@ def prepare_Data(org_ds_root, tgt_ds_root):
                 vid_path = os.path.join(org_pkg_root, vid)
                 # load video
                 video = cv2.VideoCapture(vid_path)
+                frame_sum = video.get(cv2.CAP_PROP_FRAME_COUNT)
                 has_next = video.isOpened()
                 assert has_next
 
@@ -189,7 +190,7 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
 if __name__ == '__main__':
     org_ds_root = '/home/magus/dataset3/VidOR/vidor-dataset'
     tgt_ds_root = '/home/magus/dataset3/VidOR/vidor-ilsvrc'
-    # prepare_Data(org_ds_root, tgt_ds_root)
+    prepare_Data(org_ds_root, tgt_ds_root)
     prepare_ImageSets(tgt_ds_root)
     prepare_Annotations(org_ds_root, tgt_ds_root)
 
