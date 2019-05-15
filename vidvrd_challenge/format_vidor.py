@@ -41,7 +41,6 @@ def prepare_Data(org_ds_root, tgt_ds_root):
 
                     # load video
                     video_path = os.path.join(org_pkg_root, vid)
-                    # split_video_cv2(video_path, video_frame_root)
                     split_video_ffmpeg(video_path, video_frame_root)
 
 
@@ -192,12 +191,50 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
                     output_ilsvrc_vid_format(mid_anno, output_path)
 
 
+def collect_frame_error(org_ds_root, tgt_ds_root):
+    inconsistent_videos = ['video_id AnnoFrameN VidFrameN\n']
+
+    org_anno_root = os.path.join(org_ds_root, 'annotation')
+    tgt_anno_root = os.path.join(tgt_ds_root, 'Data', 'VID')
+
+    # (org split, target split)
+    splits = [('validation', 'val'), ('training', 'train')]
+    for split in splits:
+        tgt_split_root = os.path.join(tgt_anno_root, split[1])
+        org_split_root = os.path.join(org_anno_root, split[0])
+
+        pkgs = sorted(os.listdir(org_split_root))
+        for p, pkg in enumerate(pkgs):
+            print('Collect: [%d/%d]' % (len(pkgs), p + 1))
+            org_pkg_root = os.path.join(org_split_root, pkg)
+            tgt_pkg_root = os.path.join(tgt_split_root, pkg)
+
+            for vid in sorted(os.listdir(org_pkg_root)):
+                # org video annotation
+                vid_anno_path = os.path.join(org_pkg_root, vid)
+                vid_anno = json.load(open(vid_anno_path))
+                vid_frame_objs = vid_anno['trajectories']
+                anno_frame_n = len(vid_frame_objs)
+
+                # frame annotation dir
+                data_frame_root = os.path.join(tgt_pkg_root, vid.split('.')[0])
+                data_frame_n = len(os.listdir(data_frame_root))
+
+                if data_frame_n != anno_frame_n:
+                    inconsistent_videos.append('%s/%s/%s %d %d\n' % (split[0], pkg, vid, anno_frame_n, data_frame_n))
+
+    with open('video_frame_inconsistency.txt', 'w') as f:
+        f.writelines(inconsistent_videos)
+
+
 if __name__ == '__main__':
     org_ds_root = '/home/magus/dataset3/VidOR/vidor-dataset'
     tgt_ds_root = '/home/magus/dataset3/VidOR/vidor-ilsvrc'
     prepare_Data(org_ds_root, tgt_ds_root)
     prepare_Annotations(org_ds_root, tgt_ds_root)
     prepare_ImageSets(tgt_ds_root)
+
+    collect_frame_error(org_ds_root, tgt_ds_root)
 
 
 
