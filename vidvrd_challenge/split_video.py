@@ -40,11 +40,11 @@ def split_video_ffmpeg(video_path, output_path):
 
 
 
-# if __name__ == '__main__':
-#     video_path = '/home/magus/dataset3/VidOR/vidor-dataset/vidor/training/0000/2401075277.mp4'
+if __name__ == '__main__':
+    video_path = '/home/magus/dataset3/VidOR/vidor-dataset/vidor/training/1027/2556839256.mp4'
 #
-#     output_path = 'frame'
-#     split_video_cv2(video_path, output_path)
+    output_path = 'frame'
+    split_video_cv2(video_path, output_path)
 #
-#     output_path = 'frame1'
-#     split_video_ffmpeg(video_path, output_path)
+    output_path = 'frame1'
+    split_video_ffmpeg(video_path, output_path)
