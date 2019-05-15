@@ -14,16 +14,17 @@ def prepare_Data(org_ds_root, tgt_ds_root):
     # org, target
     splits = [('validation', 'val'), ('training', 'train')]
     for split in splits:
-        # target path
+        # target split
         tgt_split_root = os.path.join(tgt_data_root, split[1])
         if not os.path.exists(tgt_split_root):
             os.makedirs(tgt_split_root)
 
-        # original path
+        # original split
         org_split_root = os.path.join(org_data_root, split[0])
         pkgs = sorted(os.listdir(org_split_root))
         for p, pkg in enumerate(pkgs):
             print('Data: [%d/%d]' % (len(pkgs), p+1))
+            # original package
             org_pkg_root = os.path.join(org_split_root, pkg)
 
             # new package
@@ -33,7 +34,7 @@ def prepare_Data(org_ds_root, tgt_ds_root):
 
             for vid in sorted(os.listdir(org_pkg_root)):
 
-                # frame dir
+                # new frame dir
                 video_frame_root = os.path.join(tgt_pkg_root, vid.split('.')[0])
                 if not os.path.exists(video_frame_root):
                     os.mkdir(video_frame_root)
@@ -161,7 +162,6 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
                 # for each frame
                 vid_frame_objs = vid_anno['trajectories']
                 anno_frame_n = len(vid_frame_objs)
-
 
                 if data_frame_n != anno_frame_n:
                     print('[WARNING]%s: A(%d) | F(%d)' % (anno_frame_root, anno_frame_n, data_frame_n))
