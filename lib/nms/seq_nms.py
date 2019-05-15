@@ -109,14 +109,18 @@ def createLinks(dets_all):
 def maxPath(dets_all, links_all):
 
     for cls_ind, links_cls in enumerate(links_all):
+        # 对每个类别的所有det
 
         max_begin = time.time()
+
+        # 保存每一帧要删掉的det id
         delete_sets=[[]for i in range(0,len(dets_all[0]))]
         delete_single_box=[]
         dets_cls = dets_all[cls_ind]
 
         num_path=0
         # compute the number of links
+        # link 总数
         sum_links=0
         for frame_ind, frame in enumerate(links_cls):
             for box_ind,box in enumerate(frame):
@@ -126,15 +130,22 @@ def maxPath(dets_all, links_all):
 
             num_path+=1
 
+            # 找到得分最高的一条trajectory
             rootindex, maxpath, maxsum = findMaxPath(links_cls, dets_cls,delete_single_box)
+            # rootindex是trajectory的起始帧
+            # maxpath是一个det list，指示了这条路径上的每个det id
+            # maxsum是路径得分总数
 
-            if (maxsum<MAX_THRESH or sum_links==0 or len(maxpath) <1):
+            if maxsum<MAX_THRESH or sum_links==0 or len(maxpath) <1:
                 break
-            if (len(maxpath)==1):
+            if len(maxpath)==1:
                 delete=[rootindex,maxpath[0]]
                 delete_single_box.append(delete)
+            # 重新打分，traj上所有det的得分改为traj的均分
             rescore(dets_cls, rootindex, maxpath, maxsum)
             t4=time.time()
+
+            # 保存要删除的det
             delete_set,num_delete=deleteLink(dets_cls, links_cls, rootindex, maxpath, NMS_THRESH)
             sum_links-=num_delete
             for i, box_ind in enumerate(maxpath):
@@ -144,12 +155,12 @@ def maxPath(dets_all, links_all):
                     dets_cls[i+rootindex][j]=np.zeros(5)
                 delete_sets[i+rootindex]=delete_sets[i+rootindex]+delete_set[i]
 
+        # 删除抑制的det
         for frame_idx,frame in enumerate(dets_all[cls_ind]):
 
             a=range(0,len(frame))
             keep=list(set(a).difference(set(delete_sets[frame_idx])))
             dets_all[cls_ind][frame_idx]=frame[keep,:]
-
 
     return dets_all
 

@@ -1,10 +1,7 @@
-import os
 import json
 
-import cv2
-
-from vidvrd_challenge.to_ilsvrc_vid_format import *
-from vidvrd_challenge.split_video import *
+from vidvrd_challenge.vidor.to_ilsvrc_vid_format import *
+from vidvrd_challenge.vidor.split_video import *
 
 
 def prepare_Data(org_ds_root, tgt_ds_root):
