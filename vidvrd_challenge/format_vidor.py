@@ -10,7 +10,7 @@ from vidvrd_challenge.split_video import *
 def prepare_Data(org_ds_root, tgt_ds_root):
     # extract Data
     org_data_root = os.path.join(org_ds_root, 'vidor')
-    tgt_data_root = os.path.join(tgt_ds_root, 'Data1', 'VID')
+    tgt_data_root = os.path.join(tgt_ds_root, 'Data', 'VID')
     # org, target
     splits = [('validation', 'val'), ('training', 'train')]
     for split in splits:
@@ -158,16 +158,13 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
                 data_frame_root = anno_frame_root.replace('Annotations', 'Data')
                 data_frame_n = len(os.listdir(data_frame_root))
 
-                data_frame_root1 = anno_frame_root.replace('Annotations', 'Data1')
-                data_frame_n1 = len(os.listdir(data_frame_root1))
-
                 # for each frame
                 vid_frame_objs = vid_anno['trajectories']
                 anno_frame_n = len(vid_frame_objs)
 
 
-                #if data_frame_n != anno_frame_n:
-                print('[WARNING]%s: A(%d) | cv2(%d) | ffmpeg(%d)' % (anno_frame_root, anno_frame_n, data_frame_n, data_frame_n1))
+                if data_frame_n != anno_frame_n:
+                    print('[WARNING]%s: A(%d) | F(%d)' % (anno_frame_root, anno_frame_n, data_frame_n))
 
                 for f in range(len(vid_frame_objs)):
                     mid_anno = dict()
@@ -198,9 +195,9 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
 if __name__ == '__main__':
     org_ds_root = '/home/magus/dataset3/VidOR/vidor-dataset'
     tgt_ds_root = '/home/magus/dataset3/VidOR/vidor-ilsvrc'
-    # prepare_Data(org_ds_root, tgt_ds_root)
+    prepare_Data(org_ds_root, tgt_ds_root)
     prepare_Annotations(org_ds_root, tgt_ds_root)
-    #prepare_ImageSets(tgt_ds_root)
+    prepare_ImageSets(tgt_ds_root)
 
 
 
