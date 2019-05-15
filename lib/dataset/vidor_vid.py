@@ -36,8 +36,8 @@ class VidORVID(IMDB):
         self.enable_detailed_eval = enable_detailed_eval
 
         self.classes = ['__background__',  # always index 0
-                        'bread', 'cake', 'dish', 'fruit',
-                        'vegetable', 'backbag', 'camera', 'cellphone',
+                        'bread', 'cake', 'dish', 'fruits',
+                        'vegetables', 'backpack', 'camera', 'cellphone',
                         'handbag', 'laptop', 'suitcase', 'ball/sports_ball',
                         'bat', 'frisbee', 'racket', 'skateboard',
                         'ski', 'snowboard', 'surfboard', 'toy',
@@ -58,8 +58,8 @@ class VidORVID(IMDB):
                         'tiger', 'adult', 'baby', 'child']
 
         self.classes_map = ['__background__',  # always index 0
-                            'bread', 'cake', 'dish', 'fruit',
-                            'vegetable', 'backbag', 'camera', 'cellphone',
+                            'bread', 'cake', 'dish', 'fruits',
+                            'vegetables', 'backpack', 'camera', 'cellphone',
                             'handbag', 'laptop', 'suitcase', 'ball/sports_ball',
                             'bat', 'frisbee', 'racket', 'skateboard',
                             'ski', 'snowboard', 'surfboard', 'toy',

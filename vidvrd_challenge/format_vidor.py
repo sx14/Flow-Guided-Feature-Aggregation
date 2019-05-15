@@ -227,6 +227,62 @@ def collect_frame_error(org_ds_root, tgt_ds_root):
         f.writelines(inconsistent_videos)
 
 
+def collect_category_error(org_ds_root):
+    classes = ['__background__',  # always index 0
+               'bread', 'cake', 'dish', 'fruits',
+               'vegetables', 'backpack', 'camera', 'cellphone',
+               'handbag', 'laptop', 'suitcase', 'ball/sports_ball',
+               'bat', 'frisbee', 'racket', 'skateboard',
+               'ski', 'snowboard', 'surfboard', 'toy',
+               'baby_seat', 'bottle', 'chair', 'cup',
+               'electric_fan', 'faucet', 'microwave', 'oven',
+               'refrigerator', 'screen/monitor', 'sink', 'sofa',
+               'stool', 'table', 'toilet', 'guitar',
+               'piano', 'baby_walker', 'bench', 'stop_sign',
+               'traffic_light', 'aircraft', 'bicycle', 'bus/truck',
+               'car', 'motorcycle', 'scooter', 'train',
+               'watercraft', 'crab', 'bird', 'chicken',
+               'duck', 'penguin', 'fish', 'stingray',
+               'crocodile', 'snake', 'turtle', 'antelope',
+               'bear', 'camel', 'cat', 'cattle/cow',
+               'dog', 'elephant', 'hamster/rat', 'horse',
+               'kangaroo', 'leopard', 'lion', 'panda',
+               'pig', 'rabbit', 'sheep/goat', 'squirrel',
+               'tiger', 'adult', 'baby', 'child']
+
+    org_anno_root = os.path.join(org_ds_root, 'annotation')
+    categories = set()
+    unseen_categories = set()
+
+    # (org split, target split)
+    splits = [('validation', 'val'), ('training', 'train')]
+    for split in splits:
+        org_split_root = os.path.join(org_anno_root, split[0])
+
+        pkgs = sorted(os.listdir(org_split_root))
+        for p, pkg in enumerate(pkgs):
+            print('Collect: [%d/%d]' % (len(pkgs), p + 1))
+            org_pkg_root = os.path.join(org_split_root, pkg)
+
+            for vid in sorted(os.listdir(org_pkg_root)):
+                # org video annotation
+                vid_anno_path = os.path.join(org_pkg_root, vid)
+                vid_anno = json.load(open(vid_anno_path))
+                vid_obj_clss = vid_anno['subject/objects']
+
+                for obj_cls in vid_obj_clss:
+                    categories.add(obj_cls['category'])
+                    if obj_cls['category'] not in classes:
+                        unseen_categories.add(obj_cls['category'])
+                        print(obj_cls['category'])
+    print('>>>>>>>>>> category <<<<<<<<<<')
+    for c in categories:
+        print(c)
+
+    print('>>>>>>>>>> unseen category <<<<<<<<<<')
+    for c in unseen_categories:
+        print(c)
+
 if __name__ == '__main__':
     org_ds_root = '/home/magus/dataset3/VidOR/vidor-dataset'
     tgt_ds_root = '/home/magus/dataset3/VidOR/vidor-ilsvrc'
@@ -234,7 +290,7 @@ if __name__ == '__main__':
     #prepare_Annotations(org_ds_root, tgt_ds_root)
     #prepare_ImageSets(tgt_ds_root)
 
-    collect_frame_error(org_ds_root, tgt_ds_root)
-
+    # collect_frame_error(org_ds_root, tgt_ds_root)
+    collect_category_error(org_ds_root)
 
 

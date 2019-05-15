@@ -1,3 +1,4 @@
+# coding: utf-8
 # --------------------------------------------------------
 # Flow-Guided Feature Aggregation
 # Copyright (c) 2017 Microsoft
@@ -20,13 +21,34 @@ import copy
 import cPickle as pickle
 import os
 
-CLASSES = ('__background__',
-           'airplane', 'antelope', 'bear', 'bicycle', 'bird', 'bus',
-           'car', 'cattle', 'dog', 'domestic cat', 'elephant', 'fox',
-           'giant panda', 'hamster', 'horse', 'lion', 'lizard', 'monkey',
-           'motorcycle', 'rabbit', 'red panda', 'sheep', 'snake', 'squirrel',
-           'tiger', 'train', 'turtle', 'watercraft', 'whale', 'zebra')
+# CLASSES = ('__background__',
+#            'airplane', 'antelope', 'bear', 'bicycle', 'bird', 'bus',
+#            'car', 'cattle', 'dog', 'domestic cat', 'elephant', 'fox',
+#            'giant panda', 'hamster', 'horse', 'lion', 'lizard', 'monkey',
+#            'motorcycle', 'rabbit', 'red panda', 'sheep', 'snake', 'squirrel',
+#            'tiger', 'train', 'turtle', 'watercraft', 'whale', 'zebra')
 
+CLASSES = ['__background__',  # always index 0
+           'bread', 'cake', 'dish', 'fruits',
+           'vegetables', 'backpack', 'camera', 'cellphone',
+           'handbag', 'laptop', 'suitcase', 'ball/sports_ball',
+           'bat', 'frisbee', 'racket', 'skateboard',
+           'ski', 'snowboard', 'surfboard', 'toy',
+           'baby_seat', 'bottle', 'chair', 'cup',
+           'electric_fan', 'faucet', 'microwave', 'oven',
+           'refrigerator', 'screen/monitor', 'sink', 'sofa',
+           'stool', 'table', 'toilet', 'guitar',
+           'piano', 'baby_walker', 'bench', 'stop_sign',
+           'traffic_light', 'aircraft', 'bicycle', 'bus/truck',
+           'car', 'motorcycle', 'scooter', 'train',
+           'watercraft', 'crab', 'bird', 'chicken',
+           'duck', 'penguin', 'fish', 'stingray',
+           'crocodile', 'snake', 'turtle', 'antelope',
+           'bear', 'camel', 'cat', 'cattle/cow',
+           'dog', 'elephant', 'hamster/rat', 'horse',
+           'kangaroo', 'leopard', 'lion', 'panda',
+           'pig', 'rabbit', 'sheep/goat', 'squirrel',
+           'tiger', 'adult', 'baby', 'child']
            
 NMS_THRESH = 0.3
 IOU_THRESH = 0.5
@@ -41,11 +63,13 @@ def createLinks(dets_all):
     for cls_ind in range(cls_num):
         links_cls = []
         for frame_ind in range(frame_num - 1):
+            # 取当前帧 与相邻后一帧
             dets1 = dets_all[cls_ind][frame_ind]
             dets2 = dets_all[cls_ind][frame_ind + 1]
             box1_num = len(dets1)
             box2_num = len(dets2)
-            
+
+            # 当前帧所有det的面积
             if frame_ind == 0:
                 areas1 = np.empty(box1_num)
                 for box1_ind, box1 in enumerate(dets1):
@@ -53,12 +77,16 @@ def createLinks(dets_all):
             else:
                 areas1 = areas2
 
+            # 下一帧所有det的面积
             areas2 = np.empty(box2_num)
             for box2_ind, box2 in enumerate(dets2):
                 areas2[box2_ind] = (box2[2] - box2[0] + 1) * (box2[3] - box2[1] + 1)
 
             links_frame = []
+            # 当前帧的连接（根据iou）
+            # 每个元素是一个det
             for box1_ind, box1 in enumerate(dets1):
+                # 当前帧的每一个det，与下一帧的所有det比较iou
                 area1 = areas1[box1_ind]
                 x1 = np.maximum(box1[0], dets2[:, 0])
                 y1 = np.maximum(box1[1], dets2[:, 1])
@@ -68,6 +96,8 @@ def createLinks(dets_all):
                 h = np.maximum(0.0, y2 - y1 + 1)
                 inter = w * h
                 ovrs = inter / (area1 + areas2 - inter)
+
+                # 为当前帧当前det，保存下一帧可连接的所有det的id
                 links_box = [ovr_ind for ovr_ind, ovr in enumerate(ovrs) if
                              ovr >= IOU_THRESH]
                 links_frame.append(links_box)
