@@ -98,3 +98,5 @@ data/ILSVRC2015/Data
 data/ILSVRC2015/Annotations
 data/cache/
 data/VidOR
+vidvrd_challenge/ffmpeg
+vidvrd_challenge/ffprobe

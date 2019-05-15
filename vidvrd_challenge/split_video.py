@@ -28,7 +28,7 @@ def split_video_ffmpeg(video_path, output_path):
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
-    cmd = 'ffmpeg -i ' + video_path + ' ' + output_path + '/%06d.JPEG -loglevel quiet'
+    cmd = './ffmpeg -i ' + video_path + ' ' + output_path + '/%06d.JPEG -loglevel quiet'
     os.system(cmd)
 
     # frame id 1 base -> 0 base
