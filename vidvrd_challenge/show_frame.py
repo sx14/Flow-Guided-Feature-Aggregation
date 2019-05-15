@@ -1,9 +1,9 @@
 import random
 import matplotlib.pyplot as plt
 
-def show_boxes(im, dets, cls, mode='single'):
+def show_boxes(im_path, dets, cls, mode='single'):
     """Draw detected bounding boxes."""
-
+    im = plt.imread(im_path)
     def random_color():
         color = []
         for i in range(3):

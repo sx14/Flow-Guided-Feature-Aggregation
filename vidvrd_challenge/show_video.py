@@ -8,7 +8,7 @@ def show_video(frame_root, anno_root):
         anno_path = os.path.join(anno_root, anno_id)
         frame_path = os.path.join(frame_root, anno_id.split('.')[0]+'.JPEG')
         dets, clss = get_box_cls(anno_path)
-        show_boxes(frame_path, dets, clss)
+        show_boxes(frame_path, dets, clss, 'mul')
 
 
 if __name__ == '__main__':
