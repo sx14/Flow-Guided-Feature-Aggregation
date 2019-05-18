@@ -41,7 +41,7 @@ for i, vid in enumerate(vid_val_list):
     for tid, obj in objs:
         gt_obj = {
             'tid': int(tid),
-            'category': obj['name'],
+            'category': obj['category'],
             'trajectory': obj['trajectory']
         }
         gt_objs.append(gt_obj)

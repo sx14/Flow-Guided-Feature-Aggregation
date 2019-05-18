@@ -412,8 +412,17 @@ def pred_eval_multiprocess(gpu_num, key_predictors, cur_predictors, test_datas, 
         for job in jobs:
             res.append(job.get())
         info_str = imdb.do_python_eval_gen(gpu_num)
+        # info_str = imdb.do_python_eval(gpu_num)
+
     if logger:
         logger.info('evaluate detections: \n{}'.format(info_str))
+
+    # ==== sunx: save detections on individual frames ====
+    import scipy.io as sio
+    res_save_path = os.path.join(imdb.result_path, 'imagenet_vid_val_frame_dets.mat')
+    res_mat = {'all_boxes': res[0], 'frame_ids': res[1]}
+    sio.savemat(res_save_path, res_mat)
+    # =====================================================
 
 
 
