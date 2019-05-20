@@ -228,7 +228,8 @@ class ImageNetVID(IMDB):
             os.mkdir(result_dir)
 
         self.write_vid_results_multiprocess(detections)
-        info = self.do_python_eval_gen()
+        info = self.do_python_eval()
+        # info = self.do_python_eval_gen()
         return info
 
     def get_result_file_template(self, gpu_id):
@@ -358,7 +359,7 @@ class ImageNetVID(IMDB):
                                     format(frame_ids[im_ind], cls_ind, dets[k, -1],
                                            dets[k, 0], dets[k, 1], dets[k, 2], dets[k, 3]))
     
-    def do_python_eval(self):
+    def do_python_eval(self, gpu_number=None):
         """
         python evaluation wrapper
         :return: info_str
@@ -368,8 +369,17 @@ class ImageNetVID(IMDB):
         imageset_file = os.path.join(self.data_path, 'ImageSets', self.image_set + '.txt')
         annocache = os.path.join(self.cache_path, self.name + '_annotations.pkl')
 
-        filename = self.get_result_file_template().format('all')
-        ap = vid_eval(filename, annopath, imageset_file, self.classes_map, annocache, ovthresh=0.5)
+        if gpu_number != None:
+            filenames = []
+            for i in range(gpu_number):
+                filename = self.get_result_file_template(i).format('all')
+                filenames.append(filename)
+            multifiles = True  # contains multi cache results of all boxes
+        else:
+            filenames = self.get_result_file_template().format('all')
+            multifiles = False
+
+        ap = vid_eval(multifiles, filenames, annopath, imageset_file, self.classes_map, annocache, ovthresh=0.5)
         for cls_ind, cls in enumerate(self.classes):
             if cls == '__background__':
                 continue

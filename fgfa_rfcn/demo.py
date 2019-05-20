@@ -111,7 +111,8 @@ def main():
 
     # load demo data
 
-    image_names = glob.glob(cur_path + '/../demo/ILSVRC2015_val_00007010/*.JPEG')
+    image_names = glob.glob(cur_path + '/../data/ILSVRC2015/Data/VID/val/ILSVRC2015_val_00000000/*.JPEG')
+    # image_names = glob.glob(cur_path + '/../demo/ILSVRC2015_val_00007010/*.JPEG')
     output_dir = cur_path + '/../demo/rfcn_fgfa/'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
