@@ -23,7 +23,7 @@ def gen_vidor_pred(res_path, save_path, imageset_path, categorys):
     for res in res_list:
         # cls[frame[dets]]
         dets = res[0]
-        frame_idxs = res[1]
+        frame_idxs = res[1][0]
 
         for frame_idx in frame_idxs:
             frame_info = idx2frame[frame_idx].split(' ')[0].split('/')

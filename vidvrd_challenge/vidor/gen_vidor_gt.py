@@ -6,7 +6,7 @@ ILSVRC_VAL_ROOT = '../../data/VidOR/Annotations/VID/val'
 
 vid_val_gt = {}
 pkg_list = sorted(os.listdir(ILSVRC_VAL_ROOT))
-for p, pkg_id in pkg_list:
+for p, pkg_id in enumerate(pkg_list):
     print('Gen [%d/%d]' % (len(pkg_list), p + 1))
 
     pkg_dir = os.path.join(ILSVRC_VAL_ROOT, pkg_id)

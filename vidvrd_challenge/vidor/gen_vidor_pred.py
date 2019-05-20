@@ -5,14 +5,26 @@ sav_path = '../evaluation/vidor_val_object_pred.json'
 imageset_path = '../../data/VidOR/ImageSets/VID_val_frames.txt'
 
 categorys = ['__background__',  # always index 0
-             'n02691156', 'n02419796', 'n02131653', 'n02834778',
-             'n01503061', 'n02924116', 'n02958343', 'n02402425',
-             'n02084071', 'n02121808', 'n02503517', 'n02118333',
-             'n02510455', 'n02342885', 'n02374451', 'n02129165',
-             'n01674464', 'n02484322', 'n03790512', 'n02324045',
-             'n02509815', 'n02411705', 'n01726692', 'n02355227',
-             'n02129604', 'n04468005', 'n01662784', 'n04530566',
-             'n02062744', 'n02391049']
+             'bread', 'cake', 'dish', 'fruits',
+             'vegetables', 'backpack', 'camera', 'cellphone',
+             'handbag', 'laptop', 'suitcase', 'ball/sports_ball',
+             'bat', 'frisbee', 'racket', 'skateboard',
+             'ski', 'snowboard', 'surfboard', 'toy',
+             'baby_seat', 'bottle', 'chair', 'cup',
+             'electric_fan', 'faucet', 'microwave', 'oven',
+             'refrigerator', 'screen/monitor', 'sink', 'sofa',
+             'stool', 'table', 'toilet', 'guitar',
+             'piano', 'baby_walker', 'bench', 'stop_sign',
+             'traffic_light', 'aircraft', 'bicycle', 'bus/truck',
+             'car', 'motorcycle', 'scooter', 'train',
+             'watercraft', 'crab', 'bird', 'chicken',
+             'duck', 'penguin', 'fish', 'stingray',
+             'crocodile', 'snake', 'turtle', 'antelope',
+             'bear', 'camel', 'cat', 'cattle/cow',
+             'dog', 'elephant', 'hamster/rat', 'horse',
+             'kangaroo', 'leopard', 'lion', 'panda',
+             'pig', 'rabbit', 'sheep/goat', 'squirrel',
+             'tiger', 'adult', 'baby', 'child']
 
 
 gen_vidor_pred(res_path, sav_path, imageset_path, categorys)
