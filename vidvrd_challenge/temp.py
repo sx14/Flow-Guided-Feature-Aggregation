@@ -18,7 +18,7 @@ def prepare_ImageSets(tgt_ds_root):
     val_frames = []
     val_frame_cnt = 1   # start from 1
     val_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', 'val')
-    for vid in sorted(os.listdir(val_root)):
+    for vid in sorted(os.listdir(val_root))[:1]:
         vid_path = os.path.join(val_root, vid)
 
         n_frame = len(os.listdir(vid_path))
@@ -35,7 +35,7 @@ def prepare_ImageSets(tgt_ds_root):
     print('ImageSets: VID_val_videos.txt')
     val_videos = []
     video_frame_start = 1   # start from 1
-    for vid in os.listdir(val_root):
+    for vid in sorted(os.listdir(val_root))[1:]:
         frame_root = os.path.join(val_root, vid)
 
         n_frame = len(os.listdir(frame_root))
