@@ -58,6 +58,7 @@ def prepare_ImageSets(tgt_ds_root, vid_n=10000):
             video_info = os.path.join('val/%s/%s %d %d %d\n' % (pkg, vid, video_frame_start, 0, n_frame))
             val_videos.append(video_info)
             video_frame_start += n_frame
+            vid_c += 1
 
         if vid_c >= vid_n:
             break
@@ -70,7 +71,7 @@ def prepare_ImageSets(tgt_ds_root, vid_n=10000):
 
 
 if __name__ == '__main__':
-    tgt_ds_root = '../../data/ILSVRC2015'
+    tgt_ds_root = '../../data/VidOR'
     prepare_ImageSets(tgt_ds_root, 10)
 
 

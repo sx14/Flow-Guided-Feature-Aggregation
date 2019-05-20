@@ -2,7 +2,7 @@ import os
 import json
 import xml.etree.ElementTree as ET
 
-ILSVRC_VAL_ROOT = '../../data/ILSVRC2015/Annotations/VID/val'
+ILSVRC_VAL_ROOT = '../../data/VidOR/Annotations/VID/val'
 
 vid_val_gt = {}
 vid_val_list = sorted(os.listdir(ILSVRC_VAL_ROOT))
@@ -48,7 +48,7 @@ for i, vid in enumerate(vid_val_list):
     vid_val_gt[vid] = gt_objs
 
 
-with open('../evaluation/imagenet_val_object_gt.json', 'w') as f:
+with open('../evaluation/vidor_val_object_gt.json', 'w') as f:
     json.dump(vid_val_gt, f)
 
 

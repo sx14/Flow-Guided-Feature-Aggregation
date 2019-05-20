@@ -419,7 +419,7 @@ def pred_eval_multiprocess(gpu_num, key_predictors, cur_predictors, test_datas, 
 
     # ==== sunx: save detections on individual frames ====
     import scipy.io as sio
-    res_save_path = os.path.join(imdb.result_path, 'imagenet_vid_val_frame_dets.mat')
+    res_save_path = os.path.join(imdb.result_path, 'val_res.mat')
     # res_mat = {'all_boxes': res[0], 'frame_ids': res[1]}
     # sio.savemat(res_save_path, res_mat)
     sio.savemat(res_save_path, {'res': res})
