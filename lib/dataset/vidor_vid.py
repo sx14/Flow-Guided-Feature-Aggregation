@@ -389,6 +389,11 @@ class VidORVID(IMDB):
         imageset_file = os.path.join(self.data_path, 'ImageSets', self.image_set + '.txt')
         annocache = os.path.join(self.cache_path, self.name + '_annotations.pkl')
 
+        with open(imageset_file, 'w') as f:
+            for i in range(len(self.pattern)):
+                for j in range(self.frame_seg_len[i]):
+                    f.write((self.pattern[i] % (self.frame_seg_id[i] + j)) + ' ' + str(self.frame_id[i] + j) + '\n')
+
         if gpu_number != None:
             filenames = []
             for i in range(gpu_number):
