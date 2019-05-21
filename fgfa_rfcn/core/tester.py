@@ -383,6 +383,7 @@ def pred_eval_multiprocess(gpu_num, key_predictors, cur_predictors, test_datas, 
             pool.close()
             pool.join()
             res = [res.get() for res in multiple_results]
+        # all res
         info_str = imdb.evaluate_detections_multiprocess(res)
 
 
@@ -419,11 +420,14 @@ def pred_eval_multiprocess(gpu_num, key_predictors, cur_predictors, test_datas, 
         logger.info('evaluate detections: \n{}'.format(info_str))
 
     # ==== sunx: save detections on individual frames ====
-    import scipy.io as sio
-    res_save_path = os.path.join(imdb.result_path, 'val_res.mat')
-    # res_mat = {'all_boxes': res[0], 'frame_ids': res[1]}
-    # sio.savemat(res_save_path, res_mat)
-    sio.savemat(res_save_path, {'res': res})
+    # import scipy.io as sio
+    # if cfg.TEST.SEQ_NMS == False:
+    #     res_save_path = os.path.join(imdb.result_path, 'val_res.mat')
+    # else:
+    #     res_save_path = os.path.join(imdb.result_path, 'val_res_raw.mat')
+    # # res_mat = {'all_boxes': res[0], 'frame_ids': res[1]}
+    # # sio.savemat(res_save_path, res_mat)
+    # sio.savemat(res_save_path, {'res': res})
     # =====================================================
 
 

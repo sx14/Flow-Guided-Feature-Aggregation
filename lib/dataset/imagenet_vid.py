@@ -213,7 +213,7 @@ class ImageNetVID(IMDB):
         if not os.path.exists(result_dir):
             os.mkdir(result_dir)
 
-        self.write_vid_results_multiprocess(detections, gpu_id)
+        self.write_vid_results_multiprocess_seqnms(detections, gpu_id)
         return 1
 
     def evaluate_detections_multiprocess(self, detections):
@@ -250,7 +250,7 @@ class ImageNetVID(IMDB):
         path = os.path.join(res_file_folder, filename)
         return path
 
-    def write_vid_results_multiprocess(self, detection, gpu_id):
+    def write_vid_results_multiprocess_seqnms(self, detection, gpu_id):
         """
         write results files in pascal devkit path
         :param all_boxes: boxes to be processed [bbox, confidence]
