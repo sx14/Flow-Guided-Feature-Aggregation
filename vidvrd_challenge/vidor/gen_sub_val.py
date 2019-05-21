@@ -73,6 +73,8 @@ def prepare_ImageSets(tgt_ds_root, vid_n=10000):
 if __name__ == '__main__':
     tgt_ds_root = '../../data/VidOR'
     prepare_ImageSets(tgt_ds_root, 10)
+    shutil.rmtree('../../data/cache')
+    shutil.rmtree('../../output/fgfa_rfcn/vidor_vid/resnet_v1_101_flownet_vidor_vid_rfcn_end2end_ohem/VID_val_videos')
 
 
 

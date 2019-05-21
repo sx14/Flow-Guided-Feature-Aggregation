@@ -1,4 +1,5 @@
 import json
+import shutil
 
 from vidvrd_challenge.vidor.to_ilsvrc_vid_format import *
 from vidvrd_challenge.vidor.split_video import *
@@ -50,6 +51,8 @@ def prepare_ImageSets(tgt_ds_root, vid_n=10000):
 if __name__ == '__main__':
     tgt_ds_root = '../../data/ILSVRC2015'
     prepare_ImageSets(tgt_ds_root, 1)
+    # shutil.rmtree('../../data/cache')
+    # shutil.rmtree('../../output/fgfa_rfcn/imagenet_vid/resnet_v1_101_flownet_imagenet_vid_rfcn_end2end_ohem/VID_val_videos')
 
 
 
