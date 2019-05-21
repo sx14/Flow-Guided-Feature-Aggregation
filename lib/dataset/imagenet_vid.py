@@ -232,23 +232,26 @@ class ImageNetVID(IMDB):
         # info = self.do_python_eval_gen()
         return info
 
-    def get_result_file_template(self, gpu_id):
+    def get_result_file_template(self, gpu_id=None):
         """
         :return: a string template
         """
         res_file_folder = os.path.join(self.result_path, 'results')
-        filename = 'det_' + self.image_set + str(gpu_id) + '_{:s}.txt'
+        if gpu_id is None:
+            filename = 'det_' + self.image_set + '_{:s}.txt'
+        else:
+            filename = 'det_' + self.image_set + str(gpu_id) + '_{:s}.txt'
         path = os.path.join(res_file_folder, filename)
         return path
 
-    def get_result_file_template(self):
-        """
-        :return: a string template
-        """
-        res_file_folder = os.path.join(self.result_path, 'results')
-        filename = 'det_' + self.image_set + '_{:s}.txt'
-        path = os.path.join(res_file_folder, filename)
-        return path
+    # def get_result_file_template(self):
+    #     """
+    #     :return: a string template
+    #     """
+    #     res_file_folder = os.path.join(self.result_path, 'results')
+    #     filename = 'det_' + self.image_set + '_{:s}.txt'
+    #     path = os.path.join(res_file_folder, filename)
+    #     return path
 
     def write_vid_results_multiprocess_seqnms(self, detection, gpu_id):
         """
