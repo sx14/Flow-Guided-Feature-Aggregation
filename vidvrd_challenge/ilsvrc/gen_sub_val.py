@@ -49,7 +49,7 @@ def prepare_ImageSets(tgt_ds_root, vid_n=10000):
 
 if __name__ == '__main__':
     tgt_ds_root = '../../data/ILSVRC2015'
-    prepare_ImageSets(tgt_ds_root, 10)
+    prepare_ImageSets(tgt_ds_root, 1)
 
 
 
