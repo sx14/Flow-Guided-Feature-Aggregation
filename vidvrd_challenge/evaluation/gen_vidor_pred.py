@@ -3,9 +3,12 @@ import json
 
 import scipy.io as sio
 import numpy as np
+import cv2
 
 
-def gen_vidor_pred(imageset_path, res_path, save_file_name, categorys):
+def gen_vidor_pred(imageset_path, res_path, save_file_name, categorys, data_root):
+    # max_per_video = 50
+    score_thr = 0.05
 
     # load frame-idx
     with open(imageset_path) as f:
@@ -41,17 +44,21 @@ def gen_vidor_pred(imageset_path, res_path, save_file_name, categorys):
         frame_info = idx2frame[frame_idx].split(' ')[0].split('/')
         frame_id = frame_info[-1]
         video_id = frame_info[-2]
+        frame_path = os.path.join(data_root, idx2frame[frame_idx].split(' ')[0]+'.JPEG')
 
         if frame_id == '000000':
             if new_video:
+                im = cv2.imread(frame_path)
+                im_h, im_w, _ = im.shape
                 # new video
-                trajs = {}  # tid -> traj
-                pred_results[video_id] = trajs
+                video = {'trajectory': {}, 'height': im_h, 'width': im_w}
+                pred_results[video_id] = video
                 new_video = False
         else:
             new_video = True
 
-        trajs = pred_results[video_id]
+        video = pred_results[video_id]
+        trajs = video['trajectory']
 
         if tid in trajs:
             traj = trajs[tid]
@@ -62,8 +69,9 @@ def gen_vidor_pred(imageset_path, res_path, save_file_name, categorys):
         traj[frame_id] = [x1, y1, x2, y2, conf, cls_idx]
 
     det_num = 0
-    for vid in pred_results:
-        trajs = pred_results[vid]
+    for video_id in pred_results:
+        video = pred_results[video_id]
+        trajs = video['trajectory']
         for tid in trajs:
             traj = trajs[tid]
             det_num += len(traj.keys())
@@ -71,7 +79,8 @@ def gen_vidor_pred(imageset_path, res_path, save_file_name, categorys):
 
     for video_id in pred_results:
         det_num = 0
-        trajs = pred_results[video_id]
+        video = pred_results[video_id]
+        trajs = video['trajectory']
 
         video_dets = []
         for tid in trajs:
@@ -91,14 +100,21 @@ def gen_vidor_pred(imageset_path, res_path, save_file_name, categorys):
             category = categorys[cls_ind]
             score = conf_sum / len(traj.keys())
 
+            if score < score_thr:
+                continue
+
             video_det = {
                 'category': category,
                 'score': score,
-                'trajectory': traj
+                'trajectory': traj,
+                'width': video['width'],
+                'height': video['height']
             }
             video_dets.append(video_det)
 
-        print('%s: %d %d' % (video_id, len(trajs), det_num))
+        # video_dets = sorted(video_dets, key=lambda det: det['score'], reverse=True)
+        # video_dets = video_dets[:max_per_video]
+        print('%s: %d %d' % (video_id, len(video_dets), det_num))
         pred_results[video_id] = video_dets
 
     curr_dir = os.path.dirname(__file__)

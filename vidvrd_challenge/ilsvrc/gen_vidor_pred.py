@@ -1,4 +1,6 @@
+import os
 from vidvrd_challenge.evaluation.gen_vidor_pred import gen_vidor_pred
+from vidvrd_challenge.track.track import connect_trajectory
 
 res_path = '..' \
            '/..' \
@@ -12,6 +14,7 @@ res_path = '..' \
 
 sav_path = '../evaluation/imagenet_val_object_pred.json'
 imageset_path = '../../data/ILSVRC2015/ImageSets/VID_val_videos_eval.txt'
+data_root = '../../data/ILSVRC2015/Data/VID/'
 
 categorys = ['__background__',  # always index 0
              'n02691156', 'n02419796', 'n02131653', 'n02834778',
@@ -24,5 +27,5 @@ categorys = ['__background__',  # always index 0
              'n02062744', 'n02391049']
 
 
-gen_vidor_pred(imageset_path, res_path, sav_path, categorys)
-
+gen_vidor_pred(imageset_path, res_path, sav_path, categorys, data_root)
+connect_trajectory(sav_path, os.path.join(data_root, 'val'))

@@ -10,6 +10,7 @@ def show_trajectory(frame_paths, traj, tid):
 
     plt.figure(tid)
     for i, frame_path in enumerate(frame_paths):
+        # print(frame_path)
         plt.ion()
         plt.axis('off')
 
@@ -47,7 +48,7 @@ def show_prediction(video_root, pred_path, vid=None):
             print('%s T[%d] %s %.4f' % (vid, i, cls, score))
 
             frame_dir = os.path.join(video_root, vid)
-            frame_list = os.listdir(frame_dir)
+            frame_list = sorted(os.listdir(frame_dir))
 
             frame_num = len(frame_list)
             traj_show = [None for _ in range(frame_num)]

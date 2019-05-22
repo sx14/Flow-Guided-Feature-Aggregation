@@ -12,6 +12,7 @@ res_path = '..' \
 
 sav_path = '../evaluation/vidor_val_object_pred.json'
 imageset_path = '../../data/VidOR/ImageSets/VID_val_videos_eval.txt'
+data_path = '../../data/VidOR/Data/VID/'
 
 categorys = ['__background__',  # always index 0
              'bread', 'cake', 'dish', 'fruits',
