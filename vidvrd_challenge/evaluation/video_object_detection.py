@@ -6,7 +6,7 @@
 # ====================================================
 import numpy as np
 
-from vidvrd_challenge.VidVRD.evaluation.common import voc_ap, iou
+from vidvrd_challenge.evaluation.common import voc_ap, iou
 
 
 def trajectory_overlap(gt_trajs, pred_traj):

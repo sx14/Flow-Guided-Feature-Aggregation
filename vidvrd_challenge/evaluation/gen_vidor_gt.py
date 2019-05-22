@@ -34,7 +34,7 @@ def gen_vidor_gt(video_anno_root, video_list, save_file_name):
                 ymax = int(obj_box.find('ymax').text)
 
                 obj_traj = obj_inst['trajectory']
-                obj_traj[str(f)] = [xmin, ymin, xmax, ymax]
+                obj_traj[fid.split('.')[0]] = [xmin, ymin, xmax, ymax]
 
         objs = sorted(tid2obj.items(), key=lambda i: i[0])
         gt_objs = []
