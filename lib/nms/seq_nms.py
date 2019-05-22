@@ -55,6 +55,32 @@ IOU_THRESH = 0.5
 MAX_THRESH=1e-2
 
 
+def append_tid(dets_all):
+    cls_num = len(dets_all)
+    frame_num = len(dets_all[0])
+    for cid in range(cls_num):
+        for fid in range(frame_num):
+            frame_dets = dets_all[cid][fid]
+            if len(frame_dets) > 0:
+                tids = np.ones((len(frame_dets), 1)) * -1
+                frame_dets = np.concatenate((frame_dets, tids), axis=1)
+                dets_all[cid][fid] = frame_dets
+
+
+def delete_individuals(dets):
+
+    cls_num = len(dets)
+    for cid in range(cls_num):
+
+        frame_num = len(dets[cid])
+        for fid in range(frame_num):
+
+            frame_dets = dets[cid][fid]
+            if len(frame_dets) > 0:
+                ids = np.where(frame_dets[:, -1] >= 0)[0]
+                dets[cid][fid] = frame_dets[ids, :]
+
+
 def createLinks(dets_all):
     links_all = []
 
@@ -107,18 +133,18 @@ def createLinks(dets_all):
 
 
 def maxPath(dets_all, links_all):
-
+    tid = 0
     for cls_ind, links_cls in enumerate(links_all):
         # 对每个类别的所有det
 
         max_begin = time.time()
-
         # 保存每一帧要删掉的det id
         delete_sets=[[]for i in range(0,len(dets_all[0]))]
         delete_single_box=[]
         dets_cls = dets_all[cls_ind]
 
         num_path=0
+
         # compute the number of links
         # link 总数
         sum_links=0
@@ -132,12 +158,19 @@ def maxPath(dets_all, links_all):
 
             # 找到得分最高的一条trajectory
             rootindex, maxpath, maxsum = findMaxPath(links_cls, dets_cls,delete_single_box)
+
             # rootindex是trajectory的起始帧
             # maxpath是一个det list，指示了这条路径上的每个det id
             # maxsum是路径得分总数
 
             if maxsum<MAX_THRESH or sum_links==0 or len(maxpath) <1:
                 break
+
+            # ==== sunx ====
+            connect_dets(dets_cls, rootindex, maxpath, tid)
+            tid += 1
+            # ==== sunx ====
+
             if len(maxpath)==1:
                 delete=[rootindex,maxpath[0]]
                 delete_single_box.append(delete)
@@ -152,7 +185,7 @@ def maxPath(dets_all, links_all):
                 delete_set[i].remove(box_ind)
                 delete_single_box.append([[rootindex+i],box_ind])
                 for j in delete_set[i]:
-                    dets_cls[i+rootindex][j]=np.zeros(5)
+                    dets_cls[i+rootindex][j]=np.zeros(6)
                 delete_sets[i+rootindex]=delete_sets[i+rootindex]+delete_set[i]
 
         # 删除抑制的det
@@ -182,7 +215,7 @@ def findMaxPath(links,dets,delete_single_box):
     for l in xrange(len(dets)):
         for j in xrange(len(dets[l])):
             if(new_dets[l,j]==0):
-                a[l,j]=dets[l][j][-1]
+                a[l,j]=dets[l][j][4]
 
 
 
@@ -191,7 +224,7 @@ def findMaxPath(links,dets,delete_single_box):
         for box_id,box in enumerate(links[l1]):
             for next_box_id in box:
 
-                weight_new=a[i-1,box_id]+dets[i][next_box_id][-1]
+                weight_new=a[i-1,box_id]+dets[i][next_box_id][4]
                 if(weight_new>a[i,next_box_id]):
                     a[i,next_box_id]=weight_new
                     b[i,next_box_id]=box_id
@@ -210,6 +243,12 @@ def findMaxPath(links,dets,delete_single_box):
     rootindex=i
     maxpath.reverse()
     return rootindex, maxpath, maxscore
+
+
+def connect_dets(dets, rootindex, maxpath, tid):
+
+    for i, det_id in enumerate(maxpath):
+        dets[rootindex + i][det_id][5] = tid
 
 
 def rescore(dets, rootindex, maxpath, maxsum):
@@ -259,7 +298,9 @@ def deleteLink(dets, links, rootindex, maxpath, thesh):
     return delete_set,num_delete_links
 
 def seq_nms(dets):
+    append_tid(dets)
     links = createLinks(dets)
     dets=maxPath(dets, links)
+    delete_individuals(dets)
     return dets
 

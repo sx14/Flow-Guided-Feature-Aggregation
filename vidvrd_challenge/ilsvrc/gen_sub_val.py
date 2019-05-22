@@ -3,7 +3,7 @@ import shutil
 
 from vidvrd_challenge.vidor.to_ilsvrc_vid_format import *
 from vidvrd_challenge.vidor.split_video import *
-
+from vidvrd_challenge.evaluation.gen_vidor_gt import gen_vidor_gt
 
 def prepare_ImageSets(tgt_ds_root, vid_n=10000):
     # prepare ImageSets
@@ -46,11 +46,24 @@ def prepare_ImageSets(tgt_ds_root, vid_n=10000):
         f.writelines(val_videos)
 
 
+def prepare_vidor_gt(tgt_ds_root):
+
+    tgt_imageset_root = os.path.join(tgt_ds_root, 'ImageSets')
+    val_video_file_path = os.path.join(tgt_imageset_root, 'VID_val_videos.txt')
+    with open(val_video_file_path) as f:
+        lines = f.readlines()
+        video_ids = [line.split(' ')[0] for line in lines]
+
+    val_anno_root = tgt_ds_root + '/Annotations/VID'
+    vidor_gt_name = 'imagenet_val_object_gt.json'
+    gen_vidor_gt(val_anno_root, video_ids, vidor_gt_name)
 
 
 if __name__ == '__main__':
     tgt_ds_root = '../../data/ILSVRC2015'
-    prepare_ImageSets(tgt_ds_root, 1)
+    prepare_ImageSets(tgt_ds_root, 2)
+    prepare_vidor_gt(tgt_ds_root)
+
     # shutil.rmtree('../../data/cache')
     # shutil.rmtree('../../output/fgfa_rfcn/imagenet_vid/resnet_v1_101_flownet_imagenet_vid_rfcn_end2end_ohem/VID_val_videos')
 

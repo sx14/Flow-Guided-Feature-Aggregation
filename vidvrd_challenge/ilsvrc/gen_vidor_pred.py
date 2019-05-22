@@ -1,8 +1,17 @@
-from vidvrd_challenge.utils.gen_vidor_pred import gen_vidor_pred
+from vidvrd_challenge.evaluation.gen_vidor_pred import gen_vidor_pred
 
-res_path = '../../output/fgfa_rfcn/imagenet_vid/resnet_v1_101_flownet_imagenet_vid_rfcn_end2end_ohem/VID_val_videos/val_res.mat'
+res_path = '..' \
+           '/..' \
+           '/output' \
+           '/fgfa_rfcn' \
+           '/imagenet_vid' \
+           '/resnet_v1_101_flownet_imagenet_vid_rfcn_end2end_ohem' \
+           '/VID_val_videos' \
+           '/results' \
+           '/det_VID_val_videos0_all_sunx.txt'
+
 sav_path = '../evaluation/imagenet_val_object_pred.json'
-imageset_path = '../../data/ILSVRC2015/ImageSets/VID_val_frames.txt'
+imageset_path = '../../data/ILSVRC2015/ImageSets/VID_val_videos_eval.txt'
 
 categorys = ['__background__',  # always index 0
              'n02691156', 'n02419796', 'n02131653', 'n02834778',
@@ -15,5 +24,5 @@ categorys = ['__background__',  # always index 0
              'n02062744', 'n02391049']
 
 
-gen_vidor_pred(res_path, sav_path, imageset_path, categorys)
+gen_vidor_pred(imageset_path, res_path, sav_path, categorys)
 

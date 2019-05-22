@@ -2,19 +2,15 @@ import os
 import json
 import xml.etree.ElementTree as ET
 
-ILSVRC_VAL_ROOT = '../../data/VidOR/Annotations/VID/val'
 
-vid_val_gt = {}
-pkg_list = sorted(os.listdir(ILSVRC_VAL_ROOT))
-for p, pkg_id in enumerate(pkg_list):
-    print('Gen [%d/%d]' % (len(pkg_list), p + 1))
+def gen_vidor_gt(video_anno_root, video_list, save_file_name):
 
-    pkg_dir = os.path.join(ILSVRC_VAL_ROOT, pkg_id)
-    vid_list = sorted(os.listdir(pkg_dir))
-    for i, vid in enumerate(vid_list):
+    vid_val_gt = {}
+    for i, vid in enumerate(video_list):
+        print('Gen [%d/%d]' % (len(video_list), i+1))
         # for each video
         tid2obj = {}
-        vid_frame_dir = os.path.join(pkg_dir, vid)
+        vid_frame_dir = os.path.join(video_anno_root, vid)
         vid_frame_list = sorted(os.listdir(vid_frame_dir))
         for f, fid in enumerate(vid_frame_list):
             # for each xml
@@ -46,13 +42,18 @@ for p, pkg_id in enumerate(pkg_list):
             gt_obj = {
                 'tid': int(tid),
                 'category': obj['category'],
-                'trajectory': obj['trajectory']}
+                'trajectory': obj['trajectory']
+            }
             gt_objs.append(gt_obj)
+
+        vid = vid.split('/')[-1]
         vid_val_gt[vid] = gt_objs
 
+    curr_dir = os.path.dirname(__file__)
+    save_path = os.path.join(curr_dir, save_file_name)
+    with open(save_path, 'w') as f:
+        json.dump(vid_val_gt, f)
 
-with open('../evaluation/vidor_val_object_gt.json', 'w') as f:
-    json.dump(vid_val_gt, f)
 
 
 

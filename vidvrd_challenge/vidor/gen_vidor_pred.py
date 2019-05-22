@@ -1,8 +1,17 @@
-from vidvrd_challenge.utils.gen_vidor_pred import gen_vidor_pred
+from vidvrd_challenge.evaluation.gen_vidor_pred import gen_vidor_pred
 
-res_path = '../../output/fgfa_rfcn/vidor_vid/resnet_v1_101_flownet_vidor_vid_rfcn_end2end_ohem/VID_val_videos/val_res.mat'
+res_path = '..' \
+           '/..' \
+           '/output' \
+           '/fgfa_rfcn' \
+           '/vidor_vid' \
+           '/resnet_v1_101_flownet_vidor_vid_rfcn_end2end_ohem' \
+           '/VID_val_videos' \
+           '/results' \
+           '/det_VID_val_videos0_all_sunx.txt'
+
 sav_path = '../evaluation/vidor_val_object_pred.json'
-imageset_path = '../../data/VidOR/ImageSets/VID_val_frames.txt'
+imageset_path = '../../data/VidOR/ImageSets/VID_val_videos_eval.txt'
 
 categorys = ['__background__',  # always index 0
              'bread', 'cake', 'dish', 'fruits',
@@ -27,5 +36,5 @@ categorys = ['__background__',  # always index 0
              'tiger', 'adult', 'baby', 'child']
 
 
-gen_vidor_pred(res_path, sav_path, imageset_path, categorys)
+gen_vidor_pred(imageset_path, res_path, sav_path, categorys)
 

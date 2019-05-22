@@ -313,7 +313,7 @@ class VidORVID(IMDB):
                 print '{} seq_nms testing {} data {:.4f}s'.format(frame_ids[im_ind - 1], im_ind, data_time / im_ind)
 
         # the last video
-        video = [all_boxes[j][start_idx:im_ind] for j in range(1, self.num_classes)]
+        video = [all_boxes[j][start_idx:] for j in range(1, self.num_classes)]
         dets_all = seq_nms(video)
         for j in xrange(1, self.num_classes):
             for frame_ind, dets in enumerate(dets_all[j - 1]):
@@ -330,9 +330,9 @@ class VidORVID(IMDB):
                         continue
                     # the imagenet expects 0-based indices
                     for k in range(dets.shape[0]):
-                        f.write('{:d} {:d} {:.4f} {:.2f} {:.2f} {:.2f} {:.2f}\n'.
-                                format(frame_ids[im_ind], cls_ind, dets[k, -1],
-                                       dets[k, 0], dets[k, 1], dets[k, 2], dets[k, 3]))
+                        f.write('{:d} {:d} {:.4f} {:.2f} {:.2f} {:.2f} {:.2f} {:d}\n'.
+                                format(frame_ids[im_ind], cls_ind, dets[k, 4],
+                                       dets[k, 0], dets[k, 1], dets[k, 2], dets[k, 3], int(dets[k, -1])))
         return
 
     def write_vid_results(self, all_boxes):
@@ -389,7 +389,7 @@ class VidORVID(IMDB):
         """
         info_str = ''
         annopath = os.path.join(self.data_path, 'Annotations', '{0!s}.xml')
-        imageset_file = os.path.join(self.data_path, 'ImageSets', self.image_set + '.txt')
+        imageset_file = os.path.join(self.data_path, 'ImageSets', self.image_set + '_eval.txt')
         annocache = os.path.join(self.cache_path, self.name + '_annotations.pkl')
 
         with open(imageset_file, 'w') as f:
