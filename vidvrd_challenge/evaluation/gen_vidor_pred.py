@@ -6,7 +6,7 @@ import numpy as np
 import cv2
 
 
-def gen_vidor_pred(imageset_path, res_path, save_file_name, categorys, data_root):
+def gen_vidor_pred(imageset_path, res_path, save_file_name, category_list, data_root):
     # max_per_video = 50
     score_thr = 0.05
 
@@ -43,7 +43,7 @@ def gen_vidor_pred(imageset_path, res_path, save_file_name, categorys, data_root
 
         frame_info = idx2frame[frame_idx].split(' ')[0].split('/')
         frame_id = frame_info[-1]
-        video_id = frame_info[-2]
+        video_id = '/'.join(frame_info[1:-1])
         frame_path = os.path.join(data_root, idx2frame[frame_idx].split(' ')[0]+'.JPEG')
 
         if frame_id == '000000':
@@ -88,7 +88,7 @@ def gen_vidor_pred(imageset_path, res_path, save_file_name, categorys, data_root
             # print('T[%d]: %d' % (tid, len(traj)))
             det_num += len(traj)
             conf_sum = 0.0  # for avg
-            cls_count = np.zeros(len(categorys))   # voting
+            cls_count = np.zeros(len(category_list))   # voting
 
             for frame_id in traj:
                 det = traj[frame_id]
@@ -97,7 +97,7 @@ def gen_vidor_pred(imageset_path, res_path, save_file_name, categorys, data_root
                 traj[frame_id] = det[:4]    #[x1,y1,x2,y2]
 
             cls_ind = np.argmax(cls_count)
-            category = categorys[cls_ind]
+            category = category_list[cls_ind]
             score = conf_sum / len(traj.keys())
 
             if score < score_thr:

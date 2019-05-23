@@ -46,7 +46,7 @@ def gen_vidor_gt(video_anno_root, video_list, save_file_name):
             }
             gt_objs.append(gt_obj)
 
-        vid = vid.split('/')[-1]
+        vid = '/'.join(vid.split('/')[1:])
         vid_val_gt[vid] = gt_objs
 
     curr_dir = os.path.dirname(__file__)

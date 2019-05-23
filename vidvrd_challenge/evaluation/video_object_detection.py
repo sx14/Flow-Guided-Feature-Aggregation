@@ -62,10 +62,12 @@ def evaluate(gt, pred, use_07_metric=True, thresh_t=0.5):
                 result_class[traj['category']].append([vid, traj['score'], traj['trajectory']])
 
     ap_class = dict()
+    rec_class = dict()
     print('Computing average precision AP over {} classes...'.format(gt_class_num))
     for c in gt_classes:
         if c not in result_class: 
             ap_class[c] = 0.
+            rec_class[c] = 0
             continue
         npos = 0
         class_recs = {}
@@ -114,13 +116,15 @@ def evaluate(gt, pred, use_07_metric=True, thresh_t=0.5):
         ap = voc_ap(rec, prec, use_07_metric)
 
         ap_class[c] = ap
-    
+        rec_class[c] = rec[-1]
+
     # compute mean ap and print
     print('=' * 30)
     ap_class = sorted(ap_class.items(), key=lambda ap_class: ap_class[0])
     total_ap = 0.
     for i, (category, ap) in enumerate(ap_class):
-        print('{:>2}{:>20}\t{:.4f}'.format(i+1, category, ap))
+        rec = rec_class[category]
+        print('{:>2}{:>20}\t{:.4f}\t{:.4f}'.format(i+1, category, ap, rec))
         total_ap += ap
     mean_ap = total_ap / gt_class_num 
     print('=' * 30)

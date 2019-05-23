@@ -10,7 +10,7 @@ def show_trajectory(frame_paths, traj, tid):
 
     plt.figure(tid)
     for i, frame_path in enumerate(frame_paths):
-        # print(frame_path)
+        # print(frame_path.split('/')[-1])
         plt.ion()
         plt.axis('off')
 
@@ -40,29 +40,32 @@ def show_prediction(video_root, pred_path, vid=None):
         vid_res = {vid: vid_res[vid]}
 
     for vid in vid_res:
+        print('>>>> %s <<<<' % vid)
         objs = vid_res[vid]
         for i, obj in enumerate(objs):
             cls = obj['category']
             traj = obj['trajectory']
             score = obj['score']
-            print('%s T[%d] %s %.4f' % (vid, i, cls, score))
 
             frame_dir = os.path.join(video_root, vid)
             frame_list = sorted(os.listdir(frame_dir))
-
             frame_num = len(frame_list)
-            traj_show = [None for _ in range(frame_num)]
-            for fid in range(frame_num):
-                fid_str = '%06d' % fid
-                if fid_str in traj:
-                    traj_show[fid] = traj[fid_str]
 
-            frame_paths = [os.path.join(frame_dir, frame_id) for frame_id in frame_list]
-            show_trajectory(frame_paths, traj_show, i)
+            traj_stt_fid = int(sorted(traj.keys())[0])
+            traj_end_fid = int(sorted(traj.keys())[-1])
+            print('T[%d] %s %.4f [0| %d -> %d |%d]' % (i, cls, score, traj_stt_fid, traj_end_fid, frame_num-1))
+
+            seg_frames = [None for _ in range(len(traj.keys()))]
+            for j, fid in enumerate(sorted(traj.keys())):
+                seg_frames[j] = fid + '.JPEG'
+
+            seg_frame_paths = [os.path.join(frame_dir, frame_id) for frame_id in seg_frames]
+            traj_boxes = [traj[fid] for fid in sorted(traj.keys())]
+            show_trajectory(seg_frame_paths, traj_boxes, i)
 
 
 if __name__ == '__main__':
-    video_root = '../../data/ILSVRC2015/Data/VID/val'
-    res_path = 'imagenet_val_object_pred.json'
-    vid = u'ILSVRC2015_val_00000001'
+    video_root = '../../data/VidOR/Data/VID/val'
+    res_path = 'vidor_val_object_pred.json'
+    vid = u'0004/11566980553'
     show_prediction(video_root, res_path, vid)

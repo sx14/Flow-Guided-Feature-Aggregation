@@ -3,6 +3,7 @@ import random
 import matplotlib.pyplot as plt
 from show_frame import *
 
+
 def show_video(frame_root, anno_root):
     for anno_id in sorted(os.listdir(anno_root)):
         anno_path = os.path.join(anno_root, anno_id)

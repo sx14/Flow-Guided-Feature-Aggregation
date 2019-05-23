@@ -37,5 +37,5 @@ categorys = ['__background__',  # always index 0
              'tiger', 'adult', 'baby', 'child']
 
 
-gen_vidor_pred(imageset_path, res_path, sav_path, categorys)
+gen_vidor_pred(imageset_path, res_path, sav_path, categorys, data_path)
 

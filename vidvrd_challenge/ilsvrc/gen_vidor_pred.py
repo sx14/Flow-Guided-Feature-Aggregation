@@ -1,6 +1,6 @@
 import os
 from vidvrd_challenge.evaluation.gen_vidor_pred import gen_vidor_pred
-from vidvrd_challenge.track.track import connect_trajectory
+from vidvrd_challenge.post_proc.post_proc import post_process
 
 res_path = '..' \
            '/..' \
@@ -28,4 +28,4 @@ categorys = ['__background__',  # always index 0
 
 
 gen_vidor_pred(imageset_path, res_path, sav_path, categorys, data_root)
-connect_trajectory(sav_path, os.path.join(data_root, 'val'))
+post_process(sav_path, os.path.join(data_root, 'val'))
