@@ -92,16 +92,17 @@ def prepare_ImageSets(tgt_ds_root):
     train_key_frames = []
     train_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', 'train')
     n_seg = 35  # TODO: need tune
-    n_frm_max = 900
+    n_seg_frame = 20
+    # n_frm_max = 900
     for pkg in os.listdir(train_root):
         pkg_root = os.path.join(train_root, pkg)
 
         for vid in os.listdir(pkg_root):
             frame_root = os.path.join(pkg_root, vid)
             n_frame = len(os.listdir(frame_root))
-            n_frame = min(n_frame, n_frm_max)
+            # n_frame = min(n_frame, n_frm_max)
 
-            n_seg_frame = max(n_frame * 1.0 / n_seg, 1.0)
+            # n_seg_frame = max(n_frame * 1.0 / n_seg, 1.0)
             key_frame_id = int(n_seg_frame / 2.0)
             while key_frame_id <= (n_frame-1):
                 key_frame_info = os.path.join('train/%s/%s %d %d %d\n' % (pkg, vid, 1, int(key_frame_id), n_frame))
