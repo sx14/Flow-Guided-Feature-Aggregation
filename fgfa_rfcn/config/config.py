@@ -168,6 +168,8 @@ config.TEST.test_epoch = 0
 
 # ==== sunx ====
 config.TEST.eval_only = False
+config.TEST.batch_id = 0
+config.TEST.no_anno = True
 
 
 def update_config(config_file):

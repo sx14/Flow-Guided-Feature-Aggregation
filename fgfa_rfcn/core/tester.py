@@ -195,7 +195,7 @@ def im_batch_detect(predictor, data_batch, data_names, scales, cfg):
 
     return scores_all, pred_boxes_all, data_dict_all
 
-def pred_eval_seqnms(gpu_id,imdb):
+def pred_eval_seqnms(gpu_id, imdb):
 
     det_file = os.path.join(imdb.result_path, imdb.name + '_' + str(gpu_id) + '_raw')
     print 'det_file=', det_file
@@ -372,7 +372,7 @@ def pred_eval_multiprocess(gpu_num, key_predictors, cur_predictors, test_datas, 
 
     if cfg.TEST.SEQ_NMS==False:
         if gpu_num == 1:
-            res = [pred_eval(0, key_predictors[0], cur_predictors[0], test_datas[0], imdb, cfg, vis, thresh, logger,
+            res = [pred_eval(cfg.TEST.batch_id, key_predictors[0], cur_predictors[0], test_datas[0], imdb, cfg, vis, thresh, logger,
                              ignore_cache), ]
         else:
             from multiprocessing.pool import ThreadPool as Pool
@@ -384,17 +384,20 @@ def pred_eval_multiprocess(gpu_num, key_predictors, cur_predictors, test_datas, 
             pool.join()
             res = [res.get() for res in multiple_results]
         # all res
-        info_str = imdb.evaluate_detections_multiprocess(res)
+        if not cfg.TEST.no_anno:
+            info_str = imdb.evaluate_detections_multiprocess(res)
 
 
     else :
         if gpu_num == 1:
             if not cfg.TEST.eval_only:
-                res = [pred_eval(0, key_predictors[0], cur_predictors[0], test_datas[0], imdb, cfg, vis, thresh, logger, ignore_cache),]
-                pred_eval_seqnms(0, imdb)
-                info_str = imdb.do_python_eval(gpu_num)
+                res = [pred_eval(cfg.TEST.batch_id, key_predictors[0], cur_predictors[0], test_datas[0], imdb, cfg, vis, thresh, logger, ignore_cache),]
+                pred_eval_seqnms(cfg.TEST.batch_id, imdb)
+                if not cfg.TEST.no_anno:
+                    info_str = imdb.do_python_eval(gpu_num)
             else:
-                info_str = imdb.do_python_eval(gpu_num)
+                if not cfg.TEST.no_anno:
+                    info_str = imdb.do_python_eval(gpu_num)
         else:
 
             if not cfg.TEST.eval_only:
@@ -418,24 +421,16 @@ def pred_eval_multiprocess(gpu_num, key_predictors, cur_predictors, test_datas, 
                     jobs.append(job)
                 for job in jobs:
                     res.append(job.get())
-                # info_str = imdb.do_python_eval_gen(gpu_num)
-                info_str = imdb.do_python_eval(gpu_num)
+
+                if not cfg.TEST.no_anno:
+                    info_str = imdb.do_python_eval(gpu_num)
             else:
-                info_str = imdb.do_python_eval(gpu_num)
+                if not cfg.TEST.no_anno:
+                    info_str = imdb.do_python_eval(gpu_num)
 
     if logger:
-        logger.info('evaluate detections: \n{}'.format(info_str))
-
-    # ==== sunx: save detections on individual frames ====
-    # import scipy.io as sio
-    # if cfg.TEST.SEQ_NMS == False:
-    #     res_save_path = os.path.join(imdb.result_path, 'val_res.mat')
-    # else:
-    #     res_save_path = os.path.join(imdb.result_path, 'val_res_raw.mat')
-    # # res_mat = {'all_boxes': res[0], 'frame_ids': res[1]}
-    # # sio.savemat(res_save_path, res_mat)
-    # sio.savemat(res_save_path, {'res': res})
-    # =====================================================
+        if not cfg.TEST.no_anno:
+            logger.info('evaluate detections: \n{}'.format(info_str))
 
 
 

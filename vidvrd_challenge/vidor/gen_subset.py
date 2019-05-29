@@ -5,18 +5,18 @@ from vidvrd_challenge.vidor.split_video import *
 from vidvrd_challenge.evaluation.gen_vidor_gt import gen_vidor_gt
 
 
-def prepare_ImageSets(tgt_ds_root, vid_start_n=0, vid_end_n=1000000):
+def prepare_ImageSets(tgt_ds_root, split, vid_start_n=0, vid_end_n=1000000):
     # prepare ImageSets
     tgt_imageset_root = os.path.join(tgt_ds_root, 'ImageSets')
     if not os.path.exists(tgt_imageset_root):
         os.makedirs(tgt_imageset_root)
 
     # 1. VID_val_frames.txt
-    print('ImageSets: VID_val_frames.txt')
+    print('ImageSets: VID_%s_frames.txt' % split)
     val_frames = []
     val_frame_cnt = 1  # start from 1
     vid_cnt = 0
-    val_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', 'val')
+    val_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', split)
     start = False
 
     for pkg in sorted(os.listdir(val_root)):
@@ -32,7 +32,7 @@ def prepare_ImageSets(tgt_ds_root, vid_start_n=0, vid_end_n=1000000):
             vid_path = os.path.join(pkg_root, vid)
             n_frame = len(os.listdir(vid_path))
             for i in range(n_frame):
-                frame_info = os.path.join('val/%s/%s/%06d %d\n' % (pkg, vid, i, val_frame_cnt))
+                frame_info = os.path.join('%s/%s/%s/%06d %d\n' % (split, pkg, vid, i, val_frame_cnt))
                 val_frame_cnt += 1
 
                 if start:
@@ -43,7 +43,7 @@ def prepare_ImageSets(tgt_ds_root, vid_start_n=0, vid_end_n=1000000):
         if vid_cnt == vid_end_n:
             break
 
-    val_frame_file_path = os.path.join(tgt_imageset_root, 'VID_val_frames.txt')
+    val_frame_file_path = os.path.join(tgt_imageset_root, 'VID_%s_frames.txt' % split)
     with open(val_frame_file_path, 'w') as f:
         f.writelines(val_frames)
 
@@ -96,11 +96,20 @@ def prepare_vidor_gt(tgt_ds_root):
 
 if __name__ == '__main__':
     tgt_ds_root = '../../data/VidOR'
-    prepare_ImageSets(tgt_ds_root, 10, 30)
-    prepare_vidor_gt(tgt_ds_root)
+    # prepare_ImageSets(tgt_ds_root, 'val', 10, 30)
+    # prepare_vidor_gt(tgt_ds_root)
 
-    shutil.rmtree('../../data/cache')
-    shutil.rmtree('../../output/fgfa_rfcn/vidor_vid/resnet_v1_101_flownet_vidor_vid_rfcn_end2end_ohem/VID_val_videos')
+    prepare_ImageSets(tgt_ds_root, 'test', 0, 200)
+
+    cache_path = '../../data/cache'
+    if os.path.exists(cache_path):
+        shutil.rmtree(cache_path)
+    val_output_path = '../../output/fgfa_rfcn/vidor_vid/resnet_v1_101_flownet_vidor_vid_rfcn_end2end_ohem/VID_val_videos'
+    if os.path.exists(val_output_path):
+        shutil.rmtree(val_output_path)
+    test_output_path = '../../output/fgfa_rfcn/vidor_vid/resnet_v1_101_flownet_vidor_vid_rfcn_end2end_ohem/VID_test_videos'
+    if os.path.exists(test_output_path):
+        shutil.rmtree(test_output_path)
 
 
 
