@@ -1,4 +1,5 @@
 import json
+import cv2
 
 from vidvrd_challenge.vidor.to_ilsvrc_vid_format import *
 from vidvrd_challenge.vidor.split_video import *
@@ -230,6 +231,58 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
                     output_path = os.path.join(anno_frame_root, mid_anno['filename']+'.xml')
                     output_ilsvrc_vid_format(mid_anno, output_path)
 
+def prepare_Annotations_test(tgt_ds_root):
+    data_root = os.path.join(org_ds_root, 'Data', 'test')
+    anno_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', 'test')
+
+    # original path
+    pkgs = sorted(os.listdir(data_root))
+    for p, pkg in enumerate(pkgs):
+        print('Annotations test: [%d/%d]' % (len(pkgs), p + 1))
+        pkg_root = os.path.join(data_root, pkg)
+
+        # new package
+        tgt_pkg_root = os.path.join(anno_root, pkg)
+        if not os.path.exists(tgt_pkg_root):
+            os.mkdir(tgt_pkg_root)
+
+        for vid in sorted(os.listdir(pkg_root)):
+            # org video annotation
+            vid_frame0_path = os.path.join(pkg_root, vid, '000000.JPEG')
+            vid_frame0 = cv2.imread(vid_frame0_path)
+            vid_height, vid_width, _ = vid_frame0.shape
+
+            # frame annotation dir
+            anno_frame_root = os.path.join(tgt_pkg_root, vid)
+            if not os.path.exists(anno_frame_root):
+                os.mkdir(anno_frame_root)
+
+            vid_frame_dir = os.path.join(pkg_root, vid)
+            for f in range(len(os.listdir(vid_frame_dir))):
+                mid_anno = dict()
+                mid_anno['folder'] = '%s/%s' % (pkg, vid)
+                mid_anno['width'] = vid_width
+                mid_anno['height'] = vid_height
+                mid_anno['database'] = 'VidOR'
+                mid_anno['filename'] = '%06d' % f
+                mid_objs = []
+
+                mid_obj = dict()
+                tid = 0
+                mid_obj['trackid'] = tid
+                mid_obj['xmax'] = 100
+                mid_obj['ymax'] = 100
+                mid_obj['xmin'] = 50
+                mid_obj['ymin'] = 50
+                mid_obj['generated'] = 0
+                mid_obj['tracker'] = 'none'
+                mid_obj['name'] = 'adult'
+                mid_objs.append(mid_obj)
+
+                mid_anno['objects'] = mid_objs
+
+                output_path = os.path.join(anno_frame_root, mid_anno['filename']+'.xml')
+                output_ilsvrc_vid_format(mid_anno, output_path)
 
 def collect_frame_error(org_ds_root, tgt_ds_root):
     inconsistent_videos = ['video_id AnnoFrameN VidFrameN\n']
@@ -328,6 +381,7 @@ if __name__ == '__main__':
     tgt_ds_root = '/home/magus/dataset3/VidOR/vidor-ilsvrc'
     prepare_Data(org_ds_root, tgt_ds_root)
     #prepare_Annotations(org_ds_root, tgt_ds_root)
+    prepare_Annotations_test(tgt_ds_root)
     prepare_ImageSets(tgt_ds_root)
 
     # collect_frame_error(org_ds_root, tgt_ds_root)
