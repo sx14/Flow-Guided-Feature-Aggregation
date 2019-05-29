@@ -1,6 +1,6 @@
 ---
 MXNET_VERSION: ""
-output_path: "./output/fgfa_rfcn/imagenet_vid"
+output_path: "./output/fgfa_rfcn/vidor_vid"
 symbol: resnet_v1_101_flownet_rfcn
 gpus: '0'
 # gpus: '0,1,2,3'
@@ -47,14 +47,15 @@ network:
   NORMALIZE_RPN: TRUE
   NUM_ANCHORS: 9
 dataset:
-  NUM_CLASSES: 31
-  dataset: ImageNetVID
-  dataset_path: "./data/ILSVRC2015"
-  image_set: DET_train_30classes+VID_train_15frames
+  NUM_CLASSES: 81
+  dataset: VidORVID
+  dataset_path: "./data/VidOR"
+  image_set: VID_train_15frames
   root_path: "./data"
-  test_image_set: VID_val_videos
+  # test_image_set: VID_val_videos
+  test_image_set: VID_test_videos
   proposal: rpn
-  motion_iou_path: './lib/dataset/imagenet_vid_groundtruth_motion_iou.mat'
+  # motion_iou_path: './lib/dataset/imagenet_vid_groundtruth_motion_iou.mat'
   enable_detailed_eval: true
 TRAIN:
   lr: 0.00025
@@ -64,9 +65,9 @@ TRAIN:
   end_epoch: 2
   model_prefix: 'fgfa_rfcn_vid'
   # whether resume training
-  RESUME: true
+  RESUME: false
   # whether flip image
-  FLIP: true
+  FLIP: false
   # whether shuffle image
   SHUFFLE: true
   # whether use OHEM
@@ -148,5 +149,5 @@ TEST:
   # ==== sunx ====
   batch_id: 0
   no_anno: false
-  eval_only: false
+  eval_only: true
   # ==== sunx ====
