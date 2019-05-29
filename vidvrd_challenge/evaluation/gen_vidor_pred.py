@@ -103,10 +103,15 @@ def gen_vidor_pred(imageset_path, res_path, save_file_name, category_list, data_
             if score < score_thr:
                 continue
 
+            fids = sorted([int(fid) for fid in traj.keys()])
             video_det = {
                 'category': category,
                 'score': score,
                 'trajectory': traj,
+                'org_start_fid': fids[0],
+                'org_end_fid': fids[-1],
+                'start_fid': fids[0],
+                'end_fid': fids[-1],
                 'width': video['width'],
                 'height': video['height']
             }

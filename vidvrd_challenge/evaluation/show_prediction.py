@@ -1,5 +1,4 @@
 import os
-import time
 import json
 
 
@@ -40,32 +39,39 @@ def show_prediction(video_root, pred_path, vid=None):
         vid_res = {vid: vid_res[vid]}
 
     for vid in vid_res:
-        print('>>>> %s <<<<' % vid)
-        objs = vid_res[vid]
-        for i, obj in enumerate(objs):
-            cls = obj['category']
-            traj = obj['trajectory']
-            score = obj['score']
 
-            frame_dir = os.path.join(video_root, vid)
-            frame_list = sorted(os.listdir(frame_dir))
-            frame_num = len(frame_list)
+        frame_dir = os.path.join(video_root, vid)
+        frame_list = sorted(os.listdir(frame_dir))
+        frame_num = len(frame_list)
+        print('>>>> %s [%d] <<<<' % (vid, frame_num))
 
-            traj_stt_fid = int(sorted(traj.keys())[0])
-            traj_end_fid = int(sorted(traj.keys())[-1])
-            print('T[%d] %s %.4f [0| %d -> %d |%d]' % (i, cls, score, traj_stt_fid, traj_end_fid, frame_num-1))
+        video_dets = vid_res[vid]
+        video_dets = sorted(video_dets, key=lambda item: item['score'], reverse=True)
+        for tid, det in enumerate(video_dets):
+            cls = det['category']
 
-            seg_frames = [None for _ in range(len(traj.keys()))]
-            for j, fid in enumerate(sorted(traj.keys())):
-                seg_frames[j] = fid + '.JPEG'
+            traj = det['trajectory']
+            score = det['score']
+            org_stt_fid = det['org_start_fid']
+            org_end_fid = det['org_end_fid']
+            stt_fid = det['start_fid']
+            end_fid = det['end_fid']
 
+            print('T[%d] %s %.4f [%d| %d -> %d |%d]' % (tid, cls, score, stt_fid, org_stt_fid, org_end_fid, end_fid))
+
+            blank_len = 30
+            traj_boxes = [None] * len(frame_list)
+            for fid in traj:
+                traj_boxes[int(fid)] = traj[fid]
+
+            seg_frames = frame_list[max(0, stt_fid-blank_len):min(end_fid+blank_len, frame_num)]
+            traj_boxes = traj_boxes[max(0, stt_fid-blank_len):min(end_fid+blank_len, frame_num)]
             seg_frame_paths = [os.path.join(frame_dir, frame_id) for frame_id in seg_frames]
-            traj_boxes = [traj[fid] for fid in sorted(traj.keys())]
-            show_trajectory(seg_frame_paths, traj_boxes, i)
+            show_trajectory(seg_frame_paths, traj_boxes, tid)
 
 
 if __name__ == '__main__':
     video_root = '../../data/VidOR/Data/VID/val'
-    res_path = 'vidor_val_object_pred.json'
+    res_path = 'vidor_val_object_pred_proc.json'
     vid = u'0004/11566980553'
     show_prediction(video_root, res_path, vid)

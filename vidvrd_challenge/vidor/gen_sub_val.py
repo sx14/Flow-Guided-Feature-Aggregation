@@ -96,7 +96,7 @@ def prepare_vidor_gt(tgt_ds_root):
 
 if __name__ == '__main__':
     tgt_ds_root = '../../data/VidOR'
-    prepare_ImageSets(tgt_ds_root, 0, 4)
+    prepare_ImageSets(tgt_ds_root, 10, 30)
     prepare_vidor_gt(tgt_ds_root)
 
     shutil.rmtree('../../data/cache')

@@ -32,10 +32,11 @@ def parse_args():
     # rcnn
     parser.add_argument('--vis', help='turn on visualization', action='store_true')
     parser.add_argument('--ignore_cache', help='ignore cached results boxes', action='store_true')
-    parser.add_argument('--thresh', help='valid detection threshold', default=1e-3, type=float)
+    parser.add_argument('--thresh', help='valid detection threshold', default=1e-2, type=float)
     parser.add_argument('--shuffle', help='shuffle data on visualization', action='store_true')
     args = parser.parse_args()
     return args
+
 
 args = parse_args()
 curr_path = os.path.abspath(os.path.dirname(__file__))

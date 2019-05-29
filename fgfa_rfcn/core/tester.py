@@ -389,32 +389,39 @@ def pred_eval_multiprocess(gpu_num, key_predictors, cur_predictors, test_datas, 
 
     else :
         if gpu_num == 1:
-            res = [pred_eval(0, key_predictors[0], cur_predictors[0], test_datas[0], imdb, cfg, vis, thresh, logger, ignore_cache),]
-            pred_eval_seqnms(0, imdb)
-            info_str = imdb.do_python_eval(gpu_num)
+            if not cfg.TEST.eval_only:
+                res = [pred_eval(0, key_predictors[0], cur_predictors[0], test_datas[0], imdb, cfg, vis, thresh, logger, ignore_cache),]
+                pred_eval_seqnms(0, imdb)
+                info_str = imdb.do_python_eval(gpu_num)
+            else:
+                info_str = imdb.do_python_eval(gpu_num)
         else:
-            from multiprocessing.pool import ThreadPool as Pool
 
-            pool = Pool(processes=gpu_num)
-            multiple_results = [pool.apply_async(pred_eval, args=(
-            i, key_predictors[i], cur_predictors[i], test_datas[i], imdb, cfg, vis, thresh, logger, ignore_cache)) for i in
-                                range(gpu_num)]
-            pool.close()
-            pool.join()
-            res = [res.get() for res in multiple_results]
+            if not cfg.TEST.eval_only:
+                from multiprocessing.pool import ThreadPool as Pool
+
+                pool = Pool(processes=gpu_num)
+                multiple_results = [pool.apply_async(pred_eval, args=(
+                i, key_predictors[i], cur_predictors[i], test_datas[i], imdb, cfg, vis, thresh, logger, ignore_cache)) for i in
+                                    range(gpu_num)]
+                pool.close()
+                pool.join()
+                res = [res.get() for res in multiple_results]
 
 
-            from multiprocessing import Pool as Pool
-            pool = Pool(processes=gpu_num)
-            jobs = []
-            res=[]
-            for i in range(gpu_num):
-                job = apply_async(pool, pred_eval_seqnms, (i, imdb))
-                jobs.append(job)
-            for job in jobs:
-                res.append(job.get())
-            # info_str = imdb.do_python_eval_gen(gpu_num)
-            info_str = imdb.do_python_eval(gpu_num)
+                from multiprocessing import Pool as Pool
+                pool = Pool(processes=gpu_num)
+                jobs = []
+                res=[]
+                for i in range(gpu_num):
+                    job = apply_async(pool, pred_eval_seqnms, (i, imdb))
+                    jobs.append(job)
+                for job in jobs:
+                    res.append(job.get())
+                # info_str = imdb.do_python_eval_gen(gpu_num)
+                info_str = imdb.do_python_eval(gpu_num)
+            else:
+                info_str = imdb.do_python_eval(gpu_num)
 
     if logger:
         logger.info('evaluate detections: \n{}'.format(info_str))

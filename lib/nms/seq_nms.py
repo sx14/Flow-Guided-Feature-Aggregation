@@ -51,7 +51,7 @@ CLASSES = ['__background__',  # always index 0
            'tiger', 'adult', 'baby', 'child']
            
 NMS_THRESH = 0.3
-IOU_THRESH = 0.5
+IOU_THRESH = 0.7
 MAX_THRESH=1e-2
 
 
@@ -123,9 +123,25 @@ def createLinks(dets_all):
                 inter = w * h
                 ovrs = inter / (area1 + areas2 - inter)
 
+                # |w1/h1 - w2/h2| < 0.3
+                w1 = box1[2] - box1[0]
+                h1 = max(box1[3] - box1[1], 0.01)
+                w2s = dets2[:, 2] - dets2[:, 0]
+                h2s = dets2[:, 3] - dets2[:, 1]
+                h2s = np.maximum(0.001, h2s)
+                whr1 = w1 * 1.0 / h1
+                whrs2 = w2s * 1.0 / h2s
+
+                if whr1 > 1:
+                    whr1 = 1.0 / whr1
+                    whrs2 = np.maximum(0.001, whrs2)
+                    whrs2 = 1.0 / whrs2
+
+                whr_diff = np.abs(whrs2 - whr1)
+
                 # 为当前帧当前det，保存下一帧可连接的所有det的id
                 links_box = [ovr_ind for ovr_ind, ovr in enumerate(ovrs) if
-                             ovr >= IOU_THRESH]
+                             ovr >= IOU_THRESH and whr_diff[ovr_ind] < 0.2]
                 links_frame.append(links_box)
             links_cls.append(links_frame)
         links_all.append(links_cls)
@@ -246,7 +262,6 @@ def findMaxPath(links,dets,delete_single_box):
 
 
 def connect_dets(dets, rootindex, maxpath, tid):
-
     for i, det_id in enumerate(maxpath):
         dets[rootindex + i][det_id][5] = tid
 
@@ -304,3 +319,9 @@ def seq_nms(dets):
     delete_individuals(dets)
     return dets
 
+
+# def conf_nms(dets):
+#     for c, cls_dets in enumerate(dets):
+#         for f, frame_dets in enumerate(cls_dets):
+#             good_frame_dets = frame_dets[frame_dets[:, -1] >= 0.01]
+#             dets[c][f] = good_frame_dets

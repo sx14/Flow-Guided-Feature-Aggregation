@@ -166,6 +166,9 @@ config.TEST.SEQ_NMS = False
 # Test Model Epoch
 config.TEST.test_epoch = 0
 
+# ==== sunx ====
+config.TEST.eval_only = False
+
 
 def update_config(config_file):
     exp_config = None

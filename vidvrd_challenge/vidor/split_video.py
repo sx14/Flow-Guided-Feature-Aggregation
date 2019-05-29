@@ -24,7 +24,6 @@ def split_video_cv2(video_path, output_path):
 
 
 def split_video_ffmpeg(video_path, output_path):
-    # get 1 more frame than cv2
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)

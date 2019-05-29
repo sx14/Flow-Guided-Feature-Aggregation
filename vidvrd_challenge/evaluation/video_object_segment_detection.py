@@ -17,40 +17,40 @@ def trajectory_overlap(gt_trajs, pred_traj):
     :param thresh_s:
     :return:
     """
-    max_overlap = 0
-    max_index = 0
-    thresh_s = [0.5, 0.7, 0.9]
+    max_overlaps = [0] * len(gt_trajs)
+    thresh = 0.5
     for t, gt_traj in enumerate(gt_trajs):
-        top1, top2, top3 = 0, 0, 0
+        top1 = 0
         total = len(set(gt_traj.keys()) | set(pred_traj.keys()))
+        gt_len = len(gt_traj.keys())
         for i, fid in enumerate(gt_traj):
             if fid not in pred_traj:
                 continue
             sIoU = iou(gt_traj[fid], pred_traj[fid])
-            if sIoU >= thresh_s[0]:
+            if sIoU >= thresh:
                 top1 += 1
-                if sIoU >= thresh_s[1]:
-                    top2 += 1
-                    if sIoU >= thresh_s[2]:
-                        top3 += 1
 
-        tIoU = (top1 + top2 + top3) * 1.0 / (3 * total)
+        # tIoU = (top1 + top2 + top3) * 1.0 / (3 * total)
+        tIoU = (top1) * 1.0 / (gt_len)
 
-        if tIoU > max_overlap:
-            max_overlap = tIoU
-            max_index = t
+        if tIoU > max_overlaps[t]:
+            max_overlaps[t] = tIoU
 
-    return max_overlap, max_index
+    return max_overlaps
 
 
-def evaluate(gt, pred, use_07_metric=True, thresh_t=0.5):
+def evaluate(gt, pred, use_07_metric=True, thresh_t=0.8):
     """
     Evaluate the predictions
     """
     gt_classes = set()
-    for tracks in gt.values():
+    for vid, tracks in gt.items():
+        vid_classes = set()
         for traj in tracks:
             gt_classes.add(traj['category'])
+            vid_classes.add(traj['category'])
+        print(vid)
+        print(list(vid_classes))
     gt_class_num = len(gt_classes)
 
     result_class = dict()
@@ -61,22 +61,23 @@ def evaluate(gt, pred, use_07_metric=True, thresh_t=0.5):
             else:
                 result_class[traj['category']].append([vid, traj['score'], traj['trajectory']])
 
-    ap_class = dict()
-    recall_class = dict()
-    print('Computing average precision AP over {} classes...'.format(gt_class_num))
+    rec_class = dict()
+    print('Computing average recall AR over {} classes...'.format(gt_class_num))
     for c in gt_classes:
-        if c not in result_class: 
-            ap_class[c] = 0.
-            recall_class[c] = 0
-            continue
+
         npos = 0
         class_recs = {}
 
         for vid in gt:
+            #print(vid)
             gt_trajs = [trk['trajectory'] for trk in gt[vid] if trk['category'] == c]
             det = [False] * len(gt_trajs)
             npos += len(gt_trajs)
             class_recs[vid] = {'trajectories': gt_trajs, 'det': det}
+
+        if c not in result_class:
+            rec_class[c] = [0, npos]
+            continue
 
         trajs = result_class[c]
         vids = [trj[0] for trj in trajs]
@@ -84,9 +85,6 @@ def evaluate(gt, pred, use_07_metric=True, thresh_t=0.5):
         trajectories = [trj[2] for trj in trajs]
 
         nd = len(vids)
-        fp = np.zeros(nd)
-        tp = np.zeros(nd)
-
         sorted_inds = np.argsort(-scores)
         sorted_vids = [vids[id] for id in sorted_inds]
         sorted_traj = [trajectories[id] for id in sorted_inds]
@@ -95,26 +93,11 @@ def evaluate(gt, pred, use_07_metric=True, thresh_t=0.5):
             R = class_recs[sorted_vids[d]]
             gt_trajs = R['trajectories']
             pred_traj = sorted_traj[d]
-            max_overlap, max_index = trajectory_overlap(gt_trajs, pred_traj)
+            max_overlaps = trajectory_overlap(gt_trajs, pred_traj)
 
-            if max_overlap >= thresh_t:
-                if not R['det'][max_index]:
-                    tp[d] = 1.
-                    R['det'][max_index] = True
-                else:
-                    fp[d] = 1.
-            else:
-                fp[d] = 1.
-
-        # compute precision recall
-        fp = np.cumsum(fp)
-        tp = np.cumsum(tp)
-
-        rec = tp / float(npos)
-        prec = tp / np.maximum(tp + fp, np.finfo(np.float64).eps)
-        ap = voc_ap(rec, prec, use_07_metric)
-
-        ap_class[c] = ap
+            for g, max_overlap in enumerate(max_overlaps):
+                if max_overlap >= thresh_t:
+                    R['det'][g] = True
 
         gt_sum = 0
         gt_hit = 0
@@ -123,21 +106,22 @@ def evaluate(gt, pred, use_07_metric=True, thresh_t=0.5):
             for hit in class_recs[vid]['det']:
                 if hit:
                     gt_hit += 1
-        recall_class[c] = gt_hit * 1.0 / gt_sum
+        rec_class[c] = [gt_hit, gt_sum]
 
-    # compute mean ap and print
-    print('=' * 30)
-    ap_class = sorted(ap_class.items(), key=lambda ap_class: ap_class[0])
-    total_ap = 0.
-    for i, (category, ap) in enumerate(ap_class):
-        rec = recall_class[category]
-        print('{:>2}{:>20}\t{:.4f}\t{:.4f}'.format(i+1, category, ap, rec))
-        total_ap += ap
-    mean_ap = total_ap / gt_class_num 
-    print('=' * 30)
-    print('{:>22}\t{:.4f}'.format('mean AP', mean_ap))
+    # compute mean recall and print
+    print('=' * 36)
+    rec_class = sorted(rec_class.items(), key=lambda rec_cls: rec_cls[0])
+    total_hit = 0
+    total_gt = 0
+    for i, (category, rec) in enumerate(rec_class):
+        print('{:>2}{:>20}\t{:.4f}\t{:>4}'.format(i+1, category, rec[0] * 1.0 / rec[1], rec[1]))
+        total_hit += rec[0]
+        total_gt += rec[1]
+    mean_rec = total_hit * 1.0 / total_gt
+    print('=' * 36)
+    print('{:>22}\t{:.4f}\t{:>4}'.format('mean Recall', mean_rec, total_gt))
 
-    return mean_ap, ap_class
+    return mean_rec, rec_class
 
 
 if __name__ == "__main__":
@@ -163,4 +147,4 @@ if __name__ == "__main__":
         pred = json.load(fp)
     print('Number of videos in prediction: {}'.format(len(pred['results'])))
 
-    mean_ap, ap_class = evaluate(gt, pred['results'])
+    mean_rec, rec_class = evaluate(gt, pred['results'])

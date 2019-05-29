@@ -292,6 +292,8 @@ class VidORVID(IMDB):
         first_true_id = frame_ids[0]
         start_video = np.searchsorted(sum_frame_ids, first_true_id)
 
+
+
         for im_ind in range(1, len(frame_ids)):
             t = time.time()
             true_id = frame_ids[im_ind]

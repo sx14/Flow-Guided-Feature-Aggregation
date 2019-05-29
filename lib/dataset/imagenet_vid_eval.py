@@ -117,7 +117,7 @@ def vid_eval(multifiles, detpath, annopath, imageset_file, classname_map, annoca
             splitlines += [x.strip().split(' ') for x in lines]
 
     # ===== sunx ====
-    all_lines = [' '.join(det) + '\n' for det in splitlines]
+    all_lines = [' '.join(box) + '\n' for box in splitlines]
     if not multifiles:
         save_path = detpath[:-4] + '_sunx.txt'
     else:
