@@ -231,8 +231,9 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
                     output_path = os.path.join(anno_frame_root, mid_anno['filename']+'.xml')
                     output_ilsvrc_vid_format(mid_anno, output_path)
 
+
 def prepare_Annotations_test(tgt_ds_root):
-    data_root = os.path.join(org_ds_root, 'Data', 'test')
+    data_root = os.path.join(org_ds_root, 'Data', 'VID', 'test')
     anno_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', 'test')
 
     # original path
@@ -283,6 +284,7 @@ def prepare_Annotations_test(tgt_ds_root):
 
                 output_path = os.path.join(anno_frame_root, mid_anno['filename']+'.xml')
                 output_ilsvrc_vid_format(mid_anno, output_path)
+
 
 def collect_frame_error(org_ds_root, tgt_ds_root):
     inconsistent_videos = ['video_id AnnoFrameN VidFrameN\n']
@@ -379,10 +381,10 @@ def collect_category_error(org_ds_root):
 if __name__ == '__main__':
     org_ds_root = '/home/magus/dataset3/VidOR/vidor-dataset'
     tgt_ds_root = '/home/magus/dataset3/VidOR/vidor-ilsvrc'
-    prepare_Data(org_ds_root, tgt_ds_root)
+    #prepare_Data(org_ds_root, tgt_ds_root)
     #prepare_Annotations(org_ds_root, tgt_ds_root)
-    prepare_Annotations_test(tgt_ds_root)
-    prepare_ImageSets(tgt_ds_root)
+    #prepare_Annotations_test(tgt_ds_root)
+    #prepare_ImageSets(tgt_ds_root)
 
     # collect_frame_error(org_ds_root, tgt_ds_root)
     # collect_category_error(org_ds_root)

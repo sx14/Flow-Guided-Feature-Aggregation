@@ -99,10 +99,11 @@ def prepare_vidor_gt(tgt_ds_root):
 
 if __name__ == '__main__':
     tgt_ds_root = '../../data/VidOR'
-    # prepare_ImageSets(tgt_ds_root, 'val', 10, 30)
-    # prepare_vidor_gt(tgt_ds_root)
 
-    prepare_ImageSets(tgt_ds_root, 'test', 0, 200)
+    prepare_ImageSets(tgt_ds_root, 'val', 10, 30)
+    prepare_vidor_gt(tgt_ds_root)
+
+    # prepare_ImageSets(tgt_ds_root, 'test', 0, 200)
 
     cache_path = '../../data/cache'
     if os.path.exists(cache_path):

@@ -6,7 +6,7 @@ import numpy as np
 import cv2
 
 
-def gen_vidor_pred(imageset_path, res_path, save_file_name, category_list, data_root):
+def gen_vidor_pred(imageset_path, res_paths, save_file_name, category_list, data_root):
     # max_per_video = 50
     score_thr = 0.05
 
@@ -20,11 +20,14 @@ def gen_vidor_pred(imageset_path, res_path, save_file_name, category_list, data_
             idx2frame[int(idx)] = frame
 
     # load results
-    with open(res_path) as f:
-        lines = f.readlines()
-        line_splits = [line.strip().split(' ') for line in lines]
-        res = [[float(v) for v in line_split]
-               for line_split in line_splits]
+    res = []
+    for res_path in res_paths:
+        with open(res_path) as f:
+            lines = f.readlines()
+            line_splits = [line.strip().split(' ') for line in lines]
+            res_part = [[float(v) for v in line_split]
+                        for line_split in line_splits]
+            res += res_part
 
     # output data
     pred_output = {'version': 'VERSION 1.0', 'results': {}}

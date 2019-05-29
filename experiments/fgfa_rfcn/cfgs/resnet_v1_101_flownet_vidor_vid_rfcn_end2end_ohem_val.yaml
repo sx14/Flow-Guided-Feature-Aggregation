@@ -52,8 +52,7 @@ dataset:
   dataset_path: "./data/VidOR"
   image_set: VID_train_15frames
   root_path: "./data"
-  # test_image_set: VID_val_videos
-  test_image_set: VID_test_videos
+  test_image_set: VID_val_videos
   proposal: rpn
   # motion_iou_path: './lib/dataset/imagenet_vid_groundtruth_motion_iou.mat'
   enable_detailed_eval: true

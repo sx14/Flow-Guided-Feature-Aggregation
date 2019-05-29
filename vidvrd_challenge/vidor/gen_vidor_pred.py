@@ -1,17 +1,24 @@
 from vidvrd_challenge.evaluation.gen_vidor_pred import gen_vidor_pred
 
-res_path = '..' \
-           '/..' \
-           '/output' \
-           '/fgfa_rfcn' \
-           '/vidor_vid' \
-           '/resnet_v1_101_flownet_vidor_vid_rfcn_end2end_ohem' \
-           '/VID_val_videos' \
-           '/results' \
-           '/det_VID_val_videos0_all_sunx.txt'
+split = 'val'
 
-sav_path = '../evaluation/vidor_val_object_pred.json'
-imageset_path = '../../data/VidOR/ImageSets/VID_val_videos_eval.txt'
+
+res_ids = [0]
+res_paths = []
+for i in res_ids:
+    res_path = '..' \
+               '/..' \
+               '/output' \
+               '/fgfa_rfcn' \
+               '/vidor_vid' \
+               '/resnet_v1_101_flownet_vidor_vid_rfcn_end2end_ohem_%s' \
+               '/VID_%s_videos' \
+               '/results' \
+               '/det_VID_%s_videos%d_all.txt' % (split, split, split, i)
+    res_paths.append(res_path)
+
+sav_path = '../evaluation/vidor_%s_object_pred.json' % split
+imageset_path = '../../data/VidOR/ImageSets/VID_%s_frames.txt'
 data_path = '../../data/VidOR/Data/VID/'
 
 categorys = ['__background__',  # always index 0
@@ -37,5 +44,5 @@ categorys = ['__background__',  # always index 0
              'tiger', 'adult', 'baby', 'child']
 
 
-gen_vidor_pred(imageset_path, res_path, sav_path, categorys, data_path)
+gen_vidor_pred(imageset_path, res_paths, sav_path, categorys, data_path)
 
