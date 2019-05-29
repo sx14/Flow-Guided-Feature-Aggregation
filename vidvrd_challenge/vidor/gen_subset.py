@@ -16,7 +16,10 @@ def prepare_ImageSets(tgt_ds_root, split, vid_start_n=0, vid_end_n=1000000):
     val_frames = []
     val_frame_cnt = 1  # start from 1
     vid_cnt = 0
-    val_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', split)
+    if split == 'val':
+        val_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', split)
+    else:
+        val_root = os.path.join(tgt_ds_root, 'Data', 'VID', split)
     start = False
 
     for pkg in sorted(os.listdir(val_root)):
@@ -48,7 +51,7 @@ def prepare_ImageSets(tgt_ds_root, split, vid_start_n=0, vid_end_n=1000000):
         f.writelines(val_frames)
 
     # 2. VID_val_videos.txt
-    print('ImageSets: VID_val_videos.txt')
+    print('ImageSets: VID_%s_videos.txt' % split)
     val_videos = []
     video_frame_start = 1  # start from 1
     vid_cnt = 0
@@ -66,7 +69,7 @@ def prepare_ImageSets(tgt_ds_root, split, vid_start_n=0, vid_end_n=1000000):
             frame_root = os.path.join(pkg_root, vid)
 
             n_frame = len(os.listdir(frame_root))
-            video_info = os.path.join('val/%s/%s %d %d %d\n' % (pkg, vid, video_frame_start, 0, n_frame))
+            video_info = os.path.join('%s/%s/%s %d %d %d\n' % (split, pkg, vid, video_frame_start, 0, n_frame))
             video_frame_start += n_frame
             vid_cnt += 1
 
@@ -76,7 +79,7 @@ def prepare_ImageSets(tgt_ds_root, split, vid_start_n=0, vid_end_n=1000000):
         if vid_cnt == vid_end_n:
             break
 
-    val_video_file_path = os.path.join(tgt_imageset_root, 'VID_val_videos.txt')
+    val_video_file_path = os.path.join(tgt_imageset_root, 'VID_%s_videos.txt' % split)
     with open(val_video_file_path, 'w') as f:
         f.writelines(val_videos)
 
