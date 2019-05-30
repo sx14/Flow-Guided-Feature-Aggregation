@@ -322,10 +322,10 @@ def seq_nms(dets):
     return dets
 
 
-def seq_nms_nms(video):
+def seq_nms_nms(video, thresh):
     dets_all = seq_nms(video)
     for j in range(len(dets_all)):
         for frame_ind, dets in enumerate(dets_all[j]):
-            keep = nms(dets, 0.7)
+            keep = nms(dets, thresh)
             dets_all[j][frame_ind] = dets[keep, :]
     return dets_all

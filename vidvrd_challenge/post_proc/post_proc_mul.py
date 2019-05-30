@@ -396,8 +396,9 @@ def post_process(res_path, data_root):
         video_dets = filler_bad_trajs(video_dets, max_per_vid=int(max_per_vid))
         fillered_dets = len(video_dets)
 
-        from multiprocessing.pool import ThreadPool as Pool
-        pool = Pool()
+        from multiprocessing.pool import Pool as Pool
+        from multiprocessing import cpu_count
+        pool = Pool(processes=cpu_count())
         for d, det in enumerate(video_dets):
             pool.apply_async(extend_traj, args=(det, d, frame_list, video_dir))
         pool.close()
