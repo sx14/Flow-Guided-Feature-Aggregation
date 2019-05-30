@@ -21,6 +21,8 @@ import copy
 import cPickle as pickle
 import os
 
+from lib.nms.nms import nms
+
 # CLASSES = ('__background__',
 #            'airplane', 'antelope', 'bear', 'bicycle', 'bird', 'bus',
 #            'car', 'cattle', 'dog', 'domestic cat', 'elephant', 'fox',
@@ -320,10 +322,10 @@ def seq_nms(dets):
     return dets
 
 
-def seq_nms_nms(nms, video):
+def seq_nms_nms(video):
     dets_all = seq_nms(video)
     for j in range(len(dets_all)):
         for frame_ind, dets in enumerate(dets_all[j]):
-            keep = nms(dets)
+            keep = nms(dets, 0.7)
             dets_all[j][frame_ind] = dets[keep, :]
     return dets_all
