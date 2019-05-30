@@ -394,10 +394,10 @@ def pred_eval_multiprocess(gpu_num, key_predictors, cur_predictors, test_datas, 
                 res = [pred_eval(cfg.TEST.batch_id, key_predictors[0], cur_predictors[0], test_datas[0], imdb, cfg, vis, thresh, logger, ignore_cache),]
                 pred_eval_seqnms(cfg.TEST.batch_id, imdb)
                 if not cfg.TEST.no_anno:
-                    info_str = imdb.do_python_eval(gpu_num)
+                    info_str = imdb.do_python_eval(gpu_num, cfg.TEST.batch_id)
             else:
                 if not cfg.TEST.no_anno:
-                    info_str = imdb.do_python_eval(gpu_num)
+                    info_str = imdb.do_python_eval(gpu_num, cfg.TEST.batch_id)
         else:
 
             if not cfg.TEST.eval_only:

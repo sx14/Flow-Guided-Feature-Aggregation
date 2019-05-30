@@ -293,7 +293,6 @@ class VidORVID(IMDB):
         # ===================
 
         nms = py_nms_wrapper(0.3)
-        data_time = 0
         all_boxes = detection[0]
         frame_ids = detection[1]
         start_idx = 0
@@ -310,7 +309,6 @@ class VidORVID(IMDB):
                     frame_boxes = frame_boxes[frame_boxes[:, 4] > conf_thr]
                 all_boxes[c][f] = frame_boxes
         # ===========================
-
 
         # ==== sunx: multiprocess ====
         print('seq-nms collecting video detections ...')
@@ -441,7 +439,7 @@ class VidORVID(IMDB):
                                     format(frame_ids[im_ind], cls_ind, dets[k, -1],
                                            dets[k, 0], dets[k, 1], dets[k, 2], dets[k, 3]))
 
-    def do_python_eval(self, gpu_number=None):
+    def do_python_eval(self, gpu_number=None, gpu_id=0):
         """
         python evaluation wrapper
         :return: info_str
@@ -463,7 +461,7 @@ class VidORVID(IMDB):
                 filenames.append(filename)
             multifiles = True  # contains multi cache results of all boxes
         else:
-            filenames = self.get_result_file_template().format('all')
+            filenames = self.get_result_file_template(gpu_id).format('all')
             multifiles = False
 
         ap = vid_eval(multifiles, filenames, annopath, imageset_file, self.classes_map, annocache, ovthresh=0.5)

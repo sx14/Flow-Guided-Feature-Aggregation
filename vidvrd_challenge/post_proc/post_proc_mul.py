@@ -1,6 +1,6 @@
 import os
 import json
-
+import time
 import numpy as np
 
 
@@ -384,7 +384,7 @@ def post_process(res_path, data_root):
         all_results = res['results']
 
     for v, video_id in enumerate(sorted(all_results)):
-
+        t = time.time()
         print('=' * 30)
         print('[%d/%d] Proc %s' % (len(all_results), v+1, video_id))
         video_dir = os.path.join(data_root, video_id)
@@ -405,7 +405,8 @@ def post_process(res_path, data_root):
 
         # connect(video_dets)
         all_results[video_id] = video_dets
-        print('\tDet num: %d -> %d -> %d' % (org_det_num, fillered_dets, len(video_dets)))
+        t1 = time.time()
+        print('\t%s Det num: %d -> %d -> %d (%.2f sec)' % (video_id, org_det_num, fillered_dets, len(video_dets), (t1 - t)))
 
     res_path1 = res_path[:-5] + '_proc.json'
     with open(res_path1, 'w') as f:

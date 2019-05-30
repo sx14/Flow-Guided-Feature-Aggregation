@@ -61,8 +61,14 @@ def main():
 
 if __name__ == '__main__':
     import time
+    import os
+    print(time.strftime('Start at: %Y-%m-%d %H:%M:%S', time.localtime(time.time())))
     start_time = time.clock()
     main()
     end_time = time.clock()
-    runing_time = end_time - start_time
-    print('Running time: %s sec.' % runing_time)
+    runing_time = int(end_time - start_time)
+    print(time.strftime('End at: %Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+    h_time = runing_time / 60 / 60
+    m_time = runing_time / 60 - h_time * 60
+    s_time = runing_time - h_time * 60 * 60 - m_time * 60
+    print('Running time: %d hour, %d min, %d sec.' % (h_time, m_time, s_time))

@@ -3,7 +3,7 @@ from vidvrd_challenge.evaluation.gen_vidor_pred import gen_vidor_pred
 split = 'val'
 
 
-res_ids = [0]
+res_ids = [1]
 res_paths = []
 for i in res_ids:
     res_path = '..' \

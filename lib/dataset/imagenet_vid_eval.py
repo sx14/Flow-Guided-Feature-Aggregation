@@ -116,16 +116,6 @@ def vid_eval(multifiles, detpath, annopath, imageset_file, classname_map, annoca
                 lines = f.readlines()
             splitlines += [x.strip().split(' ') for x in lines]
 
-    # ===== sunx ====
-    all_lines = [' '.join(box) + '\n' for box in splitlines]
-    if not multifiles:
-        save_path = detpath[:-4] + '_sunx.txt'
-    else:
-        save_path = detpath[0][:-4] + '_sunx.txt'
-    with open(save_path, 'w') as f:
-        f.writelines(all_lines)
-    print('result saved in: %s' % save_path)
-    # ===============
 
 
     img_ids = np.array([int(x[0]) for x in splitlines])
