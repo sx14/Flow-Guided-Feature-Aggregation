@@ -18,7 +18,7 @@ for i in res_ids:
     res_paths.append(res_path)
 
 sav_path = '../evaluation/vidor_%s_object_pred.json' % split
-imageset_path = '../../data/VidOR/ImageSets/VID_%s_frames.txt'
+imageset_path = '../../data/VidOR/ImageSets/VID_%s_frames.txt' % split
 data_path = '../../data/VidOR/Data/VID/'
 
 categorys = ['__background__',  # always index 0

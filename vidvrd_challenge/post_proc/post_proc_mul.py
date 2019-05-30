@@ -28,7 +28,22 @@ def cal_viou(det1, det2, iou_thr=0.7):
     return viou
 
 
-def cal_cover_ratio(short_det, long_det, iou_thr=0.7):
+def cal_cover_ratio(det1, det2, iou_thr=0.7):
+
+    stt_fid1 = det1['start_fid']
+    end_fid1 = det1['end_fid']
+    dur1 = end_fid1 - stt_fid1 + 1
+
+    stt_fid2 = det2['start_fid']
+    end_fid2 = det2['end_fid']
+    dur2 = end_fid2 - stt_fid2 + 1
+
+    if dur1 > dur2:
+        long_det = det1
+        short_det = det2
+    else:
+        long_det = det2
+        short_det = det1
 
     short_stt_fid = short_det['start_fid']
     short_end_fid = short_det['end_fid']
@@ -40,11 +55,11 @@ def cal_cover_ratio(short_det, long_det, iou_thr=0.7):
     inter_end_fid = min(short_end_fid, long_end_fid)
 
     overlap_frame_count = 0
-    traj1 = short_det['trajectory']
-    traj2 = long_det['trajectory']
+    traj1 = det1['trajectory']
+    traj2 = det2['trajectory']
     for fid in range(inter_stt_fid, inter_end_fid+1):
         iou = cal_iou(traj1['%06d' % fid], traj2['%06d'% fid])
-        # print(iou)
+        print(iou)
         if iou > iou_thr:
             overlap_frame_count += 1
     cover_ratio = overlap_frame_count * 1.0 / (short_end_fid - short_stt_fid + 1)
@@ -113,12 +128,13 @@ def temperal_nms(dets, cls, t_iou_thr=0.7):
     return keep
 
 
-def filler_bad_trajs(video_dets, score_thr=0.05, max_per_vid=25):
+def filler_bad_trajs(video_dets, score_thr=0.1, min_len=5, max_per_vid=25):
     video_dets = sorted(video_dets, key=lambda det: det['score'], reverse=True)
     for i, det in enumerate(video_dets):
         if det['score'] < score_thr:
             break
     video_dets = video_dets[:i]
+    video_dets = [det for det in video_dets if ((det['end_fid']-det['start_fid'] + 1) >= min_len)]
     video_dets = video_dets[:min(len(video_dets), max_per_vid)]
     return video_dets
 
@@ -131,23 +147,22 @@ def cal_iou(box1, box2):
     i_ymin = max(ymin1, ymin2)
     i_xmax = min(xmax1, xmax2)
     i_ymax = min(ymax1, ymax2)
-    i_w = i_xmax - i_xmin
-    i_h = i_ymax - i_ymin
+    i_w = i_xmax - i_xmin + 1
+    i_h = i_ymax - i_ymin + 1
     iou = 0.0
     if i_w > 0 and i_h > 0:
         u_xmin = min(xmin1, xmin2)
         u_ymin = min(ymin1, ymin2)
         u_xmax = max(xmax1, xmax2)
         u_ymax = max(ymax1, ymax2)
-        u_w = u_xmax - u_xmin
-        u_h = u_ymax - u_ymin
+        u_w = u_xmax - u_xmin + 1
+        u_h = u_ymax - u_ymin + 1
 
         iou = (i_w * i_h) * 1.0 / (u_w * u_h)
     return iou
 
 
 def merge_traj(det1, det2):
-
     traj1 = det1['trajectory']
     traj2 = det2['trajectory']
     s1 = int(sorted(traj1.keys())[0])
@@ -231,6 +246,7 @@ def track(frame_paths, init_box, vis=False):
     if vis:
         plt.figure(0)
     new_boxes = []
+    new_box_cnt = 0
     tracker = cv2.TrackerKCF_create()
     for i, frame_path in enumerate(frame_paths):
         frame = cv2.imread(frame_path)
@@ -248,6 +264,9 @@ def track(frame_paths, init_box, vis=False):
             if (not ok) or is_over(box, im_w, im_h):
                 break
             new_boxes.append(box)
+            new_box_cnt += 1
+            if new_box_cnt == 300:
+                break
         if vis:
             plt.ion()
             plt.axis('off')
@@ -271,8 +290,8 @@ def track(frame_paths, init_box, vis=False):
 
 def is_over(det, im_w, im_h):
     x1, y1, x2, y2 = det
-    det_w = x2 - x1
-    det_h = y2 - y1
+    det_w = x2 - x1 + 1
+    det_h = y2 - y1 + 1
 
     # check position
     if x1 < 5 or x2 > (im_w - 5):
@@ -283,10 +302,80 @@ def is_over(det, im_w, im_h):
         # disappear from top/bottom edge
         if det_w * 1.0 / det_h > 3:
             return True
-    if det_w < 5 and det_h < 5:
+    if det_w < 5 or det_h < 5 or max(det_w, det_h) * 1.0 / min(det_w, det_h) > 3:
         # disappear from center
+        # occluded
         return True
     return False
+
+
+def extend_traj(det, tid, frame_list, video_dir):
+    w = det['width']
+    h = det['height']
+    cate = det['category']
+    traj = det['trajectory']
+
+    boxes = sorted(traj.items(), key=lambda d: d[0])
+    traj_stt_fid = int(boxes[0][0])
+    traj_end_fid = int(boxes[-1][0])
+    traj_duration = traj_end_fid - traj_stt_fid + 1
+
+    if traj_stt_fid == 0:
+        head_is_over = True
+    else:
+        head_is_over = is_over(boxes[0][1], w, h)
+
+    if traj_end_fid == (len(frame_list) - 1):
+        tail_is_over = True
+    else:
+        tail_is_over = is_over(boxes[-1][1], w, h)
+
+    cache_len = 30
+    if not head_is_over:
+        # tracking backward
+        # print('\t[%d] head track: <%s>' % (tid, cate))
+        if traj_duration > 2 * cache_len:
+            track_stt_fid = traj_stt_fid + cache_len
+        else:
+            track_stt_fid = round((traj_stt_fid + traj_end_fid) / 2.0)
+            cache_len = track_stt_fid - traj_stt_fid
+
+        seg_frames = frame_list[track_stt_fid::-1]
+        seg_frame_paths = [os.path.join(video_dir, frame_id) for frame_id in seg_frames]
+        new_boxes = track(seg_frame_paths, traj['%06d' % track_stt_fid], vis=False)
+        print('\t[%d] head add: %d <%s>' % (tid, len(new_boxes) - cache_len, cate))
+
+        for i in range(len(new_boxes)):
+            frame_id = '%06d' % (int(track_stt_fid) - i - 1)
+            new_box = new_boxes[i]
+            traj[frame_id] = new_box
+
+    if not tail_is_over:
+        # tracking forward
+        # print('\t[%d] tail track: <%s>' % (tid, cate))
+
+        if traj_duration > 2 * cache_len:
+            track_stt_fid = traj_end_fid - cache_len
+        else:
+            track_stt_fid = round((traj_stt_fid + traj_end_fid) / 2.0)
+            cache_len = traj_end_fid - track_stt_fid
+
+        seg_frames = frame_list[track_stt_fid:]
+        seg_frame_paths = [os.path.join(video_dir, frame_id) for frame_id in seg_frames]
+        new_boxes = track(seg_frame_paths, traj['%06d' % track_stt_fid], vis=False)
+        print('\t[%d] tail add: %d <%s>' % (tid, len(new_boxes) - cache_len, cate))
+
+        for i in range(len(new_boxes)):
+            frame_id = '%06d' % (int(track_stt_fid) + i + 1)
+            new_box = new_boxes[i]
+            traj[frame_id] = new_box
+
+    if head_is_over and tail_is_over:
+        print('\t[%d] complete traj <%s>' % (tid, cate))
+
+    boxes = sorted(traj.items(), key=lambda d: d[0])
+    det['start_fid'] = int(boxes[0][0])
+    det['end_fid'] = int(boxes[-1][0])
 
 
 def post_process(res_path, data_root):
@@ -303,66 +392,16 @@ def post_process(res_path, data_root):
         video_dets = all_results[video_id]
         org_det_num = len(video_dets)
 
-        video_dets = filler_bad_trajs(video_dets)
+        max_per_vid = round(len(frame_list) / 1000.0)*25
+        video_dets = filler_bad_trajs(video_dets, max_per_vid=int(max_per_vid))
         fillered_dets = len(video_dets)
 
+        from multiprocessing.pool import ThreadPool as Pool
+        pool = Pool()
         for d, det in enumerate(video_dets):
-            break
-            w = det['width']
-            h = det['height']
-            cate = det['category']
-            traj = det['trajectory']
-
-            boxes = sorted(traj.items(), key=lambda d: d[0])
-            org_start_fid = int(boxes[0][0])
-            org_end_fid = int(boxes[-1][0])
-
-            if org_start_fid == 0:
-                head_is_over = True
-            else:
-                head_is_over = is_over(boxes[0][1], w, h)
-
-            if org_end_fid == (len(frame_list) - 1):
-                tail_is_over = True
-            else:
-                tail_is_over = is_over(boxes[-1][1], w, h)
-
-            if not head_is_over:
-                # tracking backward
-                print('\t[%d] head track: <%s>' % (d, cate))
-                start_frame_id = int(boxes[0][0])
-                seg_frames = frame_list[start_frame_id::-1]
-                seg_frame_paths = [os.path.join(video_dir, frame_id) for frame_id in seg_frames]
-                new_boxes = track(seg_frame_paths, boxes[0][1], vis=False)
-                # print('\t[%d] head add: %d <%s>' % (d, len(new_boxes), cate))
-
-                for i in range(len(new_boxes)):
-                    frame_id = '%06d' % (int(start_frame_id) - i - 1)
-                    new_box = new_boxes[i]
-                    traj[frame_id] = new_box
-
-            if not tail_is_over:
-                # tracking forward
-                print('\t[%d] tail track: <%s>' % (d, cate))
-                start_frame_id = int(boxes[-1][0])
-                seg_frames = frame_list[start_frame_id:]
-                seg_frame_paths = [os.path.join(video_dir, frame_id) for frame_id in seg_frames]
-                new_boxes = track(seg_frame_paths, boxes[-1][1], vis=False)
-                # print('\t[%d] tail add: %d <%s>' % (d, len(new_boxes), cate))
-
-                for i in range(len(new_boxes)):
-                    frame_id = '%06d' % (int(start_frame_id) + i + 1)
-                    new_box = new_boxes[i]
-                    traj[frame_id] = new_box
-
-            if head_is_over and tail_is_over:
-                print('\t[%d] complete traj <%s>' % (d, cate))
-
-            boxes = sorted(traj.items(), key=lambda d: d[0])
-            det['start_fid'] = int(boxes[0][0])
-            det['end_fid'] = int(boxes[-1][0])
-
-
+            pool.apply_async(extend_traj, args=(det, d, frame_list, video_dir))
+        pool.close()
+        pool.join()
         all_results[video_id] = video_dets
         print('\tDet num: %d -> %d -> %d' % (org_det_num, fillered_dets, len(video_dets)))
         # connect(video_dets)

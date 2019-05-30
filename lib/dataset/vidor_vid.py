@@ -292,6 +292,17 @@ class VidORVID(IMDB):
         first_true_id = frame_ids[0]
         start_video = np.searchsorted(sum_frame_ids, first_true_id)
 
+        # ==== sunx ====
+        conf_thr = 0.01
+        for c in range(len(all_boxes)):
+            for f in range(len(all_boxes[c])):
+                frame_boxes = all_boxes[c][f]
+                if len(frame_boxes) > 0:
+                    frame_boxes = frame_boxes[frame_boxes[:, 4] > conf_thr]
+                all_boxes[c][f] = frame_boxes
+        # ==== sunx ====
+
+
 
 
         for im_ind in range(1, len(frame_ids)):

@@ -33,7 +33,6 @@ def gen_vidor_pred(imageset_path, res_paths, save_file_name, category_list, data
     pred_output = {'version': 'VERSION 1.0', 'results': {}}
     pred_results = pred_output['results']  # video_id -> dets
 
-    new_video = True
     for det in res:
         frame_idx, cls_idx, conf, x1, y1, x2, y2, tid = det
         frame_idx = int(frame_idx)
@@ -49,16 +48,12 @@ def gen_vidor_pred(imageset_path, res_paths, save_file_name, category_list, data
         video_id = '/'.join(frame_info[1:-1])
         frame_path = os.path.join(data_root, idx2frame[frame_idx].split(' ')[0]+'.JPEG')
 
-        if frame_id == '000000':
-            if new_video:
-                im = cv2.imread(frame_path)
-                im_h, im_w, _ = im.shape
-                # new video
-                video = {'trajectory': {}, 'height': im_h, 'width': im_w}
-                pred_results[video_id] = video
-                new_video = False
-        else:
-            new_video = True
+        if video_id not in pred_results:
+            im = cv2.imread(frame_path)
+            im_h, im_w, _ = im.shape
+            # new video
+            video = {'trajectory': {}, 'height': im_h, 'width': im_w}
+            pred_results[video_id] = video
 
         video = pred_results[video_id]
         trajs = video['trajectory']

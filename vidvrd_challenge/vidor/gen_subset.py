@@ -100,7 +100,7 @@ def prepare_vidor_gt(tgt_ds_root):
 if __name__ == '__main__':
     tgt_ds_root = '../../data/VidOR'
 
-    prepare_ImageSets(tgt_ds_root, 'val', 10, 30)
+    prepare_ImageSets(tgt_ds_root, 'val', 2, 3)
     prepare_vidor_gt(tgt_ds_root)
 
     # prepare_ImageSets(tgt_ds_root, 'test', 0, 200)
@@ -108,12 +108,7 @@ if __name__ == '__main__':
     cache_path = '../../data/cache'
     if os.path.exists(cache_path):
         shutil.rmtree(cache_path)
-    # val_output_path = '../../output/fgfa_rfcn/vidor_vid/resnet_v1_101_flownet_vidor_vid_rfcn_end2end_ohem/VID_val_videos'
-    # if os.path.exists(val_output_path):
-    #     shutil.rmtree(val_output_path)
-    # test_output_path = '../../output/fgfa_rfcn/vidor_vid/resnet_v1_101_flownet_vidor_vid_rfcn_end2end_ohem/VID_test_videos'
-    # if os.path.exists(test_output_path):
-    #     shutil.rmtree(test_output_path)
+
 
 
 

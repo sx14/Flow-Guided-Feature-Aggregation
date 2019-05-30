@@ -32,7 +32,7 @@ def parse_args():
     # rcnn
     parser.add_argument('--vis', help='turn on visualization', action='store_true')
     parser.add_argument('--ignore_cache', help='ignore cached results boxes', action='store_true')
-    parser.add_argument('--thresh', help='valid detection threshold', default=1e-2, type=float)
+    parser.add_argument('--thresh', help='valid detection threshold', default=1e-3, type=float)
     parser.add_argument('--shuffle', help='shuffle data on visualization', action='store_true')
     args = parser.parse_args()
     return args
@@ -58,5 +58,11 @@ def main():
               args.vis, args.ignore_cache, args.shuffle, config.TEST.HAS_RPN, config.dataset.proposal, args.thresh, logger=logger, output_path=final_output_path,
               enable_detailed_eval=config.dataset.enable_detailed_eval)
 
+
 if __name__ == '__main__':
+    import time
+    start_time = time.clock()
     main()
+    end_time = time.clock()
+    runing_time = end_time - start_time
+    print('Running time: %s sec.' % runing_time)

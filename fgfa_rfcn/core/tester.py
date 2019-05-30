@@ -512,9 +512,11 @@ def prepare_data(data_list, feat_list, data_batch):
 def process_pred_result(pred_result, imdb, thresh, cfg, nms, all_boxes, idx, max_per_image, vis, center_image, scales):
     for delta, (scores, boxes, data_dict) in enumerate(pred_result):
         for j in range(1, imdb.num_classes):
-            indexes = np.where(scores[:, j] > thresh)[0]
-            cls_scores = scores[indexes, j, np.newaxis]
-            cls_boxes = boxes[indexes, 4:8] if cfg.CLASS_AGNOSTIC else boxes[indexes, j * 4:(j + 1) * 4]
+            # indexes = np.where(scores[:, j] > thresh)[0]
+            # cls_scores = scores[indexes, j, np.newaxis]
+            # cls_boxes = boxes[indexes, 4:8] if cfg.CLASS_AGNOSTIC else boxes[indexes, j * 4:(j + 1) * 4]
+            cls_scores = scores[:, j, np.newaxis]
+            cls_boxes = boxes[:, 4:8]
             cls_dets = np.hstack((cls_boxes, cls_scores))
             if cfg.TEST.SEQ_NMS:
                 all_boxes[j][idx+delta]=cls_dets

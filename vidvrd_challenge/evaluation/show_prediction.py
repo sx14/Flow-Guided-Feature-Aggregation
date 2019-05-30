@@ -2,12 +2,10 @@ import os
 import json
 
 
-def show_trajectory(frame_paths, traj, tid):
+def show_trajectory(frame_paths, traj, colors):
     import matplotlib.pyplot as plt
-    import random
-    color = (random.random(), random.random(), random.random())
 
-    plt.figure(tid)
+    plt.figure(0)
     for i, frame_path in enumerate(frame_paths):
         # print(frame_path.split('/')[-1])
         plt.ion()
@@ -17,6 +15,8 @@ def show_trajectory(frame_paths, traj, tid):
         plt.imshow(im)
 
         bbox = traj[i]
+        color = colors[i]
+
         if bbox is not None:
             rect = plt.Rectangle((bbox[0], bbox[1]),
                                  bbox[2] - bbox[0],
@@ -24,7 +24,10 @@ def show_trajectory(frame_paths, traj, tid):
                                  edgecolor=color, linewidth=3.5)
             plt.gca().add_patch(rect)
         plt.show()
-        plt.pause(0.001)
+        if bbox is None:
+            plt.pause(0.0001)
+        else:
+            plt.pause(0.0000005)
         plt.cla()
     plt.close()
 
@@ -47,8 +50,15 @@ def show_prediction(video_root, pred_path, vid=None):
 
         video_dets = vid_res[vid]
         video_dets = sorted(video_dets, key=lambda item: item['score'], reverse=True)
+        print('%d dets' % len(video_dets))
         for tid, det in enumerate(video_dets):
+            if tid < 2:
+                continue
+
             cls = det['category']
+
+            if cls != 'child':
+                continue
 
             traj = det['trajectory']
             score = det['score']
@@ -57,17 +67,30 @@ def show_prediction(video_root, pred_path, vid=None):
             stt_fid = det['start_fid']
             end_fid = det['end_fid']
 
+            if org_stt_fid - stt_fid < 300 and end_fid - org_end_fid < 300:
+                continue
+
             print('T[%d] %s %.4f [%d| %d -> %d |%d]' % (tid, cls, score, stt_fid, org_stt_fid, org_end_fid, end_fid))
 
             blank_len = 30
             traj_boxes = [None] * len(frame_list)
-            for fid in traj:
-                traj_boxes[int(fid)] = traj[fid]
+            traj_colors = [None] * len(frame_list)
+
+            org_color = (0.0, 1.0, 0.0)
+            ext_color = (1.0, 0.0, 0.0)
+            for fid in sorted(traj.keys()):
+                fid_ind = int(fid)
+                traj_boxes[fid_ind] = traj[fid]
+                if fid_ind < org_stt_fid or fid_ind > org_end_fid:
+                    traj_colors[fid_ind] = ext_color
+                else:
+                    traj_colors[fid_ind] = org_color
 
             seg_frames = frame_list[max(0, stt_fid-blank_len):min(end_fid+blank_len, frame_num)]
             traj_boxes = traj_boxes[max(0, stt_fid-blank_len):min(end_fid+blank_len, frame_num)]
+            traj_colors = traj_colors[max(0, stt_fid-blank_len):min(end_fid+blank_len, frame_num)]
             seg_frame_paths = [os.path.join(frame_dir, frame_id) for frame_id in seg_frames]
-            show_trajectory(seg_frame_paths, traj_boxes, tid)
+            show_trajectory(seg_frame_paths, traj_boxes, traj_colors)
 
 
 if __name__ == '__main__':
