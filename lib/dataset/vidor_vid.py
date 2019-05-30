@@ -15,7 +15,7 @@ from imdb import IMDB
 from imagenet_vid_eval import vid_eval
 from imagenet_vid_eval_motion import vid_eval_motion
 from ds_utils import unique_boxes, filter_small_boxes
-from lib.nms.seq_nms import seq_nms
+from lib.nms.seq_nms import seq_nms, seq_nms_nms
 from lib.nms.nms import py_nms_wrapper, cpu_nms_wrapper, gpu_nms_wrapper
 
 
@@ -273,6 +273,8 @@ class VidORVID(IMDB):
     #     path = os.path.join(res_file_folder, filename)
     #     return path
 
+
+
     def write_vid_results_multiprocess_seqnms(self, detection, gpu_id):
         """
         write results files in pascal devkit path
@@ -283,6 +285,13 @@ class VidORVID(IMDB):
         print 'Writing {} VidORVID results file'.format('all')
         filename = self.get_result_file_template(gpu_id).format('all')
         frame_seg_len = self.frame_seg_len
+
+        # ==== sunx: fix ====
+        frame_sum_before = self.frame_id[0] - 1
+        if frame_sum_before > 0:
+            frame_seg_len.insert(0, frame_sum_before)
+        # ===================
+
         nms = py_nms_wrapper(0.3)
         data_time = 0
         all_boxes = detection[0]
@@ -292,7 +301,7 @@ class VidORVID(IMDB):
         first_true_id = frame_ids[0]
         start_video = np.searchsorted(sum_frame_ids, first_true_id)
 
-        # ==== sunx ====
+        # ==== sunx: conf filler ====
         conf_thr = 0.01
         for c in range(len(all_boxes)):
             for f in range(len(all_boxes[c])):
@@ -300,16 +309,53 @@ class VidORVID(IMDB):
                 if len(frame_boxes) > 0:
                     frame_boxes = frame_boxes[frame_boxes[:, 4] > conf_thr]
                 all_boxes[c][f] = frame_boxes
-        # ==== sunx ====
+        # ===========================
 
 
-
+        # ==== sunx: multiprocess ====
+        # print('seq-nms collecting video detections ...')
+        # videos = []
+        # for im_ind in range(1, len(frame_ids)):
+        #     true_id = frame_ids[im_ind]
+        #     video_index = np.searchsorted(sum_frame_ids, true_id)
+        #     if video_index != start_video:  # reprensents a new video
+        #         video = [all_boxes[j][start_idx:im_ind] for j in range(1, self.num_classes)]
+        #         videos.append([video, start_idx, im_ind])
+        #
+        #         start_idx = im_ind
+        #         start_video = video_index
+        #
+        # print('seq-nms processing ...')
+        # t1 = time.time()
+        # from multiprocessing.pool import ThreadPool as Pool
+        # pool = Pool()
+        # nms_videos = []
+        # for video in videos:
+        #     res = pool.apply_async(seq_nms_nms, args=(nms, video[0]))
+        #     video[0] = res.get()
+        #     nms_videos.append(video)
+        # pool.close()
+        # pool.join()
+        #
+        # for video, vid_stt, vid_end in nms_videos:
+        #     for c in xrange(1, self.num_classes):
+        #         all_boxes[c][vid_stt: vid_end] = video[c - 1]
+        #
+        # # the last one
+        # print('seq-nms last one ...')
+        # video = [all_boxes[j][start_idx:] for j in range(1, self.num_classes)]
+        # video = seq_nms_nms(nms, video)
+        # for c in xrange(1, self.num_classes):
+        #     all_boxes[c][start_idx:] = video[c - 1]
+        # t2 = time.time()
+        # print('seq-nms finished %.2f s' % (t2 - t1))
+        # ==============================
 
         for im_ind in range(1, len(frame_ids)):
             t = time.time()
             true_id = frame_ids[im_ind]
             video_index = np.searchsorted(sum_frame_ids, true_id)
-            if (video_index != start_video):  # reprensents a new video
+            if video_index != start_video:  # reprensents a new video
                 t1 = time.time()
                 video = [all_boxes[j][start_idx:im_ind] for j in range(1, self.num_classes)]
                 dets_all = seq_nms(video)
@@ -332,6 +378,10 @@ class VidORVID(IMDB):
             for frame_ind, dets in enumerate(dets_all[j - 1]):
                 keep = nms(dets)
                 all_boxes[j][frame_ind + start_idx] = dets[keep, :]
+
+        # video = seq_nms_nms(nms, video)
+        # for c in xrange(1, self.num_classes):
+        #     all_boxes[c][start_idx:] = video[c - 1]
 
         with open(filename, 'wt') as f:
             for im_ind in range(len(frame_ids)):

@@ -52,14 +52,7 @@ def show_prediction(video_root, pred_path, vid=None):
         video_dets = sorted(video_dets, key=lambda item: item['score'], reverse=True)
         print('%d dets' % len(video_dets))
         for tid, det in enumerate(video_dets):
-            if tid < 2:
-                continue
-
             cls = det['category']
-
-            if cls != 'child':
-                continue
-
             traj = det['trajectory']
             score = det['score']
             org_stt_fid = det['org_start_fid']
@@ -67,8 +60,6 @@ def show_prediction(video_root, pred_path, vid=None):
             stt_fid = det['start_fid']
             end_fid = det['end_fid']
 
-            if org_stt_fid - stt_fid < 300 and end_fid - org_end_fid < 300:
-                continue
 
             print('T[%d] %s %.4f [%d| %d -> %d |%d]' % (tid, cls, score, stt_fid, org_stt_fid, org_end_fid, end_fid))
 
@@ -95,6 +86,6 @@ def show_prediction(video_root, pred_path, vid=None):
 
 if __name__ == '__main__':
     video_root = '../../data/VidOR/Data/VID/val'
-    res_path = 'vidor_val_object_pred_proc.json'
-    vid = u'0004/11566980553'
+    res_path = 'vidor_val_object_pred.json'
+    vid = u'0001/2793806282'
     show_prediction(video_root, res_path, vid)

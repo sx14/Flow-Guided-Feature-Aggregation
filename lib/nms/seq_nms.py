@@ -320,8 +320,10 @@ def seq_nms(dets):
     return dets
 
 
-# def conf_nms(dets):
-#     for c, cls_dets in enumerate(dets):
-#         for f, frame_dets in enumerate(cls_dets):
-#             good_frame_dets = frame_dets[frame_dets[:, -1] >= 0.01]
-#             dets[c][f] = good_frame_dets
+def seq_nms_nms(nms, video):
+    dets_all = seq_nms(video)
+    for j in range(len(dets_all)):
+        for frame_ind, dets in enumerate(dets_all[j]):
+            keep = nms(dets)
+            dets_all[j][frame_ind] = dets[keep, :]
+    return dets_all

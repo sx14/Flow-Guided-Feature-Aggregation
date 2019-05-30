@@ -130,10 +130,10 @@ def temperal_nms(dets, cls, t_iou_thr=0.7):
 
 def filler_bad_trajs(video_dets, score_thr=0.1, min_len=5, max_per_vid=25):
     video_dets = sorted(video_dets, key=lambda det: det['score'], reverse=True)
-    for i, det in enumerate(video_dets):
-        if det['score'] < score_thr:
-            break
-    video_dets = video_dets[:i]
+    # for i, det in enumerate(video_dets):
+    #     if det['score'] < score_thr:
+    #         break
+    # video_dets = video_dets[:i]
     video_dets = [det for det in video_dets if ((det['end_fid']-det['start_fid'] + 1) >= min_len)]
     video_dets = video_dets[:min(len(video_dets), max_per_vid)]
     return video_dets
@@ -265,7 +265,7 @@ def track(frame_paths, init_box, vis=False):
                 break
             new_boxes.append(box)
             new_box_cnt += 1
-            if new_box_cnt == 300:
+            if new_box_cnt == 200:
                 break
         if vis:
             plt.ion()
@@ -402,9 +402,10 @@ def post_process(res_path, data_root):
             pool.apply_async(extend_traj, args=(det, d, frame_list, video_dir))
         pool.close()
         pool.join()
+
+        # connect(video_dets)
         all_results[video_id] = video_dets
         print('\tDet num: %d -> %d -> %d' % (org_det_num, fillered_dets, len(video_dets)))
-        # connect(video_dets)
 
     res_path1 = res_path[:-5] + '_proc.json'
     with open(res_path1, 'w') as f:
