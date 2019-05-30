@@ -63,7 +63,7 @@ def gen_vidor_rlt_obj_gt(video_anno_root, video_list, save_file_name):
 
 
 if __name__ == '__main__':
-    vid_anno_root = '/media/sunx/Data/dataset/vidor/vidor-dataset'
+    vid_anno_root = '../../data/VidOR/anno'
     vid_list_path = '../../data/VidOR/ImageSets/VID_val_videos.txt'
     with open(vid_list_path) as f:
         video_list = [l.strip().split(' ')[0] for l in f.readlines()]
