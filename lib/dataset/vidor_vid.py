@@ -327,15 +327,14 @@ class VidORVID(IMDB):
         t1 = time.time()
         from multiprocessing.pool import ThreadPool as Pool
         pool = Pool()
-        nms_videos = []
-        for video in videos:
-            res = pool.apply_async(seq_nms_nms, args=(nms, video[0]))
-            video[0] = res.get()
-            nms_videos.append(video)
+        results = [pool.apply_async(seq_nms_nms, args=(nms, video[0])) for video in videos]
         pool.close()
         pool.join()
 
-        for video, vid_stt, vid_end in nms_videos:
+        for r, res in enumerate(results):
+            videos[r][0] = res.get()
+
+        for video, vid_stt, vid_end in videos:
             for c in xrange(1, self.num_classes):
                 all_boxes[c][vid_stt: vid_end] = video[c - 1]
 
@@ -454,7 +453,7 @@ class VidORVID(IMDB):
                 for j in range(self.frame_seg_len[i]):
                     f.write((self.pattern[i] % (self.frame_seg_id[i] + j)) + ' ' + str(self.frame_id[i] + j) + '\n')
 
-        if gpu_number != None:
+        if gpu_number != None and gpu_number > 1:
             filenames = []
             for i in range(gpu_number):
                 filename = self.get_result_file_template(i).format('all')
