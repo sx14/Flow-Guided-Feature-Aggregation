@@ -398,7 +398,7 @@ def post_process(res_path, data_root):
 
         from multiprocessing.pool import Pool as Pool
         from multiprocessing import cpu_count
-        pool = Pool(processes=cpu_count())
+        pool = Pool(processes=cpu_count()-2)
         for d, det in enumerate(video_dets):
             pool.apply_async(extend_traj, args=(det, d, frame_list, video_dir))
         pool.close()
@@ -417,4 +417,11 @@ def post_process(res_path, data_root):
 
 res_path = '../evaluation/vidor_val_object_pred.json'
 data_root = '../../data/VidOR/Data/VID/val'
+t = time.time()
 post_process(res_path, data_root)
+t1 = time.time()
+dur = int(t1 - t)
+h = dur / 60 / 60
+m = dur / 60 - h * 60
+s = dur - h * 60 * 60 - m * 60
+print('Post process takes: %dh, %dm, %ds.' % (h, m, s))

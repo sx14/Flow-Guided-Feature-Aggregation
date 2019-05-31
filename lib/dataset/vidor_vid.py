@@ -328,7 +328,7 @@ class VidORVID(IMDB):
         from multiprocessing.pool import Pool as Pool
         from multiprocessing import cpu_count
         print('seq-nms use cpu: %d' % cpu_count())
-        pool = Pool()
+        pool = Pool(processes=cpu_count()-2)
         results = [pool.apply_async(seq_nms_nms, args=(video[0], 0.7)) for video in videos]
         pool.close()
         pool.join()
