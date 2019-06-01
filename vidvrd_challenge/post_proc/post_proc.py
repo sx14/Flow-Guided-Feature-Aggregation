@@ -3,6 +3,118 @@ import json
 
 import numpy as np
 
+#   high >  0.4
+# medium >  0.1
+#    low >= 0
+difficulty_level = ['high', 'medium', 'low']
+
+cls_difficulty = {
+    'bread': 'high',
+    'cake': 'medium',
+    'dish': 'medium',
+    'fruits': 'high',
+    'vegetables': 'high',
+    'backpack': 'medium',
+    'camera': 'high',
+    'cellphone': 'high',
+    'handbag': 'high',
+    'laptop': 'medium',
+    'suitcase': 'high',
+    'ball/sports_ball': 'high',
+    'bat': 'high',
+    'frisbee': 'high',
+    'racket': 'high',
+    'skateboard': 'high',
+    'ski': 'high',
+    'snowboard': 'high',
+    'surfboard': 'high',
+    'toy': 'medium',
+    'baby_seat': 'medium',
+    'bottle': 'medium',
+    'chair': 'medium',
+    'cup': 'medium',
+    'electric_fan': 'high',
+    'faucet': 'high',
+    'microwave': 'high',
+    'oven': 'high',
+    'refrigerator': 'low',
+    'screen/monitor': 'low',
+    'sink': 'low',
+    'sofa': 'low',
+    'stool': 'high',
+    'table': 'medium',
+    'toilet': 'low',
+    'guitar': 'low',
+    'piano': 'high',
+    'baby_walker': 'high',
+    'bench': 'high',
+    'stop_sign': 'high',
+    'traffic_light': 'high',
+    'aircraft': 'high',
+    'bicycle': 'medium',
+    'bus/truck': 'high',
+    'car': 'medium',
+    'motorcycle': 'high',
+    'scooter': 'high',
+    'train': 'medium',
+    'watercraft': 'high',
+    'crab': 'high',
+    'bird': 'high',
+    'chicken': 'high',
+    'duck': 'medium',
+    'penguin': 'medium',
+    'fish': 'medium',
+    'stingray': 'high',
+    'crocodile': 'high',
+    'snake': 'high',
+    'turtle': 'high',
+    'antelope': 'high',
+    'bear': 'high',
+    'camel': 'high',
+    'cat': 'low',
+    'cattle/cow': 'high',
+    'dog': 'high',
+    'elephant': 'medium',
+    'hamster/rat': 'high',
+    'horse': 'low',
+    'kangaroo': 'low',
+    'leopard': 'medium',
+    'lion': 'high',
+    'panda': 'medium',
+    'pig': 'low',
+    'rabbit': 'medium',
+    'sheep/goat': 'high',
+    'squirrel': 'high',
+    'tiger': 'high',
+    'adult': 'low',
+    'baby': 'low',
+    'child': 'low'
+}
+
+
+CLASSES = ['__background__',  # always index 0
+           'bread', 'cake', 'dish', 'fruits',
+           'vegetables', 'backpack', 'camera', 'cellphone',
+           'handbag', 'laptop', 'suitcase', 'ball/sports_ball',
+           'bat', 'frisbee', 'racket', 'skateboard',
+           'ski', 'snowboard', 'surfboard', 'toy',
+           'baby_seat', 'bottle', 'chair', 'cup',
+           'electric_fan', 'faucet', 'microwave', 'oven',
+           'refrigerator', 'screen/monitor', 'sink', 'sofa',
+           'stool', 'table', 'toilet', 'guitar',
+           'piano', 'baby_walker', 'bench', 'stop_sign',
+           'traffic_light', 'aircraft', 'bicycle', 'bus/truck',
+           'car', 'motorcycle', 'scooter', 'train',
+           'watercraft', 'crab', 'bird', 'chicken',
+           'duck', 'penguin', 'fish', 'stingray',
+           'crocodile', 'snake', 'turtle', 'antelope',
+           'bear', 'camel', 'cat', 'cattle/cow',
+           'dog', 'elephant', 'hamster/rat', 'horse',
+           'kangaroo', 'leopard', 'lion', 'panda',
+           'pig', 'rabbit', 'sheep/goat', 'squirrel',
+           'tiger', 'adult', 'baby', 'child']
+
+
 
 def cal_viou(det1, det2, iou_thr=0.7):
 
@@ -329,6 +441,9 @@ def post_process(res_path, data_root):
             cate = det['category']
             traj = det['trajectory']
 
+            if cate != 'cup':
+                continue
+
             boxes = sorted(traj.items(), key=lambda d: d[0])
             traj_stt_fid = int(boxes[0][0])
             traj_end_fid = int(boxes[-1][0])
@@ -350,14 +465,15 @@ def post_process(res_path, data_root):
                 print('\t[%d] head track: <%s>' % (d, cate))
                 if traj_duration > 2 * cache_len:
                     track_stt_fid = traj_stt_fid + cache_len
+                    curr_cache_len = cache_len
                 else:
-                    track_stt_fid = round((traj_stt_fid + traj_end_fid) / 2.0)
-                    cache_len = track_stt_fid - traj_stt_fid
+                    track_stt_fid = int(round((traj_stt_fid + traj_end_fid) / 2.0))
+                    curr_cache_len = track_stt_fid - traj_stt_fid
 
                 seg_frames = frame_list[track_stt_fid::-1]
                 seg_frame_paths = [os.path.join(video_dir, frame_id) for frame_id in seg_frames]
                 new_boxes = track(seg_frame_paths, traj['%06d' % track_stt_fid], vis=False)
-                print('\t[%d] head add: %d <%s>' % (d, len(new_boxes)-cache_len, cate))
+                print('\t[%d] head add: %d <%s>' % (d, len(new_boxes)-curr_cache_len, cate))
 
                 for i in range(len(new_boxes)):
                     frame_id = '%06d' % (int(track_stt_fid) - i - 1)
@@ -370,14 +486,15 @@ def post_process(res_path, data_root):
 
                 if traj_duration > 2 * cache_len:
                     track_stt_fid = traj_end_fid - cache_len
+                    curr_cache_len = cache_len
                 else:
-                    track_stt_fid = round((traj_stt_fid + traj_end_fid) / 2.0)
-                    cache_len = traj_end_fid - track_stt_fid
+                    track_stt_fid = int(round((traj_stt_fid + traj_end_fid) / 2.0))
+                    curr_cache_len = traj_end_fid - track_stt_fid
 
                 seg_frames = frame_list[track_stt_fid:]
                 seg_frame_paths = [os.path.join(video_dir, frame_id) for frame_id in seg_frames]
                 new_boxes = track(seg_frame_paths, traj['%06d' % track_stt_fid], vis=False)
-                print('\t[%d] tail add: %d <%s>' % (d, len(new_boxes)-cache_len, cate))
+                print('\t[%d] tail add: %d <%s>' % (d, len(new_boxes)-curr_cache_len, cate))
 
                 for i in range(len(new_boxes)):
                     frame_id = '%06d' % (int(track_stt_fid) + i + 1)

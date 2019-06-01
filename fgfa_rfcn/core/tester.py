@@ -195,6 +195,7 @@ def im_batch_detect(predictor, data_batch, data_names, scales, cfg):
 
     return scores_all, pred_boxes_all, data_dict_all
 
+
 def pred_eval_seqnms(gpu_id, imdb):
 
     det_file = os.path.join(imdb.result_path, imdb.name + '_' + str(gpu_id) + '_raw')
@@ -205,6 +206,7 @@ def pred_eval_seqnms(gpu_id, imdb):
 
         res=[all_boxes, frame_ids]
         imdb.evaluate_detections_multiprocess_seqnms(res, gpu_id)
+
 
 def pred_eval(gpu_id, feat_predictors, aggr_predictors, test_data, imdb, cfg, vis=False, thresh=1e-3, logger=None, ignore_cache=True):
     """
@@ -392,7 +394,8 @@ def pred_eval_multiprocess(gpu_num, key_predictors, cur_predictors, test_datas, 
         if gpu_num == 1:
             if not cfg.TEST.eval_only:
                 res = [pred_eval(cfg.TEST.batch_id, key_predictors[0], cur_predictors[0], test_datas[0], imdb, cfg, vis, thresh, logger, ignore_cache),]
-                pred_eval_seqnms(cfg.TEST.batch_id, imdb)
+                # pred_eval_seqnms(cfg.TEST.batch_id, imdb)
+                imdb.evaluate_detections_multiprocess_seqnms(res[0], cfg.TEST.batch_id)
                 if not cfg.TEST.no_anno:
                     info_str = imdb.do_python_eval(gpu_num, cfg.TEST.batch_id)
             else:
@@ -411,6 +414,10 @@ def pred_eval_multiprocess(gpu_num, key_predictors, cur_predictors, test_datas, 
                 pool.join()
                 res = [res.get() for res in multiple_results]
 
+                # ==== sunx ====
+                # release memory
+                del res
+                # ==============
 
                 from multiprocessing import Pool as Pool
                 pool = Pool(processes=gpu_num)

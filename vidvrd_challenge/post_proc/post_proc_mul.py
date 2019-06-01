@@ -330,20 +330,21 @@ def extend_traj(det, tid, frame_list, video_dir):
     else:
         tail_is_over = is_over(boxes[-1][1], w, h)
 
-    cache_len = 30
+    cache_len = 10
     if not head_is_over:
         # tracking backward
         # print('\t[%d] head track: <%s>' % (tid, cate))
         if traj_duration > 2 * cache_len:
             track_stt_fid = traj_stt_fid + cache_len
+            curr_cache_len = cache_len
         else:
-            track_stt_fid = round((traj_stt_fid + traj_end_fid) / 2.0)
-            cache_len = track_stt_fid - traj_stt_fid
+            track_stt_fid = int(round((traj_stt_fid + traj_end_fid) / 2.0))
+            curr_cache_len = track_stt_fid - traj_stt_fid
 
         seg_frames = frame_list[track_stt_fid::-1]
         seg_frame_paths = [os.path.join(video_dir, frame_id) for frame_id in seg_frames]
         new_boxes = track(seg_frame_paths, traj['%06d' % track_stt_fid], vis=False)
-        print('\t[%d] head add: %d <%s>' % (tid, len(new_boxes) - cache_len, cate))
+        print('\t[%d] head add: %d <%s>' % (tid, len(new_boxes) - curr_cache_len, cate))
 
         for i in range(len(new_boxes)):
             frame_id = '%06d' % (int(track_stt_fid) - i - 1)
@@ -356,14 +357,15 @@ def extend_traj(det, tid, frame_list, video_dir):
 
         if traj_duration > 2 * cache_len:
             track_stt_fid = traj_end_fid - cache_len
+            curr_cache_len = cache_len
         else:
-            track_stt_fid = round((traj_stt_fid + traj_end_fid) / 2.0)
-            cache_len = traj_end_fid - track_stt_fid
+            track_stt_fid = int(round((traj_stt_fid + traj_end_fid) / 2.0))
+            curr_cache_len = traj_end_fid - track_stt_fid
 
         seg_frames = frame_list[track_stt_fid:]
         seg_frame_paths = [os.path.join(video_dir, frame_id) for frame_id in seg_frames]
         new_boxes = track(seg_frame_paths, traj['%06d' % track_stt_fid], vis=False)
-        print('\t[%d] tail add: %d <%s>' % (tid, len(new_boxes) - cache_len, cate))
+        print('\t[%d] tail add: %d <%s>' % (tid, len(new_boxes) - curr_cache_len, cate))
 
         for i in range(len(new_boxes)):
             frame_id = '%06d' % (int(track_stt_fid) + i + 1)
@@ -376,6 +378,7 @@ def extend_traj(det, tid, frame_list, video_dir):
     boxes = sorted(traj.items(), key=lambda d: d[0])
     det['start_fid'] = int(boxes[0][0])
     det['end_fid'] = int(boxes[-1][0])
+    return det
 
 
 def post_process(res_path, data_root):
@@ -384,6 +387,7 @@ def post_process(res_path, data_root):
         all_results = res['results']
 
     for v, video_id in enumerate(sorted(all_results)):
+
         t = time.time()
         print('=' * 30)
         print('[%d/%d] Proc %s' % (len(all_results), v+1, video_id))
@@ -392,17 +396,22 @@ def post_process(res_path, data_root):
         video_dets = all_results[video_id]
         org_det_num = len(video_dets)
 
-        max_per_vid = round(len(frame_list) / 1000.0)*25
+        max_per_vid = max(round(len(frame_list) / 1000.0), 1)*25
         video_dets = filler_bad_trajs(video_dets, max_per_vid=int(max_per_vid))
         fillered_dets = len(video_dets)
 
         from multiprocessing.pool import Pool as Pool
         from multiprocessing import cpu_count
-        pool = Pool(processes=cpu_count()-2)
-        for d, det in enumerate(video_dets):
-            pool.apply_async(extend_traj, args=(det, d, frame_list, video_dir))
+        pool = Pool(processes=cpu_count())
+
+        results = [pool.apply_async(extend_traj, args=(det, d, frame_list, video_dir)) for d, det in enumerate(video_dets)]
+        # for d, det in enumerate(video_dets):
+        #     pool.apply_async(extend_traj, args=(det, d, frame_list, video_dir))
         pool.close()
         pool.join()
+
+        for d in range(len(video_dets)):
+            video_dets[d] = results[d].get()
 
         # connect(video_dets)
         all_results[video_id] = video_dets
