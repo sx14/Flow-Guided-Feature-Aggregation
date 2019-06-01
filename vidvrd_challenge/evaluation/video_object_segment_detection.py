@@ -49,8 +49,8 @@ def evaluate(gt, pred, use_07_metric=True, thresh_t=0.8):
         for traj in tracks:
             gt_classes.add(traj['category'])
             vid_classes.add(traj['category'])
-        print(vid)
-        print(list(vid_classes))
+        # print(vid)
+        # print(list(vid_classes))
     gt_class_num = len(gt_classes)
 
     result_class = dict()
@@ -109,19 +109,24 @@ def evaluate(gt, pred, use_07_metric=True, thresh_t=0.8):
         rec_class[c] = [gt_hit, gt_sum]
 
     # compute mean recall and print
+    output = []
     print('=' * 36)
+    output.append('=' * 36 + '\n')
     rec_class = sorted(rec_class.items(), key=lambda rec_cls: rec_cls[0])
     total_hit = 0
     total_gt = 0
     for i, (category, rec) in enumerate(rec_class):
         print('{:>2}{:>20}\t{:.4f}\t{:>4}'.format(i+1, category, rec[0] * 1.0 / rec[1], rec[1]))
+        output.append('{:>2}{:>20}\t{:.4f}\t{:>4}\n'.format(i+1, category, rec[0] * 1.0 / rec[1], rec[1]))
         total_hit += rec[0]
         total_gt += rec[1]
     mean_rec = total_hit * 1.0 / total_gt
     print('=' * 36)
-    print('{:>22}\t{:.4f}\t{:>4}'.format('mean Recall', mean_rec, total_gt))
+    output.append('=' * 36 + '\n')
+    print('{:>22}\t{:.4f}\t{:>4}\n'.format('mean Recall', mean_rec, total_gt))
+    output.append('{:>22}\t{:.4f}\t{:>4}\n'.format('mean Recall', mean_rec, total_gt))
 
-    return mean_rec, rec_class
+    return mean_rec, rec_class, output
 
 
 if __name__ == "__main__":
@@ -147,4 +152,6 @@ if __name__ == "__main__":
         pred = json.load(fp)
     print('Number of videos in prediction: {}'.format(len(pred['results'])))
 
-    mean_rec, rec_class = evaluate(gt, pred['results'])
+    mean_rec, rec_class, output = evaluate(gt, pred['results'])
+    with open('vidor_val_object_results.txt', 'w') as f:
+        f.writelines(output)

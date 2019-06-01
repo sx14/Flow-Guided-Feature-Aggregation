@@ -526,7 +526,7 @@ def process_pred_result(pred_result, imdb, thresh, cfg, nms, all_boxes, idx, max
             # cls_boxes = boxes[:, 4:8]
             cls_dets = np.hstack((cls_boxes, cls_scores))
             if cfg.TEST.SEQ_NMS:
-                all_boxes[j][idx+delta]=cls_dets
+                all_boxes[j][idx+delta] = cls_dets
             else:
                 keep = nms(cls_dets)
                 all_boxes[j][idx + delta] = cls_dets[keep, :]

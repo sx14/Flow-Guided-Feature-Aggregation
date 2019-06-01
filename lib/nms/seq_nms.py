@@ -329,3 +329,86 @@ def seq_nms_nms(video, thresh):
             keep = nms(dets, thresh)
             dets_all[j][frame_ind] = dets[keep, :]
     return dets_all
+
+
+def conf_nms(video_dets):
+
+    # filter by confidence threshold
+    # reorganize detections [cls->frame] -> [frame->all_cls]
+    conf_thr = 0.001
+    org_box_num = 0
+    thr_box_num = 0
+    all_frame_dets = [None for _ in range(len(video_dets[0]))]
+    for c in range(len(video_dets)):
+        for f in range(len(video_dets[c])):
+            frame_boxes = video_dets[c][f]
+            org_box_num += frame_boxes.shape[0]
+            # if frame_boxes.shape[0] > 0:
+            #     frame_boxes = frame_boxes[frame_boxes[:, 4] > conf_thr]
+            video_dets[c][f] = frame_boxes
+            thr_box_num += frame_boxes.shape[0]
+
+            # add class index
+            # mix all class detections
+            cls_ind = np.ones((frame_boxes.shape[0], 1)) * c
+            frame_boxes = np.concatenate((frame_boxes, cls_ind), axis=1)
+            if all_frame_dets[f] is None:
+                all_frame_dets[f] = frame_boxes
+            else:
+                all_frame_dets[f] = np.concatenate((all_frame_dets[f], frame_boxes))
+
+    # nms on all classes
+    nms_box_num = 0
+    max_per_box = 2
+    iou_thr = 0.9
+    for f, dets in enumerate(all_frame_dets):
+        keep = []
+
+        if dets.shape[0] == 0:
+            continue
+
+        x1 = dets[:, 0]
+        y1 = dets[:, 1]
+        x2 = dets[:, 2]
+        y2 = dets[:, 3]
+        scores = dets[:, 4]
+
+        areas = (x2 - x1 + 1) * (y2 - y1 + 1)
+        order = scores.argsort()[::-1]
+
+        while order.size > 0:
+            i = order[0]
+            keep.append(i)
+
+            xx1 = np.maximum(x1[i], x1[order[1:]])
+            yy1 = np.maximum(y1[i], y1[order[1:]])
+            xx2 = np.minimum(x2[i], x2[order[1:]])
+            yy2 = np.minimum(y2[i], y2[order[1:]])
+
+            w = np.maximum(0.0, xx2 - xx1 + 1)
+            h = np.maximum(0.0, yy2 - yy1 + 1)
+            inter = w * h
+            ovr = inter / (areas[i] + areas[order[1:]] - inter)
+
+            # add 4 cls for one box
+            same_box_inds = np.where(ovr > iou_thr)[0]
+            same_box_inds = same_box_inds[:max_per_box-1]
+            keep += order[same_box_inds + 1].tolist()
+
+            inds = np.where(ovr <= iou_thr)[0]
+            order = order[inds + 1]
+
+        nms_box_num += len(keep)
+        all_frame_dets[f] = dets[keep, :]
+
+    # reorganize detections
+    for f in range(len(all_frame_dets)):
+        frame_dets = all_frame_dets[f]
+        for c in range(len(video_dets)):
+            cls_inds = frame_dets[:, 5] == c
+            frame_cls_dets = frame_dets[cls_inds, :5]
+            video_dets[c][f] = frame_cls_dets
+
+    print('conf_nms: %d -> %d -> %d' % (org_box_num, thr_box_num, nms_box_num))
+    return video_dets
+

@@ -66,8 +66,9 @@ def show_prediction(video_root, pred_path, vid=None):
 
             print('T[%d] %s %.4f [%d| %d -> %d |%d]' % (tid, cls, score, stt_fid, org_stt_fid, org_end_fid, end_fid))
 
-            if tid > -1:
-                continue
+            # if tid > -1:
+            #     continue
+
 
             blank_len = 30
             traj_boxes = [None] * len(frame_list)

@@ -1,7 +1,97 @@
 import os
 import json
+import math
 import time
 import numpy as np
+
+
+#   high >  0.5
+# medium >  0.2
+#    low >= 0
+difficulty_level = ['high', 'medium', 'low']
+
+cls_difficulty = {
+    'bread': 'high',
+    'cake': 'medium',
+    'dish': 'medium',
+    'fruits': 'high',
+    'vegetables': 'low',
+    'backpack': 'medium',
+    'camera': 'high',
+    'cellphone': 'high',
+    'handbag': 'high',
+    'laptop': 'medium',
+    'suitcase': 'high',
+    'ball/sports_ball': 'high',
+    'bat': 'high',
+    'frisbee': 'high',
+    'racket': 'high',
+    'skateboard': 'high',
+    'ski': 'high',
+    'snowboard': 'high',
+    'surfboard': 'high',
+    'toy': 'medium',
+    'baby_seat': 'medium',
+    'bottle': 'medium',
+    'chair': 'medium',
+    'cup': 'medium',
+    'electric_fan': 'high',
+    'faucet': 'high',
+    'microwave': 'high',
+    'oven': 'high',
+    'refrigerator': 'low',
+    'screen/monitor': 'medium',
+    'sink': 'medium',
+    'sofa': 'low',
+    'stool': 'high',
+    'table': 'medium',
+    'toilet': 'low',
+    'guitar': 'low',
+    'piano': 'high',
+    'baby_walker': 'medium',
+    'bench': 'high',
+    'stop_sign': 'high',
+    'traffic_light': 'high',
+    'aircraft': 'high',
+    'bicycle': 'medium',
+    'bus/truck': 'medium',
+    'car': 'medium',
+    'motorcycle': 'medium',
+    'scooter': 'high',
+    'train': 'medium',
+    'watercraft': 'high',
+    'crab': 'high',
+    'bird': 'high',
+    'chicken': 'high',
+    'duck': 'medium',
+    'penguin': 'medium',
+    'fish': 'medium',
+    'stingray': 'high',
+    'crocodile': 'high',
+    'snake': 'high',
+    'turtle': 'high',
+    'antelope': 'high',
+    'bear': 'high',
+    'camel': 'high',
+    'cat': 'low',
+    'cattle/cow': 'high',
+    'dog': 'low',
+    'elephant': 'medium',
+    'hamster/rat': 'high',
+    'horse': 'low',
+    'kangaroo': 'low',
+    'leopard': 'medium',
+    'lion': 'high',
+    'panda': 'medium',
+    'pig': 'low',
+    'rabbit': 'medium',
+    'sheep/goat': 'high',
+    'squirrel': 'high',
+    'tiger': 'high',
+    'adult': 'low',
+    'baby': 'low',
+    'child': 'low'
+}
 
 
 def cal_viou(det1, det2, iou_thr=0.7):
@@ -129,6 +219,14 @@ def temperal_nms(dets, cls, t_iou_thr=0.7):
 
 
 def filler_bad_trajs(video_dets, score_thr=0.1, min_len=5, max_per_vid=25):
+
+    for det in video_dets:
+        cls = det['category']
+        if cls_difficulty[cls] == 'high':
+            det['score'] += 0.4
+        elif cls_difficulty[cls] == 'medium':
+            det['score'] += 0.2
+
     video_dets = sorted(video_dets, key=lambda det: det['score'], reverse=True)
     # for i, det in enumerate(video_dets):
     #     if det['score'] < score_thr:
@@ -243,6 +341,8 @@ def track(frame_paths, init_box, vis=False):
     import matplotlib.pyplot as plt
     import cv2
 
+    MAX_NEW_BOX_NUM = 200
+
     if vis:
         plt.figure(0)
     new_boxes = []
@@ -265,7 +365,7 @@ def track(frame_paths, init_box, vis=False):
                 break
             new_boxes.append(box)
             new_box_cnt += 1
-            if new_box_cnt == 200:
+            if new_box_cnt == MAX_NEW_BOX_NUM:
                 break
         if vis:
             plt.ion()
@@ -330,13 +430,13 @@ def extend_traj(det, tid, frame_list, video_dir):
     else:
         tail_is_over = is_over(boxes[-1][1], w, h)
 
-    cache_len = 10
+    CACHE_LEN = 10
     if not head_is_over:
         # tracking backward
         # print('\t[%d] head track: <%s>' % (tid, cate))
-        if traj_duration > 2 * cache_len:
-            track_stt_fid = traj_stt_fid + cache_len
-            curr_cache_len = cache_len
+        if traj_duration > 2 * CACHE_LEN:
+            track_stt_fid = traj_stt_fid + CACHE_LEN
+            curr_cache_len = CACHE_LEN
         else:
             track_stt_fid = int(round((traj_stt_fid + traj_end_fid) / 2.0))
             curr_cache_len = track_stt_fid - traj_stt_fid
@@ -355,9 +455,9 @@ def extend_traj(det, tid, frame_list, video_dir):
         # tracking forward
         # print('\t[%d] tail track: <%s>' % (tid, cate))
 
-        if traj_duration > 2 * cache_len:
-            track_stt_fid = traj_end_fid - cache_len
-            curr_cache_len = cache_len
+        if traj_duration > 2 * CACHE_LEN:
+            track_stt_fid = traj_end_fid - CACHE_LEN
+            curr_cache_len = CACHE_LEN
         else:
             track_stt_fid = int(round((traj_stt_fid + traj_end_fid) / 2.0))
             curr_cache_len = traj_end_fid - track_stt_fid
@@ -396,17 +496,15 @@ def post_process(res_path, data_root):
         video_dets = all_results[video_id]
         org_det_num = len(video_dets)
 
-        max_per_vid = max(round(len(frame_list) / 1000.0), 1)*25
+        max_per_vid = max(round(len(frame_list) / 800.0), 1) * 20
         video_dets = filler_bad_trajs(video_dets, max_per_vid=int(max_per_vid))
         fillered_dets = len(video_dets)
 
         from multiprocessing.pool import Pool as Pool
         from multiprocessing import cpu_count
         pool = Pool(processes=cpu_count())
-
-        results = [pool.apply_async(extend_traj, args=(det, d, frame_list, video_dir)) for d, det in enumerate(video_dets)]
-        # for d, det in enumerate(video_dets):
-        #     pool.apply_async(extend_traj, args=(det, d, frame_list, video_dir))
+        results = [pool.apply_async(extend_traj, args=(det, d, frame_list, video_dir))
+                   for d, det in enumerate(video_dets)]
         pool.close()
         pool.join()
 
@@ -421,7 +519,6 @@ def post_process(res_path, data_root):
     res_path1 = res_path[:-5] + '_proc.json'
     with open(res_path1, 'w') as f:
         json.dump(res, f)
-
 
 
 res_path = '../evaluation/vidor_val_object_pred.json'

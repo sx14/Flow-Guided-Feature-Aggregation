@@ -3,8 +3,8 @@ import json
 
 import numpy as np
 
-#   high >  0.4
-# medium >  0.1
+#   high >  0.5
+# medium >  0.2
 #    low >= 0
 difficulty_level = ['high', 'medium', 'low']
 
@@ -13,7 +13,7 @@ cls_difficulty = {
     'cake': 'medium',
     'dish': 'medium',
     'fruits': 'high',
-    'vegetables': 'high',
+    'vegetables': 'low',
     'backpack': 'medium',
     'camera': 'high',
     'cellphone': 'high',
@@ -38,23 +38,23 @@ cls_difficulty = {
     'microwave': 'high',
     'oven': 'high',
     'refrigerator': 'low',
-    'screen/monitor': 'low',
-    'sink': 'low',
+    'screen/monitor': 'medium',
+    'sink': 'medium',
     'sofa': 'low',
     'stool': 'high',
     'table': 'medium',
     'toilet': 'low',
     'guitar': 'low',
     'piano': 'high',
-    'baby_walker': 'high',
+    'baby_walker': 'medium',
     'bench': 'high',
     'stop_sign': 'high',
     'traffic_light': 'high',
     'aircraft': 'high',
     'bicycle': 'medium',
-    'bus/truck': 'high',
+    'bus/truck': 'medium',
     'car': 'medium',
-    'motorcycle': 'high',
+    'motorcycle': 'medium',
     'scooter': 'high',
     'train': 'medium',
     'watercraft': 'high',
@@ -73,7 +73,7 @@ cls_difficulty = {
     'camel': 'high',
     'cat': 'low',
     'cattle/cow': 'high',
-    'dog': 'high',
+    'dog': 'low',
     'elephant': 'medium',
     'hamster/rat': 'high',
     'horse': 'low',

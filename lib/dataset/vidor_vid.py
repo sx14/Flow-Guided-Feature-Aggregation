@@ -15,7 +15,7 @@ from imdb import IMDB
 from imagenet_vid_eval import vid_eval
 from imagenet_vid_eval_motion import vid_eval_motion
 from ds_utils import unique_boxes, filter_small_boxes
-from lib.nms.seq_nms import seq_nms, seq_nms_nms
+from lib.nms.seq_nms import seq_nms, seq_nms_nms, conf_nms
 from lib.nms.nms import py_nms_wrapper, cpu_nms_wrapper, gpu_nms_wrapper
 
 
@@ -318,6 +318,9 @@ class VidORVID(IMDB):
             video_index = np.searchsorted(sum_frame_ids, true_id)
             if video_index != start_video:  # reprensents a new video
                 video = [all_boxes[j][start_idx:im_ind] for j in range(1, self.num_classes)]
+
+                # video = conf_nms(video)
+
                 videos.append([video, start_idx, im_ind])
 
                 start_idx = im_ind
