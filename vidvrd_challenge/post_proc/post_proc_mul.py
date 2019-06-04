@@ -94,6 +94,173 @@ cls_difficulty = {
 }
 
 
+cls_score_thr = {
+    'bread': 0.001,
+    'cake': 0.4,
+    'dish': 0.2,
+    'fruits': 0.001,
+    'vegetables': 0.1,
+    'backpack': 0.2,
+    'camera': 0.001,
+    'cellphone': 0.05,
+    'handbag': 0.001,
+    'laptop': 0.1,
+    'suitcase': 0.001,
+    'ball/sports_ball': 0.05,
+    'bat': 0.001,
+    'frisbee': 0.001,
+    'racket': 0.001,
+    'skateboard': 0.001,
+    'ski': 0.001,
+    'snowboard': 0.001,
+    'surfboard': 0.001,
+    'toy': 0.2,
+    'baby_seat': 0.05,
+    'bottle': 0.1,
+    'chair': 0.2,
+    'cup': 0.2,
+    'electric_fan': 0.001,
+    'faucet': 0.001,
+    'microwave': 0.001,
+    'oven': 'high',
+    'refrigerator': 0.2,
+    'screen/monitor': 0.2,
+    'sink': 0.2,
+    'sofa': 0.3,
+    'stool': 0.001,
+    'table': 0.2,
+    'toilet': 'low',
+    'guitar': 0.4,
+    'piano': 0.001,
+    'baby_walker': 0.1,
+    'bench': 0.001,
+    'stop_sign': 0.001,
+    'traffic_light': 0.001,
+    'aircraft': 0.001,
+    'bicycle': 0.1,
+    'bus/truck': 0.4,
+    'car': 0.3,
+    'motorcycle': 0.1,
+    'scooter': 0.001,
+    'train': 0.1,
+    'watercraft': 0.001,
+    'crab': 0.001,
+    'bird': 0.1,
+    'chicken': 0.001,
+    'duck': 0.1,
+    'penguin': 0.2,
+    'fish': 0.1,
+    'stingray': 0.001,
+    'crocodile': 0.001,
+    'snake': 0.001,
+    'turtle': 0.001,
+    'antelope': 0.001,
+    'bear': 0.001,
+    'camel': 0.001,
+    'cat': 0.1,
+    'cattle/cow': 0.001,
+    'dog': 0.3,
+    'elephant': 0.2,
+    'hamster/rat': 0.001,
+    'horse': 0.4,
+    'kangaroo': 'low',
+    'leopard': 'medium',
+    'lion': 0.001,
+    'panda': 'medium',
+    'pig': 'low',
+    'rabbit': 0.2,
+    'sheep/goat': 0.001,
+    'squirrel': 0.001,
+    'tiger': 0.001,
+    'adult': 0.3,
+    'baby': 0.2,
+    'child': 0.3
+}
+
+cls_dur_thr = {
+    'bread': 20,
+    'cake': 40,
+    'dish': 30,
+    'fruits': 20,
+    'vegetables': 20,
+    'backpack': 10,
+    'camera': 5,
+    'cellphone': 5,
+    'handbag': 10,
+    'laptop': 20,
+    'suitcase': 10,
+    'ball/sports_ball': 3,
+    'bat': 3,
+    'frisbee': 3,
+    'racket': 3,
+    'skateboard': 3,
+    'ski': 3,
+    'snowboard': 3,
+    'surfboard': 3,
+    'toy': 50,
+    'baby_seat': 50,
+    'bottle': 10,
+    'chair': 30,
+    'cup': 10,
+    'electric_fan': 10,
+    'faucet': 10,
+    'microwave': 5,
+    'oven': 10,
+    'refrigerator': 30,
+    'screen/monitor': 20,
+    'sink': 10,
+    'sofa': 50,
+    'stool': 20,
+    'table': 30,
+    'toilet': 30,
+    'guitar': 50,
+    'piano': 40,
+    'baby_walker': 20,
+    'bench': 10,
+    'stop_sign': 10,
+    'traffic_light': 3,
+    'aircraft': 10,
+    'bicycle': 10,
+    'bus/truck': 10,
+    'car': 10,
+    'motorcycle': 5,
+    'scooter': 10,
+    '': 30,
+    'watercraft': 10,
+    'crab': 10,
+    'bird': 10,
+    'chicken': 5,
+    'duck': 10,
+    'penguin': 20,
+    'fish': 10,
+    'stingray': 5,
+    'crocodile': 50,
+    'snake': 5,
+    'turtle': 5,
+    'antelope': 5,
+    'bear': 10,
+    'camel': 10,
+    'cat': 40,
+    'cattle/cow': 10,
+    'dog': 30,
+    'elephant': 30,
+    'hamster/rat': 5,
+    'horse': 20,
+    'kangaroo': 30,
+    'leopard': 5,
+    'lion': 40,
+    'panda': 20,
+    'pig': 10,
+    'rabbit': 10,
+    'sheep/goat': 30,
+    'squirrel': 5,
+    'tiger': 20,
+    'adult': 100,
+    'baby': 50,
+    'child': 50
+}
+
+
 def cal_viou(det1, det2, iou_thr=0.7):
 
     stt_fid1 = det1['start_fid']
@@ -218,23 +385,19 @@ def temperal_nms(dets, cls, t_iou_thr=0.7):
     return keep
 
 
-def filler_bad_trajs(video_dets, score_thr=0.1, min_len=5, max_per_vid=25):
+def filler_bad_trajs(video_dets, score_thr=0.05, min_len=5, max_per_vid=25):
 
+    cands = []
     for det in video_dets:
-        cls = det['category']
-        if cls_difficulty[cls] == 'high':
-            det['score'] += 0.4
-        elif cls_difficulty[cls] == 'medium':
-            det['score'] += 0.2
+        det_dur = det['end_fid']-det['start_fid'] + 1
+        det_cls = det['category']
+        det_scr = det['score']
+        if det_dur >= cls_dur_thr[det_cls] and det_scr >= max(cls_score_thr[det_cls], score_thr):
+            cands.append(det)
 
-    video_dets = sorted(video_dets, key=lambda det: det['score'], reverse=True)
-    # for i, det in enumerate(video_dets):
-    #     if det['score'] < score_thr:
-    #         break
-    # video_dets = video_dets[:i]
-    video_dets = [det for det in video_dets if ((det['end_fid']-det['start_fid'] + 1) >= min_len)]
-    video_dets = video_dets[:min(len(video_dets), max_per_vid)]
-    return video_dets
+    cands = sorted(cands, key=lambda det: det['score'], reverse=True)
+    cands = cands[:min(len(video_dets), max_per_vid)]
+    return cands
 
 
 def cal_iou(box1, box2):
@@ -275,8 +438,7 @@ def merge_traj(det1, det2):
         box1 = traj1['%06d' % i]
         box2 = traj2['%06d' % i]
         iou = cal_iou(box1, box2)
-        print(iou)
-
+        # print(iou)
         if iou > 0.6:
             cnt += 1
 
@@ -396,13 +558,13 @@ def is_over(det, im_w, im_h):
     # check position
     if x1 < 5 or x2 > (im_w - 5):
         # disappear from left/right edge
-        if det_h * 1.0 / det_w > 3:
+        if det_h * 1.0 / det_w > 3 or det_h < im_h * 0.1 or det_w < im_w * 0.1:
             return True
     if y1 < 5 or y2 > (im_h - 5):
         # disappear from top/bottom edge
-        if det_w * 1.0 / det_h > 3:
+        if det_w * 1.0 / det_h > 3 or det_h < im_h * 0.1 or det_w < im_w * 0.1:
             return True
-    if det_w < 5 or det_h < 5 or max(det_w, det_h) * 1.0 / min(det_w, det_h) > 3:
+    if det_w < im_w * 0.1 or det_h < im_h * 0.1 or max(det_w, det_h) * 1.0 / min(det_w, det_h) > 3:
         # disappear from center
         # occluded
         return True
@@ -430,7 +592,7 @@ def extend_traj(det, tid, frame_list, video_dir):
     else:
         tail_is_over = is_over(boxes[-1][1], w, h)
 
-    CACHE_LEN = 10
+    CACHE_LEN = 30
     if not head_is_over:
         # tracking backward
         # print('\t[%d] head track: <%s>' % (tid, cate))
@@ -482,6 +644,7 @@ def extend_traj(det, tid, frame_list, video_dir):
 
 
 def post_process(res_path, data_root):
+    # load predictions
     with open(res_path) as f:
         res = json.load(f)
         all_results = res['results']
@@ -496,10 +659,16 @@ def post_process(res_path, data_root):
         video_dets = all_results[video_id]
         org_det_num = len(video_dets)
 
-        max_per_vid = max(round(len(frame_list) / 800.0), 1) * 20
-        video_dets = filler_bad_trajs(video_dets, max_per_vid=int(max_per_vid))
-        fillered_dets = len(video_dets)
+        # maximum number of trajectories
+        # max_per_vid = 20 + max((round(len(frame_list) / 900.0) - 1), 0) * 10
+        # max_per_vid = min(max_per_vid, 40)
+        max_per_vid = 20
 
+        # filter out extremely short and low scored ones
+        video_dets = filler_bad_trajs(video_dets, max_per_vid=int(max_per_vid))
+        fil_det_num = len(video_dets)
+
+        # extend trajectories by tracking
         from multiprocessing.pool import Pool as Pool
         from multiprocessing import cpu_count
         pool = Pool(processes=cpu_count())
@@ -507,14 +676,13 @@ def post_process(res_path, data_root):
                    for d, det in enumerate(video_dets)]
         pool.close()
         pool.join()
-
         for d in range(len(video_dets)):
             video_dets[d] = results[d].get()
 
-        # connect(video_dets)
+        connect(video_dets)
         all_results[video_id] = video_dets
         t1 = time.time()
-        print('\t%s Det num: %d -> %d -> %d (%.2f sec)' % (video_id, org_det_num, fillered_dets, len(video_dets), (t1 - t)))
+        print('\t%s Det num: %d -> %d -> %d (%.2f sec)' % (video_id, org_det_num, fil_det_num, len(video_dets), (t1 - t)))
 
     res_path1 = res_path[:-5] + '_proc.json'
     with open(res_path1, 'w') as f:

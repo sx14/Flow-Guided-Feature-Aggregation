@@ -4,6 +4,9 @@
 import os
 import json
 
+import numpy as np
+import matplotlib.pyplot as plt
+
 anno_root = ''
 vid_count = 0
 rlt_count = 0
@@ -34,6 +37,8 @@ rlt_dur_ratio_sum = 0
 rlt_dur_ratio_max = 0.0
 rlt_dur_ratio_min = float('+Inf')
 
+cls_obj_dur_dist = {}
+
 
 pkg_list = os.listdir(anno_root)
 for p, pkg in enumerate(pkg_list):
@@ -46,12 +51,21 @@ for p, pkg in enumerate(pkg_list):
         objs = vid_anno['subject/objects']
 
         tid2dur = {}
+        tid2cls = {}
         for obj in objs:
             tid2dur[obj['tid']] = 0
+            tid2cls[obj['tid']] = obj['category']
         frame_trajs = vid_anno['trajectories']
         for frame_boxes in frame_trajs:
             for box in frame_boxes:
                 tid2dur[box['tid']] += 1
+
+        for tid in tid2dur:
+            cls = tid2cls[tid]
+            if cls not in cls_obj_dur_dist:
+                cls_obj_dur_dist[cls] = []
+            cls_obj_dur_dist[cls].append(tid2dur[tid])
+
 
         rlts = vid_anno['relation_instances']
         vid_dur = vid_anno['frame_count']
@@ -107,4 +121,12 @@ print('-' * 50)
 
 print('obj dur    : min(%d), max(%d), avg(%.2f)' % (obj_dur_min, obj_dur_max, obj_dur_sum * 1.0 / obj_count))
 print('obj dur rat: min(%d), max(%d), avg(%.2f)' % (obj_dur_ratio_min, obj_dur_ratio_max, obj_dur_ratio_sum * 1.0 / obj_count))
+
+print('-' * 50)
+
+for cls in cls_obj_dur_dist:
+    print('%s: min(%d) num(%d)' % (cls, min(cls_obj_dur_dist[cls]), len(cls_obj_dur_dist[cls])))
+    print(np.percentile(cls_obj_dur_dist[cls], (25, 50, 75), interpolation='midpoint'))
+    plt.hist(cls_obj_dur_dist[cls], bins=200)
+    plt.show()
 

@@ -53,7 +53,7 @@ CLASSES = ['__background__',  # always index 0
            'tiger', 'adult', 'baby', 'child']
            
 NMS_THRESH = 0.3
-IOU_THRESH = 0.7
+IOU_THRESH = 0.8
 MAX_THRESH=1e-2
 
 
@@ -126,10 +126,10 @@ def createLinks(dets_all):
                 ovrs = inter / (area1 + areas2 - inter)
 
                 # |w1/h1 - w2/h2| < 0.3
-                w1 = box1[2] - box1[0]
-                h1 = max(box1[3] - box1[1], 0.01)
-                w2s = dets2[:, 2] - dets2[:, 0]
-                h2s = dets2[:, 3] - dets2[:, 1]
+                w1 = box1[2] - box1[0] + 1
+                h1 = max(box1[3] - box1[1] + 1, 0.01)
+                w2s = dets2[:, 2] - dets2[:, 0] + 1
+                h2s = dets2[:, 3] - dets2[:, 1] + 1
                 h2s = np.maximum(0.001, h2s)
                 whr1 = w1 * 1.0 / h1
                 whrs2 = w2s * 1.0 / h2s
@@ -143,7 +143,7 @@ def createLinks(dets_all):
 
                 # 为当前帧当前det，保存下一帧可连接的所有det的id
                 links_box = [ovr_ind for ovr_ind, ovr in enumerate(ovrs) if
-                             ovr >= IOU_THRESH and whr_diff[ovr_ind] < 0.2]
+                             ovr >= IOU_THRESH and whr_diff[ovr_ind] < 0.1]
                 links_frame.append(links_box)
             links_cls.append(links_frame)
         links_all.append(links_cls)
@@ -359,7 +359,7 @@ def conf_nms(video_dets):
 
     # nms on all classes
     nms_box_num = 0
-    max_per_box = 2
+    max_per_box = 4
     iou_thr = 0.9
     for f, dets in enumerate(all_frame_dets):
         keep = []
