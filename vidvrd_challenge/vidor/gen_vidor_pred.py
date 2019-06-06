@@ -17,7 +17,11 @@ for i in res_ids:
                '/det_VID_%s_videos%d_all.txt' % (split, split, split, i)
     res_paths.append(res_path)
 
-sav_path = '../evaluation/vidor_%s_object_pred.json' % split
+sav_paths = []
+for i in res_ids:
+    sav_path = '../evaluation/vidor_%s_object_pred%d.json' % (split, i)
+    sav_paths.append(sav_path)
+
 imageset_path = '../../data/VidOR/ImageSets/VID_%s_frames.txt' % split
 data_path = '../../data/VidOR/Data/VID/'
 
@@ -43,6 +47,8 @@ categorys = ['__background__',  # always index 0
              'pig', 'rabbit', 'sheep/goat', 'squirrel',
              'tiger', 'adult', 'baby', 'child']
 
-
-gen_vidor_pred(imageset_path, res_paths, sav_path, categorys, data_path)
+for i in range(len(res_paths)):
+    res_path = res_paths[i]
+    sav_path = sav_paths[i]
+    gen_vidor_pred(imageset_path, res_path, sav_path, categorys, data_path)
 

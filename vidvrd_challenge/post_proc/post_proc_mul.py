@@ -172,9 +172,9 @@ cls_score_thr = {
     'sheep/goat': 0.001,
     'squirrel': 0.001,
     'tiger': 0.001,
-    'adult': 0.3,
+    'adult': 0.2,
     'baby': 0.2,
-    'child': 0.3
+    'child': 0.2
 }
 
 cls_dur_thr = {
@@ -225,7 +225,7 @@ cls_dur_thr = {
     'car': 10,
     'motorcycle': 5,
     'scooter': 10,
-    '': 30,
+    'train': 30,
     'watercraft': 10,
     'crab': 10,
     'bird': 10,
@@ -503,7 +503,7 @@ def track(frame_paths, init_box, vis=False):
     import matplotlib.pyplot as plt
     import cv2
 
-    MAX_NEW_BOX_NUM = 200
+    MAX_NEW_BOX_NUM = 1000
 
     if vis:
         plt.figure(0)
@@ -609,8 +609,8 @@ def extend_traj(det, tid, frame_list, video_dir):
         print('\t[%d] head add: %d <%s>' % (tid, len(new_boxes) - curr_cache_len, cate))
 
         for i in range(len(new_boxes)):
-            frame_id = '%06d' % (int(track_stt_fid) - i - 1)
             new_box = new_boxes[i]
+            frame_id = '%06d' % (int(track_stt_fid) - i - 1)
             traj[frame_id] = new_box
 
     if not tail_is_over:
@@ -630,8 +630,8 @@ def extend_traj(det, tid, frame_list, video_dir):
         print('\t[%d] tail add: %d <%s>' % (tid, len(new_boxes) - curr_cache_len, cate))
 
         for i in range(len(new_boxes)):
-            frame_id = '%06d' % (int(track_stt_fid) + i + 1)
             new_box = new_boxes[i]
+            frame_id = '%06d' % (int(track_stt_fid) + i + 1)
             traj[frame_id] = new_box
 
     if head_is_over and tail_is_over:
@@ -643,7 +643,7 @@ def extend_traj(det, tid, frame_list, video_dir):
     return det
 
 
-def post_process(res_path, data_root):
+def post_process(res_path, sav_path, data_root):
     # load predictions
     with open(res_path) as f:
         res = json.load(f)
@@ -684,18 +684,22 @@ def post_process(res_path, data_root):
         t1 = time.time()
         print('\t%s Det num: %d -> %d -> %d (%.2f sec)' % (video_id, org_det_num, fil_det_num, len(video_dets), (t1 - t)))
 
-    res_path1 = res_path[:-5] + '_proc.json'
-    with open(res_path1, 'w') as f:
+    with open(sav_path, 'w') as f:
         json.dump(res, f)
 
 
-res_path = '../evaluation/vidor_val_object_pred.json'
-data_root = '../../data/VidOR/Data/VID/val'
-t = time.time()
-post_process(res_path, data_root)
-t1 = time.time()
-dur = int(t1 - t)
-h = dur / 60 / 60
-m = dur / 60 - h * 60
-s = dur - h * 60 * 60 - m * 60
-print('Post process takes: %dh, %dm, %ds.' % (h, m, s))
+split = 'val'
+res_ids = [0]
+
+data_root = '../../data/VidOR/Data/VID/%s' % split
+for res_id in res_ids:
+    res_path = '../evaluation/vidor_%s_object_pred%d.json' % (split, res_id)
+    sav_path = res_path[:-5] + '_proc.json'
+    t = time.time()
+    post_process(res_path, sav_path, data_root)
+    t1 = time.time()
+    dur = int(t1 - t)
+    h = dur / 60 / 60
+    m = dur / 60 - h * 60
+    s = dur - h * 60 * 60 - m * 60
+    print('Post process takes: %dh, %dm, %ds.' % (h, m, s))
