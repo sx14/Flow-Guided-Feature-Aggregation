@@ -439,21 +439,31 @@ def merge_traj(det1, det2):
         box2 = traj2['%06d' % i]
         iou = cal_iou(box1, box2)
         # print(iou)
-        if iou > 0.6:
+        if iou > 0.7:
             cnt += 1
 
     merged_det = None
-    if cnt > (e1 - s2 + 1) * 0.6:
+    if cnt > (e1 - s2 + 1) * 0.7:
         # merge
         score1 = det1['score']
         score2 = det2['score']
+
+        union_s = min(s1, s2)
+        union_e = max(e1, e2)
+
         if score1 >= score2:
-            for i in range(e1+1, e2+1):
-                traj1['%6d' % i] = traj2['%6d' % i]
+            for i in range(union_s, union_e+1):
+                if s1 <= i <= e1:
+                    continue
+                else:
+                    traj1['%06d' % i] = traj2['%06d' % i]
             merged_det = det1
         else:
-            for i in range(s1, s2):
-                traj2['%6d' % i] = traj1['%6d' % i]
+            for i in range(union_s, union_e+1):
+                if s2 <= i <= e2:
+                    continue
+                else:
+                    traj2['%06d' % i] = traj1['%06d' % i]
             merged_det = det2
 
     return merged_det
@@ -564,7 +574,7 @@ def is_over(det, im_w, im_h):
         # disappear from top/bottom edge
         if det_w * 1.0 / det_h > 3 or det_h < im_h * 0.1 or det_w < im_w * 0.1:
             return True
-    if det_w < im_w * 0.1 or det_h < im_h * 0.1 or max(det_w, det_h) * 1.0 / min(det_w, det_h) > 3:
+    if det_w < im_w * 0.01 or det_h < im_h * 0.01 or max(det_w, det_h) * 1.0 / min(det_w, det_h) > 5:
         # disappear from center
         # occluded
         return True
