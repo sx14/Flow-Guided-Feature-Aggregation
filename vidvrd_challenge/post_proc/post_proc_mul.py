@@ -498,9 +498,12 @@ def connect(video_dets):
                         del_det_inds.add(i)
                         del_det_inds.add(j)
                         new_dets.append(merged_det)
+                        cont = True
+                        break
+            if cont:
+                break
 
-        if len(new_dets) > 0:
-            cont = True
+        if cont:
             del_inds = sorted(list(del_det_inds), reverse=True)
             for ind in del_inds:
                 video_dets.pop(ind)
