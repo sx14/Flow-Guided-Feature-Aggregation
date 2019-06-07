@@ -8,7 +8,7 @@ import cv2
 
 def gen_vidor_pred(imageset_path, res_paths, save_file_name, category_list, data_root):
     # max_per_video = 50
-    score_thr = 0.05
+    score_thr = 0.00
 
     # load frame-idx
     with open(imageset_path) as f:

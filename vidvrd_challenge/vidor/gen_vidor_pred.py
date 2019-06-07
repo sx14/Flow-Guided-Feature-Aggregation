@@ -3,7 +3,7 @@ from vidvrd_challenge.evaluation.gen_vidor_pred import gen_vidor_pred
 split = 'val'
 
 
-res_ids = [0]
+res_ids = [0, 1, 2, 3]
 res_paths = []
 for i in res_ids:
     res_path = '..' \
@@ -50,5 +50,5 @@ categorys = ['__background__',  # always index 0
 for i in range(len(res_paths)):
     res_path = res_paths[i]
     sav_path = sav_paths[i]
-    gen_vidor_pred(imageset_path, res_path, sav_path, categorys, data_path)
+    gen_vidor_pred(imageset_path, [res_path], sav_path, categorys, data_path)
 

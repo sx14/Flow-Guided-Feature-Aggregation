@@ -620,6 +620,7 @@ def extend_traj(det, tid, frame_list, video_dir):
 
         for i in range(len(new_boxes)):
             new_box = new_boxes[i]
+            new_box = [max(1, v) for v in new_box]
             frame_id = '%06d' % (int(track_stt_fid) - i - 1)
             traj[frame_id] = new_box
 
@@ -641,6 +642,7 @@ def extend_traj(det, tid, frame_list, video_dir):
 
         for i in range(len(new_boxes)):
             new_box = new_boxes[i]
+            new_box = [max(1, v) for v in new_box]
             frame_id = '%06d' % (int(track_stt_fid) + i + 1)
             traj[frame_id] = new_box
 
@@ -677,6 +679,8 @@ def post_process(res_path, sav_path, data_root):
         # filter out extremely short and low scored ones
         video_dets = filler_bad_trajs(video_dets, max_per_vid=int(max_per_vid))
         fil_det_num = len(video_dets)
+
+        print('tracking: %d' % fil_det_num)
 
         # extend trajectories by tracking
         from multiprocessing.pool import Pool as Pool
