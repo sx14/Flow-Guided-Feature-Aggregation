@@ -4,7 +4,6 @@ import math
 import time
 import numpy as np
 
-
 #   high >  0.5
 # medium >  0.2
 #    low >= 0
@@ -93,176 +92,174 @@ cls_difficulty = {
     'child': 'low'
 }
 
-
 cls_score_thr = {
-    'bread': 0.001,
-    'cake': 0.4,
+    'bread': 0,
+    'cake': 0.1,
     'dish': 0.2,
-    'fruits': 0.001,
-    'vegetables': 0.1,
-    'backpack': 0.2,
-    'camera': 0.001,
-    'cellphone': 0.05,
-    'handbag': 0.001,
-    'laptop': 0.1,
-    'suitcase': 0.001,
+    'fruits': 0,
+    'vegetables': 0.01,
+    'backpack': 0.01,
+    'camera': 0.01,
+    'cellphone': 0.01,
+    'handbag': 0.01,
+    'laptop': 0.05,
+    'suitcase': 0,
     'ball/sports_ball': 0.05,
-    'bat': 0.001,
-    'frisbee': 0.001,
-    'racket': 0.001,
-    'skateboard': 0.001,
-    'ski': 0.001,
-    'snowboard': 0.001,
-    'surfboard': 0.001,
-    'toy': 0.2,
+    'bat': 0,
+    'frisbee': 0,
+    'racket': 0,
+    'skateboard': 0,
+    'ski': 0,
+    'snowboard': 0,
+    'surfboard': 0,
+    'toy': 0.1,
     'baby_seat': 0.05,
     'bottle': 0.1,
-    'chair': 0.2,
-    'cup': 0.2,
-    'electric_fan': 0.001,
-    'faucet': 0.001,
-    'microwave': 0.001,
-    'oven': 'high',
-    'refrigerator': 0.2,
+    'chair': 0.02,
+    'cup': 0.1,
+    'electric_fan': 0.01,
+    'faucet': 0.1,
+    'microwave': 0,
+    'oven': 0,
+    'refrigerator': 0.05,
     'screen/monitor': 0.2,
     'sink': 0.2,
-    'sofa': 0.3,
-    'stool': 0.001,
-    'table': 0.2,
-    'toilet': 'low',
-    'guitar': 0.4,
-    'piano': 0.001,
-    'baby_walker': 0.1,
-    'bench': 0.001,
-    'stop_sign': 0.001,
-    'traffic_light': 0.001,
-    'aircraft': 0.001,
-    'bicycle': 0.1,
-    'bus/truck': 0.4,
-    'car': 0.3,
-    'motorcycle': 0.1,
-    'scooter': 0.001,
-    'train': 0.1,
-    'watercraft': 0.001,
-    'crab': 0.001,
-    'bird': 0.1,
-    'chicken': 0.001,
-    'duck': 0.1,
-    'penguin': 0.2,
+    'sofa': 0.2,
+    'stool': 0.1,
+    'table': 0.1,
+    'toilet': 0.1,
+    'guitar': 0.2,
+    'piano': 0.4,
+    'baby_walker': 0.01,
+    'bench': 0.1,
+    'stop_sign': 0,
+    'traffic_light': 0,
+    'aircraft': 0.01,
+    'bicycle': 0.2,
+    'bus/truck': 0.05,
+    'car': 0.2,
+    'motorcycle': 0.01,
+    'scooter': 0,
+    'train': 0,
+    'watercraft': 0.1,
+    'crab': 0,
+    'bird': 0.2,
+    'chicken': 0.2,
+    'duck': 0.05,
+    'penguin': 0.05,
     'fish': 0.1,
-    'stingray': 0.001,
-    'crocodile': 0.001,
-    'snake': 0.001,
-    'turtle': 0.001,
-    'antelope': 0.001,
-    'bear': 0.001,
-    'camel': 0.001,
+    'stingray': 0,
+    'crocodile': 0,
+    'snake': 0,
+    'turtle': 0.4,
+    'antelope': 0.01,
+    'bear': 0,
+    'camel': 0,
     'cat': 0.1,
-    'cattle/cow': 0.001,
-    'dog': 0.3,
-    'elephant': 0.2,
-    'hamster/rat': 0.001,
-    'horse': 0.4,
-    'kangaroo': 'low',
-    'leopard': 'medium',
-    'lion': 0.001,
-    'panda': 'medium',
-    'pig': 'low',
-    'rabbit': 0.2,
-    'sheep/goat': 0.001,
-    'squirrel': 0.001,
-    'tiger': 0.001,
+    'cattle/cow': 0.01,
+    'dog': 0.2,
+    'elephant': 0.1,
+    'hamster/rat': 0,
+    'horse': 0.05,
+    'kangaroo': 0.2,
+    'leopard': 0.01,
+    'lion': 0,
+    'panda': 0,
+    'pig': 0.1,
+    'rabbit': 0.01,
+    'sheep/goat': 0.01,
+    'squirrel': 0,
+    'tiger': 0,
     'adult': 0.2,
-    'baby': 0.2,
+    'baby': 0.1,
     'child': 0.2
 }
 
 cls_dur_thr = {
-    'bread': 20,
+    'bread': 1,
     'cake': 40,
-    'dish': 30,
-    'fruits': 20,
-    'vegetables': 20,
+    'dish': 100,
+    'fruits': 1,
+    'vegetables': 40,
     'backpack': 10,
     'camera': 5,
     'cellphone': 5,
-    'handbag': 10,
-    'laptop': 20,
-    'suitcase': 10,
-    'ball/sports_ball': 3,
-    'bat': 3,
-    'frisbee': 3,
-    'racket': 3,
-    'skateboard': 3,
-    'ski': 3,
+    'handbag': 20,
+    'laptop': 40,
+    'suitcase': 1,
+    'ball/sports_ball': 5,
+    'bat': 1,
+    'frisbee': 1,
+    'racket': 1,
+    'skateboard': 1,
+    'ski': 1,
     'snowboard': 3,
     'surfboard': 3,
-    'toy': 50,
-    'baby_seat': 50,
-    'bottle': 10,
+    'toy': 20,
+    'baby_seat': 40,
+    'bottle': 5,
     'chair': 30,
     'cup': 10,
-    'electric_fan': 10,
-    'faucet': 10,
+    'electric_fan': 20,
+    'faucet': 100,
     'microwave': 5,
-    'oven': 10,
-    'refrigerator': 30,
-    'screen/monitor': 20,
-    'sink': 10,
-    'sofa': 50,
+    'oven': 1,
+    'refrigerator': 40,
+    'screen/monitor': 40,
+    'sink': 50,
+    'sofa': 40,
     'stool': 20,
-    'table': 30,
-    'toilet': 30,
-    'guitar': 50,
-    'piano': 40,
-    'baby_walker': 20,
-    'bench': 10,
+    'table': 20,
+    'toilet': 100,
+    'guitar': 20,
+    'piano': 30,
+    'baby_walker': 40,
+    'bench': 20,
     'stop_sign': 10,
-    'traffic_light': 3,
-    'aircraft': 10,
-    'bicycle': 10,
-    'bus/truck': 10,
-    'car': 10,
-    'motorcycle': 5,
+    'traffic_light': 1,
+    'aircraft': 5,
+    'bicycle': 40,
+    'bus/truck': 40,
+    'car': 30,
+    'motorcycle': 10,
     'scooter': 10,
-    'train': 30,
+    'train': 40,
     'watercraft': 10,
-    'crab': 10,
-    'bird': 10,
+    'crab': 1,
+    'bird': 30,
     'chicken': 5,
-    'duck': 10,
-    'penguin': 20,
-    'fish': 10,
+    'duck': 20,
+    'penguin': 40,
+    'fish': 40,
     'stingray': 5,
     'crocodile': 50,
-    'snake': 5,
-    'turtle': 5,
-    'antelope': 5,
-    'bear': 10,
+    'snake': 1,
+    'turtle': 50,
+    'antelope': 10,
+    'bear': 1,
     'camel': 10,
-    'cat': 40,
-    'cattle/cow': 10,
-    'dog': 30,
-    'elephant': 30,
-    'hamster/rat': 5,
-    'horse': 20,
-    'kangaroo': 30,
-    'leopard': 5,
-    'lion': 40,
-    'panda': 20,
-    'pig': 10,
-    'rabbit': 10,
-    'sheep/goat': 30,
-    'squirrel': 5,
-    'tiger': 20,
-    'adult': 100,
+    'cat': 20,
+    'cattle/cow': 100,
+    'dog': 20,
+    'elephant': 50,
+    'hamster/rat': 20,
+    'horse': 30,
+    'kangaroo': 40,
+    'leopard': 80,
+    'lion': 1,
+    'panda': 10,
+    'pig': 100,
+    'rabbit': 5,
+    'sheep/goat': 20,
+    'squirrel': 1,
+    'tiger': 1,
+    'adult': 40,
     'baby': 50,
     'child': 50
 }
 
 
 def cal_viou(det1, det2, iou_thr=0.7):
-
     stt_fid1 = det1['start_fid']
     end_fid1 = det1['end_fid']
 
@@ -278,15 +275,14 @@ def cal_viou(det1, det2, iou_thr=0.7):
     overlap_frame_count = 0
     traj1 = det1['trajectory']
     traj2 = det2['trajectory']
-    for fid in range(inter_stt_fid, inter_end_fid+1):
-        if cal_iou(traj1['%06d' % fid], traj2['%06d'% fid]) > iou_thr:
+    for fid in range(inter_stt_fid, inter_end_fid + 1):
+        if cal_iou(traj1['%06d' % fid], traj2['%06d' % fid]) > iou_thr:
             overlap_frame_count += 1
     viou = overlap_frame_count * 1.0 / (union_end_fid - union_stt_fid + 1)
     return viou
 
 
 def cal_cover_ratio(det1, det2, iou_thr=0.7):
-
     stt_fid1 = det1['start_fid']
     end_fid1 = det1['end_fid']
     dur1 = end_fid1 - stt_fid1 + 1
@@ -314,8 +310,8 @@ def cal_cover_ratio(det1, det2, iou_thr=0.7):
     overlap_frame_count = 0
     traj1 = det1['trajectory']
     traj2 = det2['trajectory']
-    for fid in range(inter_stt_fid, inter_end_fid+1):
-        iou = cal_iou(traj1['%06d' % fid], traj2['%06d'% fid])
+    for fid in range(inter_stt_fid, inter_end_fid + 1):
+        iou = cal_iou(traj1['%06d' % fid], traj2['%06d' % fid])
         print(iou)
         if iou > iou_thr:
             overlap_frame_count += 1
@@ -325,8 +321,8 @@ def cal_cover_ratio(det1, det2, iou_thr=0.7):
 
 def remove_covered(dets, cls):
     rm_inds = set()
-    for i in range(len(dets)-1):
-        for j in range(i+1, len(dets)):
+    for i in range(len(dets) - 1):
+        for j in range(i + 1, len(dets)):
             stt_fid1 = dets[i]['start_fid']
             end_fid1 = dets[i]['end_fid']
             stt_fid2 = dets[j]['start_fid']
@@ -351,7 +347,6 @@ def remove_covered(dets, cls):
 
 
 def temperal_nms(dets, cls, t_iou_thr=0.7):
-
     stt_fids = np.array([int(det['start_fid']) for det in dets])
     end_fids = np.array([int(det['end_fid']) for det in dets])
     durs = end_fids - stt_fids + 1
@@ -359,8 +354,8 @@ def temperal_nms(dets, cls, t_iou_thr=0.7):
 
     rm_ids = set()
 
-    for i in range(len(order)-1):
-        for j in range(i+1, len(order)):
+    for i in range(len(order) - 1):
+        for j in range(i + 1, len(order)):
             # len(i) >= len(j)
             det1 = dets[order[i]]
             det2 = dets[order[j]]
@@ -386,10 +381,9 @@ def temperal_nms(dets, cls, t_iou_thr=0.7):
 
 
 def filler_bad_trajs(video_dets, score_thr=0.05, min_len=5, max_per_vid=25):
-
     cands = []
     for det in video_dets:
-        det_dur = det['end_fid']-det['start_fid'] + 1
+        det_dur = det['end_fid'] - det['start_fid'] + 1
         det_cls = det['category']
         det_scr = det['score']
         if det_dur >= cls_dur_thr[det_cls] and det_scr >= max(cls_score_thr[det_cls], score_thr):
@@ -434,7 +428,7 @@ def merge_traj(det1, det2):
     cnt = 0
     intersec_s = max(s1, s2)
     intersec_e = min(e1, e2)
-    for i in range(intersec_s, intersec_e+1):
+    for i in range(intersec_s, intersec_e + 1):
         box1 = traj1['%06d' % i]
         box2 = traj2['%06d' % i]
         iou = cal_iou(box1, box2)
@@ -451,7 +445,7 @@ def merge_traj(det1, det2):
         union_e = max(e1, e2)
 
         if score1 >= score2:
-            for i in range(union_s, union_e+1):
+            for i in range(union_s, union_e + 1):
                 if s1 <= i <= e1:
                     continue
                 else:
@@ -460,7 +454,7 @@ def merge_traj(det1, det2):
             det1['end_fid'] = union_e
             merged_det = det1
         else:
-            for i in range(union_s, union_e+1):
+            for i in range(union_s, union_e + 1):
                 if s2 <= i <= e2:
                     continue
                 else:
@@ -473,20 +467,19 @@ def merge_traj(det1, det2):
 
 
 def connect(video_dets):
-
     cont = True
     while cont:
         cont = False
         del_det_inds = set()
         new_dets = []
-        for i in range(len(video_dets)-1):
+        for i in range(len(video_dets) - 1):
             # assume before
             det1 = video_dets[i]
             traj1 = det1['trajectory']
             cls1 = det1['category']
             s1 = int(sorted(traj1.keys())[0])
             e1 = int(sorted(traj1.keys())[-1])
-            for j in range(i+1, len(video_dets)):
+            for j in range(i + 1, len(video_dets)):
 
                 det2 = video_dets[j]
                 traj2 = det2['trajectory']
@@ -531,14 +524,14 @@ def track(frame_paths, init_box, vis=False):
         if i == 0:
             # init tracker
             im_h, im_w, _ = frame.shape
-            box = (init_box[0], init_box[1], init_box[2]-init_box[0], init_box[3]-init_box[1])
+            box = (init_box[0], init_box[1], init_box[2] - init_box[0], init_box[3] - init_box[1])
             status = tracker.init(frame, box)
             box = init_box
             if not status:
                 break
         else:
             ok, box = tracker.update(frame)
-            box = [int(box[0]), int(box[1]), int(box[0]+box[2]), int(box[1]+box[3])]
+            box = [int(box[0]), int(box[1]), int(box[0] + box[2]), int(box[1] + box[3])]
             if (not ok) or is_over(box, im_w, im_h):
                 break
             new_boxes.append(box)
@@ -671,7 +664,7 @@ def post_process(res_path, sav_path, data_root):
 
         t = time.time()
         print('=' * 30)
-        print('[%d/%d] Proc %s' % (len(all_results), v+1, video_id))
+        print('[%d/%d] Proc %s' % (len(all_results), v + 1, video_id))
         video_dir = os.path.join(data_root, video_id)
         frame_list = sorted(os.listdir(video_dir))
         video_dets = all_results[video_id]
@@ -702,7 +695,8 @@ def post_process(res_path, sav_path, data_root):
         connect(video_dets)
         all_results[video_id] = video_dets
         t1 = time.time()
-        print('\t%s Det num: %d -> %d -> %d (%.2f sec)' % (video_id, org_det_num, fil_det_num, len(video_dets), (t1 - t)))
+        print('\t%s Det num: %d -> %d -> %d (%.2f sec)' % (
+        video_id, org_det_num, fil_det_num, len(video_dets), (t1 - t)))
 
     with open(sav_path, 'w') as f:
         json.dump(res, f)
@@ -723,10 +717,8 @@ def check_fid(res):
                 det['end_fid'] = end_fid
 
 
-
-
 split = 'val'
-res_ids = [0,1,2,3]
+res_ids = [0, 1, 2, 3]
 
 data_root = '../../data/VidOR/Data/VID/%s' % split
 for res_id in res_ids:
@@ -740,7 +732,6 @@ for res_id in res_ids:
     m = dur / 60 - h * 60
     s = dur - h * 60 * 60 - m * 60
     print('Post process takes: %dh, %dm, %ds.' % (h, m, s))
-
 
 res_all = None
 for res_id in res_ids:

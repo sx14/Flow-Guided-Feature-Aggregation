@@ -68,8 +68,6 @@ def evaluate(gt, pred, use_07_metric=True, thresh_t=0.8):
         npos = 0
         class_recs = {}
 
-        hit_pred_scr_dist = []
-
         for vid in gt:
             # print(vid)
             gt_trajs = [trk['trajectory'] for trk in gt[vid] if trk['category'] == c]
@@ -92,6 +90,10 @@ def evaluate(gt, pred, use_07_metric=True, thresh_t=0.8):
         sorted_scrs = [scores[id] for id in sorted_inds]
         sorted_traj = [trajectories[id] for id in sorted_inds]
 
+        hit_pred_scr_dist = []
+        hit_pred_len_dist = []
+        gt_len_dist = []
+
         for d in range(nd):
             R = class_recs[sorted_vids[d]]
             gt_trajs = R['trajectories']
@@ -102,13 +104,7 @@ def evaluate(gt, pred, use_07_metric=True, thresh_t=0.8):
                 if max_overlap >= thresh_t:
                     R['det'][g] = True
                     hit_pred_scr_dist.append(sorted_scrs[d])
-
-        import matplotlib.pyplot as plt
-        print('%s: %.4f' % (c, sum(hit_pred_scr_dist) * 1.0 / max(len(hit_pred_scr_dist), 1)))
-        percentiles = np.percentile(hit_pred_scr_dist, (25, 50, 75), interpolation='midpoint')
-        print(percentiles)
-        plt.hist(hit_pred_scr_dist, bins=10)
-        plt.show()
+                    hit_pred_len_dist.append(len(sorted_traj[d].keys()))
 
         gt_sum = 0
         gt_hit = 0
@@ -117,7 +113,24 @@ def evaluate(gt, pred, use_07_metric=True, thresh_t=0.8):
             for hit in class_recs[vid]['det']:
                 if hit:
                     gt_hit += 1
+            for traj in class_recs[vid]['trajectories']:
+                gt_len_dist.append(len(traj.keys()))
         rec_class[c] = [gt_hit, gt_sum]
+
+        print('=' * 50)
+        print('%s: rec(%.2f) gt(%d)' % (c, rec_class[c][0] * 1.0 / rec_class[c][1], rec_class[c][1]))
+
+        if len(hit_pred_scr_dist) > 0:
+            len_percentiles = np.percentile(hit_pred_len_dist, (10, 25, 50, 75), interpolation='midpoint')
+            print('%s: min_len(%d) avg_len(%.2f)' % (c,
+                                                     min(hit_pred_len_dist),
+                                                     sum(hit_pred_len_dist) * 1.0 / max(len(hit_pred_len_dist), 1)))
+            print(len_percentiles)
+            print('%s: min_scr(%.2f) avg_scr(%.2f)' % (c,
+                                                       min(hit_pred_scr_dist),
+                                                       sum(hit_pred_scr_dist) * 1.0 / max(len(hit_pred_scr_dist), 1)))
+            scr_percentiles = np.percentile(hit_pred_scr_dist, (10, 25, 50, 75), interpolation='midpoint')
+            print(scr_percentiles)
 
     # compute mean recall and print
     output = []

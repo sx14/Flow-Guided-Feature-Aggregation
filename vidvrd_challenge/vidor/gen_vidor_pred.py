@@ -65,5 +65,5 @@ for sav_path in sav_paths:
 
 sav_path = '../evaluation/vidor_%s_object_pred_all.json' % (split)
 with open(sav_path, 'w') as f:
-    json.dump(res_all, sav_path)
+    json.dump(res_all, f)
 
