@@ -7,7 +7,7 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 
-anno_root = ''
+anno_root = '../../../data/VidOR/anno'
 vid_count = 0
 rlt_count = 0
 obj_count = 0

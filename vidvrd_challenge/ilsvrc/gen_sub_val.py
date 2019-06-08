@@ -1,8 +1,4 @@
-import json
-import shutil
-
-from vidvrd_challenge.vidor.to_ilsvrc_vid_format import *
-from vidvrd_challenge.vidor.split_video import *
+from vidvrd_challenge.vidor.format.split_video import *
 from vidvrd_challenge.evaluation.gen_vidor_gt import gen_vidor_gt
 
 

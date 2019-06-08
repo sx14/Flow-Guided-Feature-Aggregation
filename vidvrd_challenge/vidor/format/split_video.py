@@ -24,6 +24,9 @@ def split_video_cv2(video_path, output_path):
 
 
 def split_video_ffmpeg(video_path, output_path):
+    org_cwd = os.getcwd()
+    curr_dir = os.path.dirname(__file__)
+    os.chdir(curr_dir)
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
@@ -36,14 +39,15 @@ def split_video_ffmpeg(video_path, output_path):
         org_frame_path = '%s/%06d.JPEG' % (output_path, fid+1)
         new_frame_path = '%s/%06d.JPEG' % (output_path, fid)
         os.renames(org_frame_path, new_frame_path)
+    os.chdir(org_cwd)
 
 
 
-if __name__ == '__main__':
-    video_path = '/home/magus/dataset3/VidOR/vidor-dataset/vidor/training/1027/2556839256.mp4'
-#
-    output_path = 'frame'
-    split_video_cv2(video_path, output_path)
-#
-    output_path = 'frame1'
-    split_video_ffmpeg(video_path, output_path)
+# if __name__ == '__main__':
+#     video_path = '/home/magus/dataset3/VidOR/vidor-dataset/vidor/training/1027/2556839256.mp4'
+# #
+#     output_path = 'frame'
+#     split_video_cv2(video_path, output_path)
+# #
+#     output_path = 'frame1'
+#     split_video_ffmpeg(video_path, output_path)

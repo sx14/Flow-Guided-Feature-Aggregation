@@ -1,7 +1,5 @@
-import json
-
-from vidvrd_challenge.vidor.to_ilsvrc_vid_format import *
-from vidvrd_challenge.vidor.split_video import *
+from vidvrd_challenge.vidor.format.to_ilsvrc_vid_format import *
+from vidvrd_challenge.vidor.format.split_video import *
 from vidvrd_challenge.evaluation.gen_vidor_gt import gen_vidor_gt
 
 
@@ -93,8 +91,9 @@ def prepare_vidor_gt(tgt_ds_root):
         video_ids = [line.split(' ')[0] for line in lines]
 
     val_anno_root = tgt_ds_root + '/Annotations/VID'
+    val_data_root = tgt_ds_root + 'Data/VID'
     vidor_gt_name = 'vidor_val_object_gt.json'
-    gen_vidor_gt(val_anno_root, video_ids, vidor_gt_name)
+    gen_vidor_gt(val_anno_root, val_data_root, video_ids, vidor_gt_name)
 
 
 if __name__ == '__main__':

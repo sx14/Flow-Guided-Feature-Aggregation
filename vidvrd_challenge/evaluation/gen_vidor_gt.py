@@ -2,19 +2,26 @@ import os
 import json
 import xml.etree.ElementTree as ET
 
+import cv2
 
-def gen_vidor_gt(video_anno_root, video_list, save_file_name):
+
+def gen_vidor_gt(video_anno_root, video_data_root, video_list, save_file_name):
 
     vid_val_gt = {}
     for i, vid in enumerate(video_list):
         print('Gen [%d/%d]' % (len(video_list), i+1))
         # for each video
+        vid_data_frame_dir = os.path.join(video_data_root, vid)
+        vid_fst_frame_path = os.path.join(vid_data_frame_dir, '000000.JPEG')
+        frame = cv2.imread(vid_fst_frame_path)
+        vid_h, vid_w, _ = frame.shape
+
         tid2obj = {}
-        vid_frame_dir = os.path.join(video_anno_root, vid)
-        vid_frame_list = sorted(os.listdir(vid_frame_dir))
-        for f, fid in enumerate(vid_frame_list):
+        vid_anno_frame_dir = os.path.join(video_anno_root, vid)
+        vid_anno_frame_list = sorted(os.listdir(vid_anno_frame_dir))
+        for f, fid in enumerate(vid_anno_frame_list):
             # for each xml
-            frame_path = os.path.join(vid_frame_dir, fid)
+            frame_path = os.path.join(vid_anno_frame_dir, fid)
             frame_anno = ET.parse(frame_path)
             frame_objs = frame_anno.findall('object')
             for obj in frame_objs:
@@ -40,6 +47,8 @@ def gen_vidor_gt(video_anno_root, video_list, save_file_name):
         gt_objs = []
         for tid, obj in objs:
             gt_obj = {
+                'height': vid_h,
+                'width': vid_w,
                 'tid': int(tid),
                 'category': obj['category'],
                 'trajectory': obj['trajectory']

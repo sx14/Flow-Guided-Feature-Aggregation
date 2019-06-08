@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-vidor_test_list_path = '../../data/VidOR/ImageSets/VID_val_videos.txt'
+vidor_test_list_path = '../../../data/VidOR/ImageSets/VID_val_videos.txt'
 
 
 with open(vidor_test_list_path) as f:
