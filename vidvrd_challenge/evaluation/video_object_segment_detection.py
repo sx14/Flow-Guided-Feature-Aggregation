@@ -105,6 +105,8 @@ def evaluate(gt, pred, use_07_metric=True, thresh_t=0.8):
 
         import matplotlib.pyplot as plt
         print('%s: %.4f' % (c, sum(hit_pred_scr_dist) * 1.0 / max(len(hit_pred_scr_dist), 1)))
+        percentiles = np.percentile(hit_pred_scr_dist, (25, 50, 75), interpolation='midpoint')
+        print(percentiles)
         plt.hist(hit_pred_scr_dist, bins=10)
         plt.show()
 

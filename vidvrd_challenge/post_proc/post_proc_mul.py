@@ -438,7 +438,6 @@ def merge_traj(det1, det2):
         box1 = traj1['%06d' % i]
         box2 = traj2['%06d' % i]
         iou = cal_iou(box1, box2)
-        # print(iou)
         if iou > 0.7:
             cnt += 1
 
@@ -457,6 +456,8 @@ def merge_traj(det1, det2):
                     continue
                 else:
                     traj1['%06d' % i] = traj2['%06d' % i]
+            det1['start_fid'] = union_s
+            det1['end_fid'] = union_e
             merged_det = det1
         else:
             for i in range(union_s, union_e+1):
@@ -464,6 +465,8 @@ def merge_traj(det1, det2):
                     continue
                 else:
                     traj2['%06d' % i] = traj1['%06d' % i]
+            det2['start_fid'] = union_s
+            det2['end_fid'] = union_e
             merged_det = det2
 
     return merged_det
@@ -705,8 +708,25 @@ def post_process(res_path, sav_path, data_root):
         json.dump(res, f)
 
 
+def check_fid(res):
+    for vid in res:
+        print(vid)
+        vid_dets = res[vid]
+        for det in vid_dets:
+            traj = det['trajectory']
+            fids = sorted(int(fid) for fid in traj.keys())
+            stt_fid = fids[0]
+            end_fid = fids[-1]
+            if det['start_fid'] != stt_fid or det['end_fid'] != end_fid:
+                print('inconsistent !')
+                det['start_fid'] = stt_fid
+                det['end_fid'] = end_fid
+
+
+
+
 split = 'val'
-res_ids = [0]
+res_ids = [0,1,2,3]
 
 data_root = '../../data/VidOR/Data/VID/%s' % split
 for res_id in res_ids:
@@ -720,3 +740,20 @@ for res_id in res_ids:
     m = dur / 60 - h * 60
     s = dur - h * 60 * 60 - m * 60
     print('Post process takes: %dh, %dm, %ds.' % (h, m, s))
+
+
+res_all = None
+for res_id in res_ids:
+    res_path = '../evaluation/vidor_%s_object_pred%d.json' % (split, res_id)
+    sav_path = res_path[:-5] + '_proc.json'
+    with open(sav_path) as f:
+        res = json.load(f)
+        check_fid(res['results'])
+    if res_all is None:
+        res_all = res
+    else:
+        res_all['results'].update(res['results'])
+
+sav_path = '../evaluation/vidor_%s_object_pred_proc_all.json' % (split)
+with open(sav_path, 'w') as f:
+    json.dump(res_all, sav_path)

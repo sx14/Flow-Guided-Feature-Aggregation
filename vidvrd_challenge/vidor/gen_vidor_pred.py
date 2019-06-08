@@ -1,3 +1,4 @@
+import json
 from vidvrd_challenge.evaluation.gen_vidor_pred import gen_vidor_pred
 
 split = 'val'
@@ -51,4 +52,18 @@ for i in range(len(res_paths)):
     res_path = res_paths[i]
     sav_path = sav_paths[i]
     gen_vidor_pred(imageset_path, [res_path], sav_path, categorys, data_path)
+
+
+res_all = None
+for sav_path in sav_paths:
+    with open(sav_path) as f:
+        res = json.load(f)
+    if res_all is None:
+        res_all = res
+    else:
+        res_all['results'].update(res['results'])
+
+sav_path = '../evaluation/vidor_%s_object_pred_all.json' % (split)
+with open(sav_path, 'w') as f:
+    json.dump(res_all, sav_path)
 
