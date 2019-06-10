@@ -90,14 +90,15 @@ def prepare_vidor_gt(tgt_ds_root):
         lines = f.readlines()
         video_ids = [line.split(' ')[0] for line in lines]
 
-    val_anno_root = tgt_ds_root + '/Annotations/VID'
-    val_data_root = tgt_ds_root + 'Data/VID'
+    val_anno_root = os.path.join(tgt_ds_root, 'Annotations', 'VID')
+    val_data_root = os.path.join(tgt_ds_root, 'Data', 'VID')
     vidor_gt_name = 'vidor_val_object_gt.json'
     gen_vidor_gt(val_anno_root, val_data_root, video_ids, vidor_gt_name)
 
 
 if __name__ == '__main__':
     tgt_ds_root = '../../data/VidOR'
+    tgt_ds_root = os.path.abspath(tgt_ds_root)
 
     prepare_ImageSets(tgt_ds_root, 'val', 0, 10)
     prepare_vidor_gt(tgt_ds_root)
