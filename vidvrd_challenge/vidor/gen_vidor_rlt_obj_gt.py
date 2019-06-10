@@ -3,6 +3,19 @@ import json
 import xml.etree.ElementTree as ET
 
 
+def is_spatial(predicate):
+    spatial_set = set()
+    spatial_set.add('towards')
+    spatial_set.add('next_to')
+    spatial_set.add('inside')
+    spatial_set.add('in_front_of')
+    spatial_set.add('beneath')
+    spatial_set.add('behind')
+    spatial_set.add('away')
+    spatial_set.add('above')
+    return predicate in spatial_set
+
+
 def gen_vidor_rlt_obj_gt(video_anno_root, video_list, save_file_name):
 
     vid_val_gt = {}
@@ -37,6 +50,10 @@ def gen_vidor_rlt_obj_gt(video_anno_root, video_list, save_file_name):
         rlt_obj_tid = 0
         rlt_obj_trajs = []
         for rlt in vid_anno['relation_instances']:
+            predicate = rlt['predicate']
+            if not is_spatial(predicate):
+                continue
+
             stt_fid = rlt['begin_fid']
             end_fid = rlt['end_fid']
             obj_tid = rlt['object_tid']
