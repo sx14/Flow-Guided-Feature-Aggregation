@@ -9,8 +9,7 @@ def prepare_Data(org_ds_root, tgt_ds_root):
     org_data_root = os.path.join(org_ds_root, 'vidor')
     tgt_data_root = os.path.join(tgt_ds_root, 'Data', 'VID')
     # org, target
-    # splits = [('validation', 'val'), ('training', 'train')]
-    splits = [('testing', 'test')]
+    splits = [('validation', 'val'), ('training', 'train'), ('testing', 'test')]
     for split in splits:
         # target split
         tgt_split_root = os.path.join(tgt_data_root, split[1])
@@ -49,70 +48,70 @@ def prepare_ImageSets(tgt_ds_root):
         os.makedirs(tgt_imageset_root)
 
     # 1. VID_val_frames.txt
-    # print('ImageSets: VID_val_frames.txt')
-    # val_frames = []
-    # val_frame_cnt = 1   # start from 1
-    # val_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', 'val')
-    # for pkg in os.listdir(val_root):
-    #     pkg_root = os.path.join(val_root, pkg)
-    #
-    #     for vid in os.listdir(pkg_root):
-    #         vid_path = os.path.join(pkg_root, vid)
-    #
-    #         n_frame = len(os.listdir(vid_path))
-    #         for i in range(n_frame):
-    #             frame_info = os.path.join('val/%s/%s/%06d %d\n' % (pkg, vid, i, val_frame_cnt))
-    #             val_frames.append(frame_info)
-    #             val_frame_cnt += 1
-    #
-    # val_frame_file_path = os.path.join(tgt_imageset_root, 'VID_val_frames.txt')
-    # with open(val_frame_file_path, 'w') as f:
-    #     f.writelines(val_frames)
+    print('ImageSets: VID_val_frames.txt')
+    val_frames = []
+    val_frame_cnt = 1   # start from 1
+    val_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', 'val')
+    for pkg in os.listdir(val_root):
+        pkg_root = os.path.join(val_root, pkg)
+
+        for vid in os.listdir(pkg_root):
+            vid_path = os.path.join(pkg_root, vid)
+
+            n_frame = len(os.listdir(vid_path))
+            for i in range(n_frame):
+                frame_info = os.path.join('val/%s/%s/%06d %d\n' % (pkg, vid, i, val_frame_cnt))
+                val_frames.append(frame_info)
+                val_frame_cnt += 1
+
+    val_frame_file_path = os.path.join(tgt_imageset_root, 'VID_val_frames.txt')
+    with open(val_frame_file_path, 'w') as f:
+        f.writelines(val_frames)
 
     # 2. VID_val_videos.txt
-    # print('ImageSets: VID_val_videos.txt')
-    # val_videos = []
-    # video_frame_start = 1   # start from 1
-    # for pkg in os.listdir(val_root):
-    #     pkg_root = os.path.join(val_root, pkg)
-    #
-    #     for vid in os.listdir(pkg_root):
-    #         frame_root = os.path.join(pkg_root, vid)
-    #
-    #         n_frame = len(os.listdir(frame_root))
-    #         video_info = os.path.join('val/%s/%s %d %d %d\n' % (pkg, vid, video_frame_start, 0, n_frame))
-    #         val_videos.append(video_info)
-    #         video_frame_start += n_frame
-    #
-    # val_video_file_path = os.path.join(tgt_imageset_root, 'VID_val_videos.txt')
-    # with open(val_video_file_path, 'w') as f:
-    #     f.writelines(val_videos)
+    print('ImageSets: VID_val_videos.txt')
+    val_videos = []
+    video_frame_start = 1   # start from 1
+    for pkg in os.listdir(val_root):
+        pkg_root = os.path.join(val_root, pkg)
+
+        for vid in os.listdir(pkg_root):
+            frame_root = os.path.join(pkg_root, vid)
+
+            n_frame = len(os.listdir(frame_root))
+            video_info = os.path.join('val/%s/%s %d %d %d\n' % (pkg, vid, video_frame_start, 0, n_frame))
+            val_videos.append(video_info)
+            video_frame_start += n_frame
+
+    val_video_file_path = os.path.join(tgt_imageset_root, 'VID_val_videos.txt')
+    with open(val_video_file_path, 'w') as f:
+        f.writelines(val_videos)
 
     # 3. VID_train_15frames.txt
-    # print('ImageSets: VID_train_15frames.txt')
-    # train_key_frames = []
-    # train_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', 'train')
-    # n_seg = 35  # TODO: need tune
-    # n_seg_frame = 20
-    # # n_frm_max = 900
-    # for pkg in os.listdir(train_root):
-    #     pkg_root = os.path.join(train_root, pkg)
-    #
-    #     for vid in os.listdir(pkg_root):
-    #         frame_root = os.path.join(pkg_root, vid)
-    #         n_frame = len(os.listdir(frame_root))
-    #         # n_frame = min(n_frame, n_frm_max)
-    #
-    #         # n_seg_frame = max(n_frame * 1.0 / n_seg, 1.0)
-    #         key_frame_id = int(n_seg_frame / 2.0)
-    #         while key_frame_id <= (n_frame-1):
-    #             key_frame_info = os.path.join('train/%s/%s %d %d %d\n' % (pkg, vid, 1, int(key_frame_id), n_frame))
-    #             train_key_frames.append(key_frame_info)
-    #             key_frame_id += n_seg_frame
-    #
-    # train_key_frame_file_path = os.path.join(tgt_imageset_root, 'VID_train_15frames.txt')
-    # with open(train_key_frame_file_path, 'w') as f:
-    #     f.writelines(train_key_frames)
+    print('ImageSets: VID_train_15frames.txt')
+    train_key_frames = []
+    train_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', 'train')
+    n_seg = 35  # TODO: need tune
+    n_seg_frame = 20
+    # n_frm_max = 900
+    for pkg in os.listdir(train_root):
+        pkg_root = os.path.join(train_root, pkg)
+
+        for vid in os.listdir(pkg_root):
+            frame_root = os.path.join(pkg_root, vid)
+            n_frame = len(os.listdir(frame_root))
+            # n_frame = min(n_frame, n_frm_max)
+
+            # n_seg_frame = max(n_frame * 1.0 / n_seg, 1.0)
+            key_frame_id = int(n_seg_frame / 2.0)
+            while key_frame_id <= (n_frame-1):
+                key_frame_info = os.path.join('train/%s/%s %d %d %d\n' % (pkg, vid, 1, int(key_frame_id), n_frame))
+                train_key_frames.append(key_frame_info)
+                key_frame_id += n_seg_frame
+
+    train_key_frame_file_path = os.path.join(tgt_imageset_root, 'VID_train_15frames.txt')
+    with open(train_key_frame_file_path, 'w') as f:
+        f.writelines(train_key_frames)
 
 
     # 4. VID_test_frames.txt
@@ -377,15 +376,16 @@ def collect_category_error(org_ds_root):
     for c in unseen_categories:
         print(c)
 
-if __name__ == '__main__':
-    org_ds_root = '/home/magus/dataset3/VidOR/vidor-dataset'
-    tgt_ds_root = '/home/magus/dataset3/VidOR/vidor-ilsvrc'
-    #prepare_Data(org_ds_root, tgt_ds_root)
-    #prepare_Annotations(org_ds_root, tgt_ds_root)
-    #prepare_Annotations_test(tgt_ds_root)
-    #prepare_ImageSets(tgt_ds_root)
 
-    # collect_frame_error(org_ds_root, tgt_ds_root)
-    # collect_category_error(org_ds_root)
+if __name__ == '__main__':
+    org_ds_root = '/home/magus/sunx-workspace/dataset/vidor/vidor-dataset'
+    tgt_ds_root = '/home/magus/sunx-workspace/dataset/vidor/vidor-ilsvrc'
+    prepare_Data(org_ds_root, tgt_ds_root)
+    prepare_Annotations(org_ds_root, tgt_ds_root)
+    prepare_Annotations_test(tgt_ds_root)
+    prepare_ImageSets(tgt_ds_root)
+
+    collect_frame_error(org_ds_root, tgt_ds_root)
+    collect_category_error(org_ds_root)
 
 
