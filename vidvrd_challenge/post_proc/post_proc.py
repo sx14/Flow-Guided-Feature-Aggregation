@@ -3,94 +3,6 @@ import json
 
 import numpy as np
 
-#   high >  0.5
-# medium >  0.2
-#    low >= 0
-difficulty_level = ['high', 'medium', 'low']
-
-cls_difficulty = {
-    'bread': 'high',
-    'cake': 'medium',
-    'dish': 'medium',
-    'fruits': 'high',
-    'vegetables': 'low',
-    'backpack': 'medium',
-    'camera': 'high',
-    'cellphone': 'high',
-    'handbag': 'high',
-    'laptop': 'medium',
-    'suitcase': 'high',
-    'ball/sports_ball': 'high',
-    'bat': 'high',
-    'frisbee': 'high',
-    'racket': 'high',
-    'skateboard': 'high',
-    'ski': 'high',
-    'snowboard': 'high',
-    'surfboard': 'high',
-    'toy': 'medium',
-    'baby_seat': 'medium',
-    'bottle': 'medium',
-    'chair': 'medium',
-    'cup': 'medium',
-    'electric_fan': 'high',
-    'faucet': 'high',
-    'microwave': 'high',
-    'oven': 'high',
-    'refrigerator': 'low',
-    'screen/monitor': 'medium',
-    'sink': 'medium',
-    'sofa': 'low',
-    'stool': 'high',
-    'table': 'medium',
-    'toilet': 'low',
-    'guitar': 'low',
-    'piano': 'high',
-    'baby_walker': 'medium',
-    'bench': 'high',
-    'stop_sign': 'high',
-    'traffic_light': 'high',
-    'aircraft': 'high',
-    'bicycle': 'medium',
-    'bus/truck': 'medium',
-    'car': 'medium',
-    'motorcycle': 'medium',
-    'scooter': 'high',
-    'train': 'medium',
-    'watercraft': 'high',
-    'crab': 'high',
-    'bird': 'high',
-    'chicken': 'high',
-    'duck': 'medium',
-    'penguin': 'medium',
-    'fish': 'medium',
-    'stingray': 'high',
-    'crocodile': 'high',
-    'snake': 'high',
-    'turtle': 'high',
-    'antelope': 'high',
-    'bear': 'high',
-    'camel': 'high',
-    'cat': 'low',
-    'cattle/cow': 'high',
-    'dog': 'low',
-    'elephant': 'medium',
-    'hamster/rat': 'high',
-    'horse': 'low',
-    'kangaroo': 'low',
-    'leopard': 'medium',
-    'lion': 'high',
-    'panda': 'medium',
-    'pig': 'low',
-    'rabbit': 'medium',
-    'sheep/goat': 'high',
-    'squirrel': 'high',
-    'tiger': 'high',
-    'adult': 'low',
-    'baby': 'low',
-    'child': 'low'
-}
-
 
 CLASSES = ['__background__',  # always index 0
            'bread', 'cake', 'dish', 'fruits',
@@ -113,7 +25,6 @@ CLASSES = ['__background__',  # always index 0
            'kangaroo', 'leopard', 'lion', 'panda',
            'pig', 'rabbit', 'sheep/goat', 'squirrel',
            'tiger', 'adult', 'baby', 'child']
-
 
 
 def cal_viou(det1, det2, iou_thr=0.7):

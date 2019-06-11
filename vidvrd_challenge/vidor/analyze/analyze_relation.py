@@ -12,6 +12,8 @@ vid_count = 0
 rlt_count = 0
 obj_count = 0
 
+obj_cls_count = {}
+
 obj_max = 0
 obj_min = float('+Inf')
 obj_sum = 0
@@ -53,6 +55,11 @@ for p, pkg in enumerate(pkg_list):
         tid2dur = {}
         tid2cls = {}
         for obj in objs:
+            if obj['category'] not in obj_cls_count:
+                obj_cls_count[obj['category']] = 1
+            else:
+                obj_cls_count[obj['category']] += 1
+
             tid2dur[obj['tid']] = 0
             tid2cls[obj['tid']] = obj['category']
         frame_trajs = vid_anno['trajectories']
@@ -65,7 +72,6 @@ for p, pkg in enumerate(pkg_list):
             if cls not in cls_obj_dur_dist:
                 cls_obj_dur_dist[cls] = []
             cls_obj_dur_dist[cls].append(tid2dur[tid])
-
 
         rlts = vid_anno['relation_instances']
         vid_dur = vid_anno['frame_count']
@@ -124,9 +130,13 @@ print('obj dur rat: min(%d), max(%d), avg(%.2f)' % (obj_dur_ratio_min, obj_dur_r
 
 print('-' * 50)
 
-for cls in cls_obj_dur_dist:
-    print('%s: min(%d) num(%d)' % (cls, min(cls_obj_dur_dist[cls]), len(cls_obj_dur_dist[cls])))
-    print(np.percentile(cls_obj_dur_dist[cls], (25, 50, 75), interpolation='midpoint'))
-    plt.hist(cls_obj_dur_dist[cls], bins=200)
-    plt.show()
+# for cls in cls_obj_dur_dist:
+#     print('%s: min(%d) num(%d)' % (cls, min(cls_obj_dur_dist[cls]), len(cls_obj_dur_dist[cls])))
+#     print(np.percentile(cls_obj_dur_dist[cls], (25, 50, 75), interpolation='midpoint'))
+#     plt.hist(cls_obj_dur_dist[cls], bins=200)
+#     plt.show()
 
+obj_sum = sum(obj_cls_count.values())
+for cls in obj_cls_count:
+    cls_count = obj_cls_count[cls]
+    print('%s: %.2f' % (cls, cls_count * 1.0 / obj_sum))
