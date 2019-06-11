@@ -81,6 +81,7 @@ If you find Flow-Guided Feature Aggregation useful in your research, please cons
 	- pip install opencv-python==3.2.0.6
 	+ pip install opencv-python==3.4.0.12
 	pip install easydict==1.6
+	sudo apt install libblas-dev
 	```
 3. For Windows users, Visual Studio 2015 is needed to compile cython module.
 
