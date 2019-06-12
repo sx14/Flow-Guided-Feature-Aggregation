@@ -11,7 +11,7 @@ def prepare_ImageSets(tgt_ds_root):
     with open(train_frame_path) as f:
         train_items = f.readlines()
         train_items = [item.strip().split(' ') for item in train_items]
-        train_items = ['%s/%6d\n' % (item[0], int(item[2])) for item in train_items]
+        train_items = ['%s/%06d\n' % (train_items[i][0], int(train_items[i][2])) for i in range(len(train_items))]
 
     train_list_dir = os.path.join(tgt_ds_root, 'ImageSets', 'Main')
     if not os.path.exists(train_list_dir):

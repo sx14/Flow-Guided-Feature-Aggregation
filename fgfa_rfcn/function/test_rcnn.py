@@ -58,11 +58,11 @@ def test_rcnn(cfg, dataset, image_set, root_path, dataset_path, motion_iou_path,
 
     # load symbol and testing data
 
-    feat_sym_instance = eval(cfg.symbol + '.' + cfg.symbol)()
-    aggr_sym_instance = eval(cfg.symbol + '.' + cfg.symbol)()
-
-    feat_sym = feat_sym_instance.get_feat_symbol(cfg)
-    aggr_sym = aggr_sym_instance.get_aggregation_symbol(cfg)
+    # feat_sym_instance = eval(cfg.symbol + '.' + cfg.symbol)()
+    # aggr_sym_instance = eval(cfg.symbol + '.' + cfg.symbol)()
+    #
+    # feat_sym = feat_sym_instance.get_feat_symbol(cfg)
+    # aggr_sym = aggr_sym_instance.get_aggregation_symbol(cfg)
 
     imdb = eval(dataset)(image_set, root_path, dataset_path, motion_iou_path, result_path=output_path, enable_detailed_eval=enable_detailed_eval)
     roidb = imdb.gt_roidb()
@@ -81,11 +81,12 @@ def test_rcnn(cfg, dataset, image_set, root_path, dataset_path, motion_iou_path,
     test_datas = [TestLoader(x, cfg, batch_size=1, shuffle=shuffle, has_rpn=has_rpn) for x in roidbs]
 
     # load model
-    arg_params, aux_params = load_param(prefix, epoch, process=True)
-
-    # create predictor
-    feat_predictors = [get_predictor(feat_sym, feat_sym_instance, cfg, arg_params, aux_params, test_datas[i], [ctx[i]]) for i in range(gpu_num)]
-    aggr_predictors = [get_predictor(aggr_sym, aggr_sym_instance, cfg, arg_params, aux_params, test_datas[i], [ctx[i]]) for i in range(gpu_num)]
+    # arg_params, aux_params = load_param(prefix, epoch, process=True)
+    #
+    # # create predictor
+    # feat_predictors = [get_predictor(feat_sym, feat_sym_instance, cfg, arg_params, aux_params, test_datas[i], [ctx[i]]) for i in range(gpu_num)]
+    # aggr_predictors = [get_predictor(aggr_sym, aggr_sym_instance, cfg, arg_params, aux_params, test_datas[i], [ctx[i]]) for i in range(gpu_num)]
 
     # start detection
-    pred_eval_multiprocess(gpu_num, feat_predictors, aggr_predictors, test_datas, imdb, cfg, vis=vis, ignore_cache=ignore_cache, thresh=thresh, logger=logger)
+    # pred_eval_multiprocess(gpu_num, feat_predictors, aggr_predictors, test_datas, imdb, cfg, vis=vis, ignore_cache=ignore_cache, thresh=thresh, logger=logger)
+    pred_eval_multiprocess(gpu_num, [1], [1], test_datas, imdb, cfg, vis=vis, ignore_cache=ignore_cache, thresh=thresh, logger=logger)
