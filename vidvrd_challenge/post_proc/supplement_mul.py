@@ -52,26 +52,58 @@ def cal_iou(box, boxes):
     u_areas = (u_xmaxs - u_xmins) * (u_ymaxs - u_ymins)
 
     ious = i_areas / u_areas
-    return ious
+    return ious.tolist()
 
 
-def get_supplement_frame_detections(all_traj_dets, all_frame_dets):
-    for vid in all_frame_dets:
-        vid_fram_dets = all_frame_dets[vid]
+def supplement_trajectories(all_traj_dets, all_frame_dets, data_root, max_per_video=30):
+
+    all_vids = all_frame_dets.keys()
+    vid_num = len(all_vids)
+    for v, vid in enumerate(all_vids):
+        # for each video
+        print('[%d/%d] supplement: %s' % (vid_num, v+1, vid))
         vid_traj_dets = all_traj_dets[vid]
+        vid_frame_dets = all_frame_dets[vid]
+        vid_frame_num = len(vid_frame_dets.keys())
+        vid_frame_root = os.path.join(data_root, vid)
 
-        for fid in vid_fram_dets:
-            cand_supplement_frame_dets = []
-            frame_dets = [det['box'] for det in vid_fram_dets[fid]]
-            traj_boxes = [traj_det['trajectory'][fid]
-                          for traj_det in vid_traj_dets if fid in traj_det]
+        for fid in vid_frame_dets:
+
+            if len(vid_traj_dets) >= max_per_video:
+                break
+
+            # for each frame
+            frame_dets = [det for det in vid_frame_dets[fid]]
+            frame_dets = sorted(frame_dets, key=lambda det: det['score'], reverse=True)
+
+            traj_boxes = []
+            traj_clses = []
+            for traj_det in vid_traj_dets:
+                if fid in traj_det['trajectory']:
+                    traj_boxes.append(traj_det['trajectory'][fid])
+                    traj_clses.append(traj_det['category'])
+
             for i, frame_det in enumerate(frame_dets):
-                ious = cal_iou(frame_det, traj_boxes)
-                ious[ious < 0.7] = 0
-                if sum(ious) > 0:
-                    cand_supplement_frame_dets.append(frame_dets[i])
-            vid_fram_dets[fid] = cand_supplement_frame_dets
-    return all_frame_dets
+                frame_det['fid'] = fid
+                if len(vid_traj_dets) >= max_per_video:
+                    break
+
+                ious = cal_iou(frame_det['box'], traj_boxes)
+                large_overlap = False
+                inconsistent_cls = True
+                for j in range(len(ious)):
+                    if ious[j] > 0.7:
+                        large_overlap = True
+                        if traj_clses[j] == frame_det['category']:
+                            inconsistent_cls = False
+
+                if large_overlap:
+                    if inconsistent_cls:
+                        new_traj = det2traj(frame_det, vid_frame_num, vid_frame_root)
+                        vid_traj_dets.append(new_traj)
+                else:
+                    new_traj = det2traj(frame_det, vid_frame_num, vid_frame_root)
+                    vid_traj_dets.append(new_traj)
 
 
 def det2traj(det, frame_num, frame_root):
@@ -98,34 +130,6 @@ def det2traj(det, frame_num, frame_root):
     return traj_det
 
 
-def track_single_boxes(supplements, data_root):
-    results = {}
-    for pid_vid in supplements:
-        vid_frame_dets = supplements[pid_vid]
-        vid_frame_root = os.path.join(data_root, pid_vid)
-        frame_num = len(os.listdir(vid_frame_root))
-
-        dets = []
-        for fid in vid_frame_dets:
-            frame_dets = vid_frame_dets[fid]
-            for det in frame_dets:
-                det['fid'] = fid
-                dets.append(det)
-
-        from multiprocessing.pool import Pool as Pool
-        from multiprocessing import cpu_count
-        pool = Pool(processes=cpu_count())
-        results = [pool.apply_async(det2traj, args=(det, frame_num, vid_frame_root))
-                   for d, det in enumerate(dets)]
-        pool.close()
-        pool.join()
-
-        traj_dets = [results[i].get() for i in range(len(results))]
-        results[pid_vid] = traj_dets
-    return results
-
-
-
 if __name__ == '__main__':
     split = 'val'
 
@@ -135,9 +139,9 @@ if __name__ == '__main__':
 
     all_traj_dets = load_trajectory_detections(traj_det_path)
     all_frame_dets = load_frame_detections(frame_det_path)
-    supplement_frame_dets = get_supplement_frame_detections(all_traj_dets, all_frame_dets)
-    results = track_single_boxes(supplement_frame_dets, data_root)
+    supplement_trajectories(all_traj_dets, all_frame_dets, data_root)
 
-    output_path = ''
-
+    output_path = '../evaluation/vidor_%s_object_pred_proc_sup.json' % split
+    with open(output_path, 'w') as f:
+        json.dump(all_traj_dets, f)
 

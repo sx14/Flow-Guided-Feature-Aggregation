@@ -577,6 +577,7 @@ def extend_traj(det, tid, frame_list, video_dir):
 def post_process(res_path, sav_path, data_root):
 
     if os.path.exists(sav_path):
+        print(sav_path + ' exists.')
         return
 
     # load predictions
