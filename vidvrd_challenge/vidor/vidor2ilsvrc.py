@@ -231,7 +231,7 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
 
 
 def prepare_Annotations_test(tgt_ds_root):
-    data_root = os.path.join(org_ds_root, 'Data', 'VID', 'test')
+    data_root = os.path.join(tgt_ds_root, 'Data', 'VID', 'test')
     anno_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', 'test')
 
     # original path
@@ -378,8 +378,8 @@ def collect_category_error(org_ds_root):
 
 
 if __name__ == '__main__':
-    org_ds_root = '/home/magus/sunx-workspace/dataset/vidor/vidor-dataset'
-    tgt_ds_root = '/home/magus/sunx-workspace/dataset/vidor/vidor-ilsvrc'
+    org_ds_root = '/home/magus/sunx-workspace/datasets/vidor/vidor-dataset'
+    tgt_ds_root = '/home/magus/sunx-workspace/datasets/vidor/vidor-ilsvrc'
     prepare_Data(org_ds_root, tgt_ds_root)
     prepare_Annotations(org_ds_root, tgt_ds_root)
     prepare_Annotations_test(tgt_ds_root)

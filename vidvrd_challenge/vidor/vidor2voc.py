@@ -11,7 +11,7 @@ def prepare_ImageSets(tgt_ds_root):
     with open(train_frame_path) as f:
         train_items = f.readlines()
         train_items = [item.strip().split(' ') for item in train_items]
-        train_items = ['VID/%s/%6d\n' % (item[0], int(item[2])) for item in train_items]
+        train_items = ['%s/%6d\n' % (item[0], int(item[2])) for item in train_items]
 
     train_list_dir = os.path.join(tgt_ds_root, 'ImageSets', 'Main')
     if not os.path.exists(train_list_dir):
@@ -25,7 +25,7 @@ def prepare_ImageSets(tgt_ds_root):
     with open(val_frame_path) as f:
         val_items = f.readlines()
         val_items = [item.strip().split(' ') for item in val_items]
-        val_items = ['VID/%s/%6d\n' % (val_items[i][0], int(val_items[i][2])) for i in range(0, len(val_items), 20)]
+        val_items = ['%s\n' % (val_items[i][0]) for i in range(0, len(val_items), 20)]
 
     val_list_dir = os.path.join(tgt_ds_root, 'ImageSets', 'Main')
     if not os.path.exists(val_list_dir):
@@ -36,8 +36,8 @@ def prepare_ImageSets(tgt_ds_root):
 
 
 if __name__ == '__main__':
-    org_ds_root = '/home/magus/sunx-workspace/dataset/vidor/vidor-dataset'
-    tgt_ds_root = '/home/magus/sunx-workspace/dataset/vidor/vidor-ilsvrc'
+    tgt_ds_root = '/home/magus/sunx-workspace/datasets/vidor/vidor-ilsvrc'
+    prepare_ImageSets(tgt_ds_root)
 
 
 
