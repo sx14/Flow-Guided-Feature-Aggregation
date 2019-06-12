@@ -2,7 +2,8 @@ import os
 import json
 import numpy as np
 
-from post_proc_mul import track
+from post_proc_mul import track, connect
+
 
 def load_trajectory_detections(res_path):
     with open(res_path) as f:
@@ -105,6 +106,8 @@ def supplement_trajectories(all_traj_dets, all_frame_dets, data_root, max_per_vi
                     new_traj = det2traj(frame_det, vid_frame_num, vid_frame_root)
                     vid_traj_dets.append(new_traj)
 
+        connect(vid_traj_dets)
+
 
 def det2traj(det, frame_num, frame_root):
     fid = det['fid']
@@ -112,8 +115,8 @@ def det2traj(det, frame_num, frame_root):
     fid_int = int(fid)
     forward_frame_paths = [os.path.join(frame_root, '%06d.JPEG' % f) for f in range(fid_int + 1, frame_num)]
     backward_frame_paths = [os.path.join(frame_root, '%06d.JPEG' % f) for f in range(fid_int - 1, -1, -1)]
-    forward_traj = track(box, forward_frame_paths)
-    backward_fraj = track(box, backward_frame_paths)
+    forward_traj = track(box, forward_frame_paths, max_new_box_num=10000)
+    backward_fraj = track(box, backward_frame_paths, max_new_box_num=10000)
     traj = {'%06d' % fid_int: box}
     for i in range(len(forward_traj)):
         box = forward_traj[i]

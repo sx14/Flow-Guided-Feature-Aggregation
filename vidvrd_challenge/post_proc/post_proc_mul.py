@@ -427,12 +427,10 @@ def connect(video_dets):
                 video_dets.append(det)
 
 
-def track(frame_paths, init_box, vis=False):
+def track(frame_paths, init_box, vis=False, max_new_box_num=1000):
     # init box: [x1, y1, x2, y2]
     import matplotlib.pyplot as plt
     import cv2
-
-    MAX_NEW_BOX_NUM = 1000
 
     if vis:
         plt.figure(0)
@@ -456,7 +454,7 @@ def track(frame_paths, init_box, vis=False):
                 break
             new_boxes.append(box)
             new_box_cnt += 1
-            if new_box_cnt == MAX_NEW_BOX_NUM:
+            if new_box_cnt == max_new_box_num:
                 break
         if vis:
             plt.ion()
