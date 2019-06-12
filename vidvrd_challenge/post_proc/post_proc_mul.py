@@ -575,6 +575,10 @@ def extend_traj(det, tid, frame_list, video_dir):
 
 
 def post_process(res_path, sav_path, data_root):
+
+    if os.path.exists(sav_path):
+        return
+
     # load predictions
     with open(res_path) as f:
         res = json.load(f)
@@ -638,7 +642,7 @@ def check_fid(res):
 
 
 split = 'val'
-res_ids = [0]
+res_ids = [0, 1, 2, 3]
 
 data_root = '../../data/VidOR/Data/VID/%s' % split
 for res_id in res_ids:

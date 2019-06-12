@@ -35,6 +35,21 @@ def prepare_ImageSets(tgt_ds_root):
         f.writelines(val_items)
 
 
+    # prepare test.txt
+    test_frame_path = os.path.join(tgt_ds_root, 'ImageSets', 'VID_test_frames.txt')
+    with open(test_frame_path) as f:
+        test_items = f.readlines()
+        test_items = [item.strip().split(' ') for item in test_items]
+        test_items = ['%s\n' % (val_items[i][0]) for i in range(0, len(test_items), 20)]
+
+    test_list_dir = os.path.join(tgt_ds_root, 'ImageSets', 'Main')
+    if not os.path.exists(test_list_dir):
+        os.makedirs(test_list_dir)
+    test_list_path = os.path.join(test_list_dir, 'test.txt')
+    with open(test_list_path, 'w') as f:
+        f.writelines(test_items)
+
+
 if __name__ == '__main__':
     tgt_ds_root = '/home/magus/sunx-workspace/datasets/vidor/vidor-ilsvrc'
     prepare_ImageSets(tgt_ds_root)
