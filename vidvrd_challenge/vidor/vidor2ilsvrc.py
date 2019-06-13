@@ -52,10 +52,10 @@ def prepare_ImageSets(tgt_ds_root):
     val_frames = []
     val_frame_cnt = 1   # start from 1
     val_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', 'val')
-    for pkg in os.listdir(val_root):
+    for pkg in sorted(os.listdir(val_root)):
         pkg_root = os.path.join(val_root, pkg)
 
-        for vid in os.listdir(pkg_root):
+        for vid in sorted(os.listdir(pkg_root)):
             vid_path = os.path.join(pkg_root, vid)
 
             n_frame = len(os.listdir(vid_path))
@@ -72,10 +72,10 @@ def prepare_ImageSets(tgt_ds_root):
     print('ImageSets: VID_val_videos.txt')
     val_videos = []
     video_frame_start = 1   # start from 1
-    for pkg in os.listdir(val_root):
+    for pkg in sorted(os.listdir(val_root)):
         pkg_root = os.path.join(val_root, pkg)
 
-        for vid in os.listdir(pkg_root):
+        for vid in sorted(os.listdir(pkg_root)):
             frame_root = os.path.join(pkg_root, vid)
 
             n_frame = len(os.listdir(frame_root))
@@ -94,10 +94,10 @@ def prepare_ImageSets(tgt_ds_root):
     n_seg = 35  # TODO: need tune
     n_seg_frame = 20
     # n_frm_max = 900
-    for pkg in os.listdir(train_root):
+    for pkg in sorted(os.listdir(train_root)):
         pkg_root = os.path.join(train_root, pkg)
 
-        for vid in os.listdir(pkg_root):
+        for vid in sorted(os.listdir(pkg_root)):
             frame_root = os.path.join(pkg_root, vid)
             n_frame = len(os.listdir(frame_root))
             # n_frame = min(n_frame, n_frm_max)
@@ -119,10 +119,10 @@ def prepare_ImageSets(tgt_ds_root):
     val_frames = []
     val_frame_cnt = 1   # start from 1
     val_root = os.path.join(tgt_ds_root, 'Data', 'VID', 'test')
-    for pkg in os.listdir(val_root):
+    for pkg in sorted(os.listdir(val_root)):
         pkg_root = os.path.join(val_root, pkg)
 
-        for vid in os.listdir(pkg_root):
+        for vid in sorted(os.listdir(pkg_root)):
             vid_path = os.path.join(pkg_root, vid)
 
             n_frame = len(os.listdir(vid_path))
@@ -139,10 +139,10 @@ def prepare_ImageSets(tgt_ds_root):
     print('ImageSets: VID_test_videos.txt')
     val_videos = []
     video_frame_start = 1   # start from 1
-    for pkg in os.listdir(val_root):
+    for pkg in sorted(os.listdir(val_root)):
         pkg_root = os.path.join(val_root, pkg)
 
-        for vid in os.listdir(pkg_root):
+        for vid in sorted(os.listdir(pkg_root)):
             frame_root = os.path.join(pkg_root, vid)
 
             n_frame = len(os.listdir(frame_root))

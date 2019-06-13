@@ -615,6 +615,10 @@ def post_process(res_path, sav_path, data_root):
         for d in range(len(video_dets)):
             video_dets[d] = results[d].get()
 
+        # for d, det in enumerate(video_dets):
+        #     new_det = extend_traj(det, d, frame_list, video_dir)
+        #     video_dets[d] = new_det
+
         connect(video_dets)
         all_results[video_id] = video_dets
         t1 = time.time()
