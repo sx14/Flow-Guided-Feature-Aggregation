@@ -40,7 +40,7 @@ def prepare_ImageSets(tgt_ds_root):
     with open(test_frame_path) as f:
         test_items = f.readlines()
         test_items = [item.strip().split(' ') for item in test_items]
-        test_items = ['%s\n' % (val_items[i][0]) for i in range(0, len(test_items), 20)]
+        test_items = ['%s\n' % (test_items[i][0]) for i in range(0, len(test_items), 20)]
 
     test_list_dir = os.path.join(tgt_ds_root, 'ImageSets', 'Main')
     if not os.path.exists(test_list_dir):

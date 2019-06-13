@@ -113,7 +113,6 @@ def prepare_ImageSets(tgt_ds_root):
     with open(train_key_frame_file_path, 'w') as f:
         f.writelines(train_key_frames)
 
-
     # 4. VID_test_frames.txt
     print('ImageSets: VID_test_frames.txt')
     val_frames = []
