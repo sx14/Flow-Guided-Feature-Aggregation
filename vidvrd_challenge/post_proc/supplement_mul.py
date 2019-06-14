@@ -19,13 +19,13 @@ def temporal_nms(dets, tiou_thr=0.7):
         keep.append(i)
         keep_det = dets[i]
 
-        tious = np.zeros(len(order) - 1)
+        tious = np.ones(len(order))
         for j in range(1, len(order)):
             tiou = temporal_iou(keep_det, dets[order[j]])
-            tious[j-1] = tiou
+            tious[j] = tiou
 
         inds = np.where(tious <= tiou_thr)[0]
-        order = order[inds + 1]
+        order = order[inds]
 
     return keep
 
@@ -129,7 +129,7 @@ def cal_ious(box, boxes):
     return ious.tolist()
 
 
-def supplement_frame_detections(all_traj_dets, all_frame_dets, max_per_frame=20, max_per_video=20):
+def supplement_frame_detections(all_traj_dets, all_frame_dets, max_per_frame=20, max_per_video=10):
 
     print('supplement frame detections collecting ...')
 
@@ -224,8 +224,6 @@ def supplement_trajectories(all_traj_dets, sup_frame_dets, data_root):
         all_traj_dets[vid] = nms_vid_traj_dets
 
 
-
-
 def det2traj(det, frame_num, frame_root):
     fid = det['fid']
     box = det['box']
@@ -242,10 +240,13 @@ def det2traj(det, frame_num, frame_root):
         box = backward_fraj[i]
         traj['%06d' % (fid_int - i - 1)] = box
 
+    traj_fids = sorted([int(fid) for fid in traj])
     traj_det = {
         'category': det['category'],
         'score': det['score'],
-        'trajectory': traj
+        'trajectory': traj,
+        'start_fid': '%06d' % traj_fids[0],
+        'end_fid': '%06d' % traj_fids[-1]
     }
     return traj_det
 
@@ -253,12 +254,13 @@ def det2traj(det, frame_num, frame_root):
 if __name__ == '__main__':
     split = 'val'
 
-    traj_det_path = '../evaluation/vidor_%s_object_pred_proc.json' % split
+    traj_det_path = '../evaluation/vidor_%s_object_pred_proc_all.json' % split
     frame_det_path = 'vidor_%s_object_pred_frame.json'
     data_root = '../data/VidOR/Data/VID/%s' % split
 
     all_traj_dets = load_trajectory_detections(traj_det_path)
     all_frame_dets = load_frame_detections(frame_det_path)
+
     sup_frame_dets = supplement_frame_detections(all_traj_dets, all_frame_dets)
     supplement_trajectories(all_traj_dets, sup_frame_dets, data_root)
 
