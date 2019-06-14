@@ -229,7 +229,10 @@ def cal_iou(box1, box2):
     iou = 0.0
     if i_w > 0 and i_h > 0:
         i_area = i_w * i_h
-        u_area = (xmax1 - xmin1) * (ymax1 - ymin1) + (xmax2 - xmin2) * (ymax2 - ymin2) - i_area
+        area1 = (xmax1 - xmin1 + 1) * (ymax1 - ymin1 + 1)
+        area2 = (xmax2 - xmin2 + 1) * (ymax2 - ymin2 + 1)
+
+        u_area = area1 + area2 - i_area
         iou = i_area * 1.0 / u_area
     return iou
 

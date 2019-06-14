@@ -63,11 +63,13 @@ def cal_ious(box, boxes):
     ymins = boxes_np[:, 1]
     xmaxs = boxes_np[:, 2]
     ymaxs = boxes_np[:, 3]
+    areas = (xmaxs - xmins + 1) * (ymaxs - ymins + 1)
 
     xmin = box[0]
     ymin = box[1]
     xmax = box[2]
     ymax = box[3]
+    area = (xmax - xmin) * (ymax - ymin)
 
     i_xmins = np.maximum(xmins, xmin)
     i_ymins = np.maximum(ymins, ymin)
@@ -79,7 +81,7 @@ def cal_ious(box, boxes):
     i_hs[i_hs < 0] = 0
     i_areas = i_ws * i_hs
 
-    u_areas = (xmaxs - xmins) * (ymaxs - ymins) + (xmax - xmin) * (ymax * ymin) - i_areas
+    u_areas = areas + area - i_areas
 
     ious = i_areas / u_areas
     return ious.tolist()
