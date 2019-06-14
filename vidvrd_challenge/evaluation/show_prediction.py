@@ -1,5 +1,48 @@
 import os
 import json
+import random
+import matplotlib.pyplot as plt
+
+
+def show_boxes(im, dets, cls, confs, mode='single'):
+    """Draw detected bounding boxes."""
+
+    def random_color():
+        color = []
+        for i in range(3):
+            color.append(random.randint(0, 255) / 255.0)
+        return color
+
+    if mode != 'single':
+        fig, ax = plt.subplots(figsize=(12, 12))
+        ax.imshow(im, aspect='equal')
+
+    for i in range(0, len(dets)):
+        if mode == 'single':
+            fig, ax = plt.subplots(figsize=(12, 12))
+            ax.imshow(im, aspect='equal')
+
+        bbox = dets[i]
+        ax.add_patch(
+            plt.Rectangle((bbox[0], bbox[1]),
+                          bbox[2] - bbox[0],
+                          bbox[3] - bbox[1], fill=False,
+                          edgecolor=random_color(), linewidth=5)
+        )
+        ax.text(bbox[0], bbox[1],
+                '%s: %.2f' % (cls[i], confs[i]),
+                bbox=dict(facecolor='blue', alpha=0.5),
+                fontsize=14, color='white')
+
+        if mode == 'single':
+            plt.axis('off')
+            plt.tight_layout()
+            plt.show()
+
+    if mode != 'single':
+        plt.axis('off')
+        plt.tight_layout()
+        plt.show()
 
 
 def show_trajectory(frame_paths, traj, colors):

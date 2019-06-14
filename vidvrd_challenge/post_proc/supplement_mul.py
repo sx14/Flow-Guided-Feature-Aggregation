@@ -1,8 +1,11 @@
 import os
 import json
+
 import numpy as np
+import matplotlib.pyplot as plt
 
 from post_proc_mul import track, connect, cal_viou
+from vidvrd_challenge.evaluation.show_prediction import show_boxes
 
 
 def temporal_nms(dets, tiou_thr=0.7):
@@ -87,7 +90,7 @@ def cal_ious(box, boxes):
     return ious.tolist()
 
 
-def supplement_frame_detections(all_traj_dets, all_frame_dets, max_per_frame=20, max_per_video=20):
+def supplement_frame_detections(all_traj_dets, all_frame_dets, data_root, max_per_frame=20, max_per_video=20):
 
     print('supplement frame detections collecting ...')
 
@@ -106,12 +109,29 @@ def supplement_frame_detections(all_traj_dets, all_frame_dets, max_per_frame=20,
             frame_dets = [det for det in vid_frame_dets[fid]]
             frame_dets = sorted(frame_dets, key=lambda det: det['score'], reverse=True)[:max_per_frame]
 
+            # ==== show ====
+            frame_path = os.path.join(data_root, vid, fid+'.JPEG')
+            frame = plt.imread(frame_path)
+            boxes = [det['box'] for det in frame_dets]
+            confs = [det['score'] for det in frame_dets]
+            cates = [det['category'] for det in frame_dets]
+            # ==== show ====
+
+
             traj_boxes = []
             traj_clses = []
+            traj_confs = []
             for traj_det in vid_traj_dets:
                 if fid in traj_det['trajectory']:
                     traj_boxes.append(traj_det['trajectory'][fid])
-                    traj_clses.append(traj_det['category'])
+                    traj_clses.append('>>>> %s <<<<' % traj_det['category'])
+                    traj_confs.append(traj_det['score'])
+
+            boxes += traj_boxes
+            confs += traj_confs
+            cates += traj_clses
+
+            show_boxes(frame, boxes, cates, confs, 'mul')
 
             for i, frame_det in enumerate(frame_dets):
                 frame_det['fid'] = fid
@@ -120,7 +140,7 @@ def supplement_frame_detections(all_traj_dets, all_frame_dets, max_per_frame=20,
                 large_overlap = False
                 inconsistent_cls = True
                 for j in range(len(ious)):
-                    if ious[j] > 0.7:
+                    if ious[j] > 0.5:
                         large_overlap = True
                         if traj_clses[j] == frame_det['category']:
                             inconsistent_cls = False
