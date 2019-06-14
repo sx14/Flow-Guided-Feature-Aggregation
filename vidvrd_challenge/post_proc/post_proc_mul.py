@@ -173,11 +173,11 @@ cls_dur_thr = {
 
 
 def cal_viou(det1, det2, iou_thr=0.7):
-    stt_fid1 = det1['start_fid']
-    end_fid1 = det1['end_fid']
+    stt_fid1 = int(det1['start_fid'])
+    end_fid1 = int(det1['end_fid'])
 
-    stt_fid2 = det2['start_fid']
-    end_fid2 = det2['end_fid']
+    stt_fid2 = int(det2['start_fid'])
+    end_fid2 = int(det2['end_fid'])
 
     inter_stt_fid = max(stt_fid1, stt_fid2)
     inter_end_fid = min(end_fid1, end_fid2)

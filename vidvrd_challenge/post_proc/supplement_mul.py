@@ -175,7 +175,7 @@ def supplement_trajectories(all_traj_dets, sup_frame_dets, data_root, max_per_vi
         for d, det in enumerate(vid_frame_dets):
             sup_traj = det2traj(det, vid_frame_num, vid_frame_root)
             sup_trajs.append(sup_traj)
-        
+
         # pool = Pool(processes=cpu_count())
         # results = [pool.apply_async(det2traj, args=(det, vid_frame_num, vid_frame_root))
         #            for d, det in enumerate(vid_frame_dets)]
@@ -215,11 +215,12 @@ def supplement_trajectories(all_traj_dets, sup_frame_dets, data_root, max_per_vi
 def det2traj(det, frame_num, frame_root):
     fid = det['fid']
     box = det['box']
+    cls = det['category']
     fid_int = int(fid)
     forward_frame_paths = [os.path.join(frame_root, '%06d.JPEG' % f) for f in range(fid_int + 1, frame_num)]
     backward_frame_paths = [os.path.join(frame_root, '%06d.JPEG' % f) for f in range(fid_int - 1, -1, -1)]
-    forward_traj = track(box, forward_frame_paths, max_new_box_num=10000)
-    backward_fraj = track(box, backward_frame_paths, max_new_box_num=10000)
+    forward_traj = track(forward_frame_paths, box, max_new_box_num=10000)
+    backward_fraj = track(backward_frame_paths, box, max_new_box_num=10000)
     traj = {'%06d' % fid_int: box}
     for i in range(len(forward_traj)):
         box = forward_traj[i]
@@ -236,15 +237,18 @@ def det2traj(det, frame_num, frame_root):
         'start_fid': '%06d' % traj_fids[0],
         'end_fid': '%06d' % traj_fids[-1]
     }
+
+    print('\t%s: [ %d | %d | %d ]' % (cls, traj_fids[0], fid_int, traj_fids[-1]))
+
     return traj_det
 
 
 if __name__ == '__main__':
     split = 'val'
 
-    traj_det_path = '../evaluation/vidor_%s_object_pred_proc_all.json' % split
-    frame_det_path = 'vidor_%s_object_pred_frame.json' % split
-    data_root = '../../data/VidOR/Data/VID/%s' % split
+    traj_det_path = os.path.abspath('../evaluation/vidor_%s_object_pred_proc_all.json' % split)
+    frame_det_path = os.path.abspath('vidor_%s_object_pred_frame.json' % split)
+    data_root = os.path.abspath('../../data/VidOR/Data/VID/%s' % split)
 
     all_traj_dets = load_trajectory_detections(traj_det_path)
     all_frame_dets = load_frame_detections(frame_det_path)
@@ -252,6 +256,6 @@ if __name__ == '__main__':
     sup_frame_dets = supplement_frame_detections(all_traj_dets, all_frame_dets, data_root)
     supplement_trajectories(all_traj_dets, sup_frame_dets, data_root)
 
-    output_path = '../evaluation/vidor_%s_object_pred_proc_all_sup.json' % split
+    output_path = os.path.abspath('../evaluation/vidor_%s_object_pred_proc_all_sup.json' % split)
     save_trajectory_detections(output_path, all_traj_dets)
 
