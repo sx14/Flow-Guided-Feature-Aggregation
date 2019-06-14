@@ -253,7 +253,12 @@ if __name__ == '__main__':
     all_traj_dets = load_trajectory_detections(traj_det_path)
     all_frame_dets = load_frame_detections(frame_det_path)
 
-    sup_frame_dets = supplement_frame_detections(all_traj_dets, all_frame_dets, data_root)
+    all_frame_dets_use = {}
+    for vid in all_traj_dets:
+        all_frame_dets_use[vid] = all_frame_dets
+    print('use %d videos.' % len(all_frame_dets_use))
+
+    sup_frame_dets = supplement_frame_detections(all_traj_dets, all_frame_dets_use, data_root)
     supplement_trajectories(all_traj_dets, sup_frame_dets, data_root)
 
     output_path = os.path.abspath('../evaluation/vidor_%s_object_pred_proc_all_sup.json' % split)
