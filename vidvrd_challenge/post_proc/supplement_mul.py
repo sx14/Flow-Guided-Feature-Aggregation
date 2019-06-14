@@ -90,7 +90,7 @@ def cal_ious(box, boxes):
     return ious.tolist()
 
 
-def supplement_frame_detections(all_traj_dets, all_frame_dets, data_root, max_per_frame=20, max_per_video=20):
+def supplement_frame_detections(all_traj_dets, all_frame_dets, data_root, max_per_frame=5, max_per_video=20):
 
     print('supplement frame detections collecting ...')
 
@@ -131,7 +131,7 @@ def supplement_frame_detections(all_traj_dets, all_frame_dets, data_root, max_pe
             confs += traj_confs
             cates += traj_clses
 
-            show_boxes(frame, boxes, cates, confs, 'mul')
+            # show_boxes(frame, boxes, cates, confs, 'mul')
 
             for i, frame_det in enumerate(frame_dets):
                 frame_det['fid'] = fid
@@ -240,7 +240,7 @@ if __name__ == '__main__':
     all_traj_dets = load_trajectory_detections(traj_det_path)
     all_frame_dets = load_frame_detections(frame_det_path)
 
-    sup_frame_dets = supplement_frame_detections(all_traj_dets, all_frame_dets)
+    sup_frame_dets = supplement_frame_detections(all_traj_dets, all_frame_dets, data_root)
     supplement_trajectories(all_traj_dets, sup_frame_dets, data_root)
 
     output_path = '../evaluation/vidor_%s_object_pred_proc_all_sup.json' % split
