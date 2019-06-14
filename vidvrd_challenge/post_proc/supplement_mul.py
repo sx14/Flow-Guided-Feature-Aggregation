@@ -129,7 +129,7 @@ def cal_ious(box, boxes):
     return ious.tolist()
 
 
-def supplement_frame_detections(all_traj_dets, all_frame_dets, max_per_frame=20, max_per_video=10):
+def supplement_frame_detections(all_traj_dets, all_frame_dets, max_per_frame=20, max_per_video=20):
 
     print('supplement frame detections collecting ...')
 
@@ -178,7 +178,7 @@ def supplement_frame_detections(all_traj_dets, all_frame_dets, max_per_frame=20,
     return all_sup_frame_dets
 
 
-def supplement_trajectories(all_traj_dets, sup_frame_dets, data_root):
+def supplement_trajectories(all_traj_dets, sup_frame_dets, data_root, max_per_video=30):
 
     from multiprocessing.pool import Pool as Pool
     from multiprocessing import cpu_count
@@ -221,7 +221,8 @@ def supplement_trajectories(all_traj_dets, sup_frame_dets, data_root):
             nms_cls_dets = [cls_dets[i] for i in keep]
             nms_vid_traj_dets += nms_cls_dets
 
-        all_traj_dets[vid] = nms_vid_traj_dets
+        nms_vid_traj_dets = sorted(nms_vid_traj_dets, key=lambda det: det['score'], reverse=True)
+        all_traj_dets[vid] = nms_vid_traj_dets[:max_per_video]
 
 
 def det2traj(det, frame_num, frame_root):
