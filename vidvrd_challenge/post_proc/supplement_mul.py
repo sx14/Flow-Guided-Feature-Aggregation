@@ -5,6 +5,77 @@ import numpy as np
 from post_proc_mul import track, connect
 
 
+def temperal_nms(dets, t_iou_thr=0.7):
+    stt_fids = np.array([int(det['start_fid']) for det in dets])
+    end_fids = np.array([int(det['end_fid']) for det in dets])
+    durs = end_fids - stt_fids + 1
+    order = durs.argsort()[::-1]
+
+    rm_ids = set()
+
+    for i in range(len(order) - 1):
+        for j in range(i + 1, len(order)):
+
+            det1 = dets[order[i]]
+            det2 = dets[order[j]]
+
+            stt_fid1 = det1['start_fid']
+            end_fid1 = det1['end_fid']
+
+            stt_fid2 = det2['start_fid']
+            end_fid2 = det2['end_fid']
+
+            inter_stt_fid = max(stt_fid1, stt_fid2)
+            inter_end_fid = min(end_fid1, end_fid2)
+
+            tiou = (inter_end_fid - inter_stt_fid + 1) * 1.0 / (end_fid2 - stt_fid2 + 1)
+
+            if tiou > t_iou_thr:
+                cov_ratio = temporal_iou(det2, det1)
+                if cov_ratio > 0.7 and (det1['score'] - det2['score'] > 0.2):
+                    rm_ids.add(order[j])
+
+    keep = [id for id in range(order) if id not in rm_ids]
+    return keep
+
+
+def temporal_iou(det1, det2, iou_thr=0.7):
+    stt_fid1 = det1['start_fid']
+    end_fid1 = det1['end_fid']
+    dur1 = end_fid1 - stt_fid1 + 1
+
+    stt_fid2 = det2['start_fid']
+    end_fid2 = det2['end_fid']
+    dur2 = end_fid2 - stt_fid2 + 1
+
+    if dur1 > dur2:
+        long_det = det1
+        short_det = det2
+    else:
+        long_det = det2
+        short_det = det1
+
+    short_stt_fid = short_det['start_fid']
+    short_end_fid = short_det['end_fid']
+
+    long_stt_fid = long_det['start_fid']
+    long_end_fid = long_det['end_fid']
+
+    inter_stt_fid = max(short_stt_fid, long_stt_fid)
+    inter_end_fid = min(short_end_fid, long_end_fid)
+
+    overlap_frame_count = 0
+    traj1 = det1['trajectory']
+    traj2 = det2['trajectory']
+    for fid in range(inter_stt_fid, inter_end_fid + 1):
+        iou = cal_iou(traj1['%06d' % fid], traj2['%06d' % fid])
+        if iou > iou_thr:
+            overlap_frame_count += 1
+    cover_ratio = overlap_frame_count * 1.0 / (short_end_fid - short_stt_fid + 1)
+    return cover_ratio
+
+
+
 def save_trajectory_detections(res_path, results):
     output = {
         "version": "VERSION 1.0",
@@ -65,7 +136,7 @@ def cal_iou(box, boxes):
     return ious.tolist()
 
 
-def supplement_frame_detections(all_traj_dets, all_frame_dets, max_per_frame=100, max_per_video=10):
+def supplement_frame_detections(all_traj_dets, all_frame_dets, max_per_frame=20, max_per_video=20):
 
     print('supplement frame detections collecting ...')
 
@@ -118,7 +189,6 @@ def supplement_trajectories(all_traj_dets, sup_frame_dets, data_root):
 
     from multiprocessing.pool import Pool as Pool
     from multiprocessing import cpu_count
-    pool = Pool(processes=cpu_count())
 
     all_vids = sorted(sup_frame_dets.keys())
     vid_num = len(all_vids)
@@ -130,12 +200,15 @@ def supplement_trajectories(all_traj_dets, sup_frame_dets, data_root):
         vid_frame_root = os.path.join(data_root, vid)
         vid_frame_num = len(os.listdir(vid_frame_root))
 
+        pool = Pool(processes=cpu_count())
         results = [pool.apply_async(det2traj, args=(det, vid_frame_num, vid_frame_root))
                    for d, det in enumerate(vid_frame_dets)]
         pool.close()
         pool.join()
 
         sup_trajs = [result.get() for result in results]
+
+
         vid_traj_dets += sup_trajs
 
         connect(vid_traj_dets)
