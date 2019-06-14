@@ -171,17 +171,18 @@ def supplement_trajectories(all_traj_dets, sup_frame_dets, data_root, max_per_vi
         vid_frame_root = os.path.join(data_root, vid)
         vid_frame_num = len(os.listdir(vid_frame_root))
 
-        sup_trajs = []
-        for d, det in enumerate(vid_frame_dets):
-            sup_traj = det2traj(det, vid_frame_num, vid_frame_root)
-            sup_trajs.append(sup_traj)
+        # sup_trajs = []
+        # for d, det in enumerate(vid_frame_dets):
+        #     sup_traj = det2traj(det, vid_frame_num, vid_frame_root)
+        #     sup_trajs.append(sup_traj)
 
-        # pool = Pool(processes=cpu_count())
-        # results = [pool.apply_async(det2traj, args=(det, vid_frame_num, vid_frame_root))
-        #            for d, det in enumerate(vid_frame_dets)]
-        # pool.close()
-        # pool.join()
-        # sup_trajs = [result.get() for result in results]
+        pool = Pool(processes=cpu_count())
+        results = [pool.apply_async(det2traj, args=(det, vid_frame_num, vid_frame_root))
+                   for d, det in enumerate(vid_frame_dets)]
+        pool.close()
+        pool.join()
+        sup_trajs = [result.get() for result in results]
+        sup_trajs = [traj for traj in sup_trajs if len(traj['trajectory']) > 50]
 
         vid_traj_dets += sup_trajs
         vid_traj_det_num_org = len(vid_traj_dets)
@@ -237,8 +238,7 @@ def det2traj(det, frame_num, frame_root):
         'start_fid': '%06d' % traj_fids[0],
         'end_fid': '%06d' % traj_fids[-1]
     }
-
-    print('\t[ %d | %d | %d ] %s(%d) ' % (traj_fids[0], fid_int, traj_fids[-1], cls, len(traj_fids)))
+    print('\t[{:0>4d} | {:0>4d} | {:0>4d}] {: >10s} ({:d})'.format(traj_fids[0], fid_int, traj_fids[-1], cls, len(traj_fids)))
 
     return traj_det
 
@@ -255,7 +255,7 @@ if __name__ == '__main__':
 
     all_frame_dets_use = {}
     for vid in all_traj_dets:
-        all_frame_dets_use[vid] = all_frame_dets
+        all_frame_dets_use[vid] = all_frame_dets[vid]
     print('use %d videos.' % len(all_frame_dets_use))
 
     sup_frame_dets = supplement_frame_detections(all_traj_dets, all_frame_dets_use, data_root)
