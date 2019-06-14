@@ -238,7 +238,7 @@ def det2traj(det, frame_num, frame_root):
         'end_fid': '%06d' % traj_fids[-1]
     }
 
-    print('\t%s: [ %d | %d | %d ]' % (cls, traj_fids[0], fid_int, traj_fids[-1]))
+    print('\t%s: %d [ %d | %d | %d ]' % (cls, len(traj_fids), traj_fids[0], fid_int, traj_fids[-1]))
 
     return traj_det
 
