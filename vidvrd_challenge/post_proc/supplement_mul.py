@@ -2,7 +2,7 @@ import os
 import json
 import numpy as np
 
-from post_proc_mul import track, connect, cal_iou, cal_viou
+from post_proc_mul import track, connect, cal_viou
 
 
 def temporal_nms(dets, tiou_thr=0.7):
@@ -19,54 +19,15 @@ def temporal_nms(dets, tiou_thr=0.7):
         keep.append(i)
         keep_det = dets[i]
 
-        tious = np.ones(len(order))
+        vious = np.ones(len(order))
         for j in range(1, len(order)):
-            tiou = temporal_iou(keep_det, dets[order[j]])
-            tious[j] = tiou
+            viou = cal_viou(keep_det, dets[order[j]])
+            vious[j] = viou
 
-        inds = np.where(tious <= tiou_thr)[0]
+        inds = np.where(vious <= tiou_thr)[0]
         order = order[inds]
 
     return keep
-
-
-def temporal_iou(det1, det2, iou_thr=0.7):
-    stt_fid1 = det1['start_fid']
-    end_fid1 = det1['end_fid']
-    dur1 = end_fid1 - stt_fid1 + 1
-
-    stt_fid2 = det2['start_fid']
-    end_fid2 = det2['end_fid']
-    dur2 = end_fid2 - stt_fid2 + 1
-
-    if dur1 > dur2:
-        long_det = det1
-        short_det = det2
-    else:
-        long_det = det2
-        short_det = det1
-
-    short_stt_fid = short_det['start_fid']
-    short_end_fid = short_det['end_fid']
-
-    long_stt_fid = long_det['start_fid']
-    long_end_fid = long_det['end_fid']
-
-    inter_stt_fid = max(short_stt_fid, long_stt_fid)
-    inter_end_fid = min(short_end_fid, long_end_fid)
-
-    union_stt_fid = min(short_stt_fid, long_stt_fid)
-    union_end_fid = max(short_end_fid, long_end_fid)
-
-    overlap_frame_count = 0
-    traj1 = det1['trajectory']
-    traj2 = det2['trajectory']
-    for fid in range(inter_stt_fid, inter_end_fid + 1):
-        iou = cal_iou(traj1['%06d' % fid], traj2['%06d' % fid])
-        if iou > iou_thr:
-            overlap_frame_count += 1
-    temporal_iou = overlap_frame_count * 1.0 / (union_end_fid - union_stt_fid + 1)
-    return temporal_iou
 
 
 def save_trajectory_detections(res_path, results):
@@ -97,7 +58,7 @@ def cal_ious(box, boxes):
     if len(boxes) == 0:
         return []
 
-    boxes_np = np.array(boxes)
+    boxes_np = np.array(boxes).astype(np.float)
     xmins = boxes_np[:, 0]
     ymins = boxes_np[:, 1]
     xmaxs = boxes_np[:, 2]
@@ -117,13 +78,8 @@ def cal_ious(box, boxes):
     i_hs = i_ymaxs - i_ymins
     i_hs[i_hs < 0] = 0
     i_areas = i_ws * i_hs
-    i_areas[i_areas < 0] = 0
 
-    u_xmins = np.minimum(xmins, xmin)
-    u_ymins = np.minimum(ymins, ymin)
-    u_xmaxs = np.maximum(xmaxs, xmax)
-    u_ymaxs = np.maximum(ymaxs, ymax)
-    u_areas = (u_xmaxs - u_xmins) * (u_ymaxs - u_ymins)
+    u_areas = (xmaxs - xmins) * (ymaxs - ymins) + (xmax - xmin) * (ymax * ymin) - i_areas
 
     ious = i_areas / u_areas
     return ious.tolist()
@@ -256,8 +212,8 @@ if __name__ == '__main__':
     split = 'val'
 
     traj_det_path = '../evaluation/vidor_%s_object_pred_proc_all.json' % split
-    frame_det_path = 'vidor_%s_object_pred_frame.json'
-    data_root = '../data/VidOR/Data/VID/%s' % split
+    frame_det_path = 'vidor_%s_object_pred_frame.json' % split
+    data_root = '../../data/VidOR/Data/VID/%s' % split
 
     all_traj_dets = load_trajectory_detections(traj_det_path)
     all_frame_dets = load_frame_detections(frame_det_path)
@@ -265,6 +221,6 @@ if __name__ == '__main__':
     sup_frame_dets = supplement_frame_detections(all_traj_dets, all_frame_dets)
     supplement_trajectories(all_traj_dets, sup_frame_dets, data_root)
 
-    output_path = '../evaluation/vidor_%s_object_pred_proc_sup.json' % split
+    output_path = '../evaluation/vidor_%s_object_pred_proc_all_sup.json' % split
     save_trajectory_detections(output_path, all_traj_dets)
 

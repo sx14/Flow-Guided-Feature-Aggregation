@@ -228,14 +228,9 @@ def cal_iou(box1, box2):
     i_h = i_ymax - i_ymin + 1
     iou = 0.0
     if i_w > 0 and i_h > 0:
-        u_xmin = min(xmin1, xmin2)
-        u_ymin = min(ymin1, ymin2)
-        u_xmax = max(xmax1, xmax2)
-        u_ymax = max(ymax1, ymax2)
-        u_w = u_xmax - u_xmin + 1
-        u_h = u_ymax - u_ymin + 1
-
-        iou = (i_w * i_h) * 1.0 / (u_w * u_h)
+        i_area = i_w * i_h
+        u_area = (xmax1 - xmin1) * (ymax1 - ymin1) + (xmax2 - xmin2) * (ymax2 - ymin2) - i_area
+        iou = i_area * 1.0 / u_area
     return iou
 
 
@@ -567,34 +562,35 @@ def check_fid(res):
                 det['end_fid'] = end_fid
 
 
-split = 'val'
-res_ids = [0, 1, 2, 3]
+if __name__ == '__main__':
+    split = 'val'
+    res_ids = [0, 1, 2, 3]
 
-data_root = '../../data/VidOR/Data/VID/%s' % split
-for res_id in res_ids:
-    res_path = '../evaluation/vidor_%s_object_pred%d.json' % (split, res_id)
-    sav_path = res_path[:-5] + '_proc.json'
-    t = time.time()
-    post_process(res_path, sav_path, data_root)
-    t1 = time.time()
-    dur = int(t1 - t)
-    h = dur / 60 / 60
-    m = dur / 60 - h * 60
-    s = dur - h * 60 * 60 - m * 60
-    print('Post process takes: %dh, %dm, %ds.' % (h, m, s))
+    data_root = '../../data/VidOR/Data/VID/%s' % split
+    for res_id in res_ids:
+        res_path = '../evaluation/vidor_%s_object_pred%d.json' % (split, res_id)
+        sav_path = res_path[:-5] + '_proc.json'
+        t = time.time()
+        post_process(res_path, sav_path, data_root)
+        t1 = time.time()
+        dur = int(t1 - t)
+        h = dur / 60 / 60
+        m = dur / 60 - h * 60
+        s = dur - h * 60 * 60 - m * 60
+        print('Post process takes: %dh, %dm, %ds.' % (h, m, s))
 
-res_all = None
-for res_id in res_ids:
-    res_path = '../evaluation/vidor_%s_object_pred%d.json' % (split, res_id)
-    sav_path = res_path[:-5] + '_proc.json'
-    with open(sav_path) as f:
-        res = json.load(f)
-        check_fid(res['results'])
-    if res_all is None:
-        res_all = res
-    else:
-        res_all['results'].update(res['results'])
+    res_all = None
+    for res_id in res_ids:
+        res_path = '../evaluation/vidor_%s_object_pred%d.json' % (split, res_id)
+        sav_path = res_path[:-5] + '_proc.json'
+        with open(sav_path) as f:
+            res = json.load(f)
+            check_fid(res['results'])
+        if res_all is None:
+            res_all = res
+        else:
+            res_all['results'].update(res['results'])
 
-sav_path = '../evaluation/vidor_%s_object_pred_proc_all.json' % (split)
-with open(sav_path, 'w') as f:
-    json.dump(res_all, f)
+    sav_path = '../evaluation/vidor_%s_object_pred_proc_all.json' % (split)
+    with open(sav_path, 'w') as f:
+        json.dump(res_all, f)
