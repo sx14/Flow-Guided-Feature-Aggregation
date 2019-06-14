@@ -171,16 +171,22 @@ def supplement_trajectories(all_traj_dets, sup_frame_dets, data_root, max_per_vi
         vid_frame_root = os.path.join(data_root, vid)
         vid_frame_num = len(os.listdir(vid_frame_root))
 
-        pool = Pool(processes=cpu_count())
-        results = [pool.apply_async(det2traj, args=(det, vid_frame_num, vid_frame_root))
-                   for d, det in enumerate(vid_frame_dets)]
-        pool.close()
-        pool.join()
-
-        sup_trajs = [result.get() for result in results]
+        sup_trajs = []
+        for d, det in enumerate(vid_frame_dets):
+            sup_traj = det2traj(det, vid_frame_num, vid_frame_root)
+            sup_trajs.append(sup_traj)
+        
+        # pool = Pool(processes=cpu_count())
+        # results = [pool.apply_async(det2traj, args=(det, vid_frame_num, vid_frame_root))
+        #            for d, det in enumerate(vid_frame_dets)]
+        # pool.close()
+        # pool.join()
+        # sup_trajs = [result.get() for result in results]
 
         vid_traj_dets += sup_trajs
+        vid_traj_det_num_org = len(vid_traj_dets)
         connect(vid_traj_dets)
+        vid_traj_det_num_cnt = len(vid_traj_dets)
 
         all_cls_dets = {}
         for traj_det in vid_traj_dets:
@@ -200,6 +206,9 @@ def supplement_trajectories(all_traj_dets, sup_frame_dets, data_root, max_per_vi
             nms_vid_traj_dets += nms_cls_dets
 
         nms_vid_traj_dets = sorted(nms_vid_traj_dets, key=lambda det: det['score'], reverse=True)
+        vid_traj_det_num_nms = len(nms_vid_traj_dets)
+        print('%d -> %d -> %d' % (vid_traj_det_num_org, vid_traj_det_num_cnt, vid_traj_det_num_nms))
+
         all_traj_dets[vid] = nms_vid_traj_dets[:max_per_video]
 
 
