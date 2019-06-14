@@ -195,43 +195,6 @@ def cal_viou(det1, det2, iou_thr=0.7):
     return viou
 
 
-def cal_cover_ratio(det1, det2, iou_thr=0.7):
-    stt_fid1 = det1['start_fid']
-    end_fid1 = det1['end_fid']
-    dur1 = end_fid1 - stt_fid1 + 1
-
-    stt_fid2 = det2['start_fid']
-    end_fid2 = det2['end_fid']
-    dur2 = end_fid2 - stt_fid2 + 1
-
-    if dur1 > dur2:
-        long_det = det1
-        short_det = det2
-    else:
-        long_det = det2
-        short_det = det1
-
-    short_stt_fid = short_det['start_fid']
-    short_end_fid = short_det['end_fid']
-
-    long_stt_fid = long_det['start_fid']
-    long_end_fid = long_det['end_fid']
-
-    inter_stt_fid = max(short_stt_fid, long_stt_fid)
-    inter_end_fid = min(short_end_fid, long_end_fid)
-
-    overlap_frame_count = 0
-    traj1 = det1['trajectory']
-    traj2 = det2['trajectory']
-    for fid in range(inter_stt_fid, inter_end_fid + 1):
-        iou = cal_iou(traj1['%06d' % fid], traj2['%06d' % fid])
-        print(iou)
-        if iou > iou_thr:
-            overlap_frame_count += 1
-    cover_ratio = overlap_frame_count * 1.0 / (short_end_fid - short_stt_fid + 1)
-    return cover_ratio
-
-
 def filler_bad_trajs(video_dets, max_per_vid=25):
     cands = []
     lasts = []

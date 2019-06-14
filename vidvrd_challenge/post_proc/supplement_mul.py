@@ -2,40 +2,31 @@ import os
 import json
 import numpy as np
 
-from post_proc_mul import track, connect
+from post_proc_mul import track, connect, cal_iou, cal_viou
 
 
-def temperal_nms(dets, t_iou_thr=0.7):
-    stt_fids = np.array([int(det['start_fid']) for det in dets])
-    end_fids = np.array([int(det['end_fid']) for det in dets])
-    durs = end_fids - stt_fids + 1
-    order = durs.argsort()[::-1]
+def temporal_nms(dets, tiou_thr=0.7):
 
-    rm_ids = set()
+    if len(dets) == 0:
+        return []
 
-    for i in range(len(order) - 1):
-        for j in range(i + 1, len(order)):
+    scores = np.array([det['score'] for det in dets])
+    order = scores.argsort()[::-1]
 
-            det1 = dets[order[i]]
-            det2 = dets[order[j]]
+    keep = []
+    while order.size > 0:
+        i = order[0]
+        keep.append(i)
+        keep_det = dets[i]
 
-            stt_fid1 = det1['start_fid']
-            end_fid1 = det1['end_fid']
+        tious = np.zeros(len(order) - 1)
+        for j in range(1, len(order)):
+            tiou = temporal_iou(keep_det, dets[order[j]])
+            tious[j-1] = tiou
 
-            stt_fid2 = det2['start_fid']
-            end_fid2 = det2['end_fid']
+        inds = np.where(tious <= tiou_thr)[0]
+        order = order[inds + 1]
 
-            inter_stt_fid = max(stt_fid1, stt_fid2)
-            inter_end_fid = min(end_fid1, end_fid2)
-
-            tiou = (inter_end_fid - inter_stt_fid + 1) * 1.0 / (end_fid2 - stt_fid2 + 1)
-
-            if tiou > t_iou_thr:
-                cov_ratio = temporal_iou(det2, det1)
-                if cov_ratio > 0.7 and (det1['score'] - det2['score'] > 0.2):
-                    rm_ids.add(order[j])
-
-    keep = [id for id in range(order) if id not in rm_ids]
     return keep
 
 
@@ -64,6 +55,9 @@ def temporal_iou(det1, det2, iou_thr=0.7):
     inter_stt_fid = max(short_stt_fid, long_stt_fid)
     inter_end_fid = min(short_end_fid, long_end_fid)
 
+    union_stt_fid = min(short_stt_fid, long_stt_fid)
+    union_end_fid = max(short_end_fid, long_end_fid)
+
     overlap_frame_count = 0
     traj1 = det1['trajectory']
     traj2 = det2['trajectory']
@@ -71,9 +65,8 @@ def temporal_iou(det1, det2, iou_thr=0.7):
         iou = cal_iou(traj1['%06d' % fid], traj2['%06d' % fid])
         if iou > iou_thr:
             overlap_frame_count += 1
-    cover_ratio = overlap_frame_count * 1.0 / (short_end_fid - short_stt_fid + 1)
-    return cover_ratio
-
+    temporal_iou = overlap_frame_count * 1.0 / (union_end_fid - union_stt_fid + 1)
+    return temporal_iou
 
 
 def save_trajectory_detections(res_path, results):
@@ -100,7 +93,7 @@ def load_frame_detections(res_path):
     return frame_dets
 
 
-def cal_iou(box, boxes):
+def cal_ious(box, boxes):
     if len(boxes) == 0:
         return []
 
@@ -165,7 +158,7 @@ def supplement_frame_detections(all_traj_dets, all_frame_dets, max_per_frame=20,
             for i, frame_det in enumerate(frame_dets):
                 frame_det['fid'] = fid
 
-                ious = cal_iou(frame_det['box'], traj_boxes)
+                ious = cal_ious(frame_det['box'], traj_boxes)
                 large_overlap = False
                 inconsistent_cls = True
                 for j in range(len(ious)):
@@ -208,10 +201,29 @@ def supplement_trajectories(all_traj_dets, sup_frame_dets, data_root):
 
         sup_trajs = [result.get() for result in results]
 
-
         vid_traj_dets += sup_trajs
-
         connect(vid_traj_dets)
+
+        all_cls_dets = {}
+        for traj_det in vid_traj_dets:
+            cls = traj_det['category']
+            if cls in all_cls_dets:
+                cls_dets = all_cls_dets[cls]
+                cls_dets.append(traj_det)
+            else:
+                cls_dets = [traj_det]
+                all_cls_dets[cls] = cls_dets
+
+        nms_vid_traj_dets = []
+        for cls in all_cls_dets:
+            cls_dets = all_cls_dets[cls]
+            keep = temporal_nms(cls_dets, 0.7)
+            nms_cls_dets = [cls_dets[i] for i in keep]
+            nms_vid_traj_dets += nms_cls_dets
+
+        all_traj_dets[vid] = nms_vid_traj_dets
+
+
 
 
 def det2traj(det, frame_num, frame_root):
