@@ -342,9 +342,9 @@ def track(frame_paths, init_box, vis=False, max_new_box_num=1000):
     tracker = cv2.TrackerKCF_create()
     for i, frame_path in enumerate(frame_paths):
         frame = cv2.imread(frame_path)
+        im_h, im_w, _ = frame.shape
         if i == 0:
             # init tracker
-            im_h, im_w, _ = frame.shape
             box = (init_box[0], init_box[1], init_box[2] - init_box[0], init_box[3] - init_box[1])
             status = tracker.init(frame, box)
             box = init_box
@@ -352,7 +352,19 @@ def track(frame_paths, init_box, vis=False, max_new_box_num=1000):
                 break
         else:
             ok, box = tracker.update(frame)
-            box = [int(box[0]), int(box[1]), int(box[0] + box[2]), int(box[1] + box[3])]
+            # [x1,y1,w,h] -> [x1,y1,x2,y2]
+            box = [int(box[0]),
+                   int(box[1]),
+                   int(box[0] + box[2]),
+                   int(box[1] + box[3])]
+            box = [max(0, box[0]),
+                   max(0, box[1]),
+                   max(0, box[2]),
+                   max(0, box[3])]
+            box = [min(box[0], im_w-1),
+                   min(box[1], im_h-1),
+                   min(box[2], im_w-1),
+                   min(box[3], im_h-1)]
             if (not ok) or is_over(box, im_w, im_h):
                 break
             new_boxes.append(box)
@@ -440,18 +452,6 @@ def extend_traj(det, tid, frame_list, video_dir):
 
         for i in range(len(new_boxes)):
             new_box = new_boxes[i]
-
-            x1, y1, x2, y2 = new_box
-            x1 = min(x1, w-1)
-            x1 = max(x1, 0)
-            y1 = min(y1, h-1)
-            y1 = max(y1, 0)
-            x2 = min(x2, w-1)
-            x2 = max(x2, 0)
-            y2 = min(y2, h-1)
-            y2 = max(y2, 0)
-            new_box = [x1, y1, x2, y2]
-
             frame_id = '%06d' % (int(track_stt_fid) - i - 1)
             traj[frame_id] = new_box
 
@@ -473,18 +473,6 @@ def extend_traj(det, tid, frame_list, video_dir):
 
         for i in range(len(new_boxes)):
             new_box = new_boxes[i]
-
-            x1, y1, x2, y2 = new_box
-            x1 = min(x1, w - 1)
-            x1 = max(x1, 0)
-            y1 = min(y1, h - 1)
-            y1 = max(y1, 0)
-            x2 = min(x2, w - 1)
-            x2 = max(x2, 0)
-            y2 = min(y2, h - 1)
-            y2 = max(y2, 0)
-            new_box = [x1, y1, x2, y2]
-
             frame_id = '%06d' % (int(track_stt_fid) + i + 1)
             traj[frame_id] = new_box
 
