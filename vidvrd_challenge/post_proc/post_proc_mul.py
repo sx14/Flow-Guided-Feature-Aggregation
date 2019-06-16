@@ -39,10 +39,10 @@ cls_score_thr = {
     'sink': 0.1,
     'sofa': 0.1,
     'stool': 0.1,
-    'table': 0.01,
+    'table': 0.1,
     'toilet': 0.1,
     'guitar': 0.1,
-    'piano': 0.4,
+    'piano': 0.2,
     'baby_walker': 0.01,
     'bench': 0.1,
     'stop_sign': 0,
@@ -64,7 +64,7 @@ cls_score_thr = {
     'stingray': 0,
     'crocodile': 0,
     'snake': 0,
-    'turtle': 0.4,
+    'turtle': 0.2,
     'antelope': 0.01,
     'bear': 0,
     'camel': 0,
@@ -195,24 +195,24 @@ def cal_viou(det1, det2, iou_thr=0.7):
     return viou
 
 
-def filler_bad_trajs(video_dets, max_per_vid=25):
+def filler_bad_trajs(video_dets, max_per_vid=25, score_thr=0.005):
     cands = []
     lasts = []
     for det in video_dets:
         det_dur = det['end_fid'] - det['start_fid'] + 1
         det_cls = det['category']
         det_scr = det['score']
-        if det_dur >= cls_dur_thr[det_cls] and det_scr >= cls_score_thr[det_cls]:
+        if det_dur >= cls_dur_thr[det_cls] and det_scr >= max(cls_score_thr[det_cls], score_thr):
             cands.append(det)
         else:
             lasts.append(det)
 
     cands = sorted(cands, key=lambda det: det['score'], reverse=True)
     cands = cands[:max_per_vid]
-    if len(cands) < max_per_vid:
-        lasts = sorted(lasts, key=lambda det: det['score'], reverse=True)
-        lasts = lasts[: (max_per_vid - len(cands))]
-        cands += lasts
+    # if len(cands) < max_per_vid:
+    #     lasts = sorted(lasts, key=lambda det: det['score'], reverse=True)
+    #     lasts = lasts[: (max_per_vid - len(cands))]
+    #     cands += lasts
     return cands
 
 
@@ -406,7 +406,7 @@ def is_over(det, im_w, im_h):
         # disappear from top/bottom edge
         if det_w * 1.0 / det_h > 3 or det_h < im_h * 0.1 or det_w < im_w * 0.1:
             return True
-    if det_w < im_w * 0.01 or det_h < im_h * 0.01 or max(det_w, det_h) * 1.0 / min(det_w, det_h) > 5:
+    if det_w < im_w * 0.01 or det_h < im_h * 0.01 or max(det_w, det_h) * 1.0 / min(det_w, det_h) > 4:
         # disappear from center
         # occluded
         return True
@@ -509,8 +509,6 @@ def post_process(res_path, sav_path, data_root):
         org_det_num = len(video_dets)
 
         # maximum number of trajectories
-        # max_per_vid = 20 + max((round(len(frame_list) / 900.0) - 1), 0) * 10
-        # max_per_vid = min(max_per_vid, 40)
         max_per_vid = 20
 
         # filter out extremely short and low scored ones
@@ -518,6 +516,10 @@ def post_process(res_path, sav_path, data_root):
         fil_det_num = len(video_dets)
 
         print('tracking: %d' % fil_det_num)
+
+        # for d, det in enumerate(video_dets):
+        #     new_traj = extend_traj(det, d, frame_list, video_dir)
+        #     video_dets[d] = new_traj
 
         # extend trajectories by tracking
         pool = Pool(processes=cpu_count())

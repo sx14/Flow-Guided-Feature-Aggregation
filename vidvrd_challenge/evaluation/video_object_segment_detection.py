@@ -40,6 +40,7 @@ def trajectory_overlap(gt_trajs, pred_traj):
 
 
 def evaluate(gt, pred, use_07_metric=True, thresh_t=0.8):
+    MAX_PER_VIDEO = 20
     """
     Evaluate the predictions
     """
@@ -55,6 +56,8 @@ def evaluate(gt, pred, use_07_metric=True, thresh_t=0.8):
 
     result_class = dict()
     for vid, tracks in pred.items():
+        tracks = sorted(tracks, key=lambda traj: traj['score'], reverse=True)
+        tracks = tracks[:MAX_PER_VIDEO]
         for traj in tracks:
             if traj['category'] not in result_class:
                 result_class[traj['category']] = [[vid, traj['score'], traj['trajectory']]]
