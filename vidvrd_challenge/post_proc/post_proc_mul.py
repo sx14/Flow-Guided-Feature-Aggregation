@@ -25,7 +25,7 @@ cls_score_thr = {
     'ski': 0,
     'snowboard': 0,
     'surfboard': 0,
-    'toy': 0.01,
+    'toy': 0.2,
     'baby_seat': 0.01,
     'bottle': 0.01,
     'chair': 0.01,
@@ -41,7 +41,7 @@ cls_score_thr = {
     'stool': 0.1,
     'table': 0.1,
     'toilet': 0.1,
-    'guitar': 0.1,
+    'guitar': 0.2,
     'piano': 0.2,
     'baby_walker': 0.01,
     'bench': 0.1,
@@ -70,7 +70,7 @@ cls_score_thr = {
     'camel': 0,
     'cat': 0.1,
     'cattle/cow': 0.01,
-    'dog': 0.1,
+    'dog': 0.2,
     'elephant': 0.05,
     'hamster/rat': 0,
     'horse': 0.05,
@@ -83,9 +83,9 @@ cls_score_thr = {
     'sheep/goat': 0.01,
     'squirrel': 0,
     'tiger': 0,
-    'adult': 0.1,
-    'baby': 0.1,
-    'child': 0.1
+    'adult': 0.2,
+    'baby': 0.2,
+    'child': 0.2
 }
 
 cls_dur_thr = {
@@ -195,7 +195,7 @@ def cal_viou(det1, det2, iou_thr=0.7):
     return viou
 
 
-def filler_bad_trajs(video_dets, max_per_vid=25, score_thr=0.005):
+def filler_bad_trajs(video_dets, max_per_vid=25, score_thr=0.05):
     cands = []
     lasts = []
     for det in video_dets:
