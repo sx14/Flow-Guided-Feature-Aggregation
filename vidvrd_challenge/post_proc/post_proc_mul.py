@@ -209,10 +209,10 @@ def filler_bad_trajs(video_dets, max_per_vid=25, score_thr=0.05):
 
     cands = sorted(cands, key=lambda det: det['score'], reverse=True)
     cands = cands[:max_per_vid]
-    # if len(cands) < max_per_vid:
-    #     lasts = sorted(lasts, key=lambda det: det['score'], reverse=True)
-    #     lasts = lasts[: (max_per_vid - len(cands))]
-    #     cands += lasts
+    if len(cands) < 5:
+        lasts = sorted(lasts, key=lambda det: det['score'], reverse=True)
+        lasts = lasts[: (5 - len(cands))]
+        cands += lasts
     return cands
 
 
