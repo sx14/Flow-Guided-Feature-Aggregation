@@ -301,7 +301,7 @@ class VidORVID(IMDB):
         start_video = np.searchsorted(sum_frame_ids, first_true_id)
 
         # ==== sunx: conf filler ====
-        conf_thr = 0.001
+        conf_thr = 0.01
         for c in range(len(all_boxes)):
             for f in range(len(all_boxes[c])):
                 frame_boxes = all_boxes[c][f]
@@ -330,7 +330,7 @@ class VidORVID(IMDB):
         t1 = time.time()
         from multiprocessing.pool import Pool as Pool
         from multiprocessing import cpu_count
-        cpu_num = min(10, cpu_count())
+        cpu_num = min(20, cpu_count())
         print('seq-nms use cpu: %d' % cpu_num)
         pool = Pool(processes=cpu_num)
         results = [pool.apply_async(seq_nms_nms, args=(video[0], 0.7)) for video in videos]
