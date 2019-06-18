@@ -147,7 +147,7 @@ TEST:
   test_epoch: 2
 
   # ==== sunx ====
-  batch_id: 1
+  batch_id: 0
   no_anno: true
   eval_only: false
   # ==== sunx ====

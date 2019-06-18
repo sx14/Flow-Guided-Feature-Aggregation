@@ -23,7 +23,8 @@ from config.config import config, update_config
 def parse_args():
     parser = argparse.ArgumentParser(description='Test a R-FCN network')
     # general
-    parser.add_argument('--cfg', help='experiment configure file name', required=True, type=str)
+    parser.add_argument('--cfg', help='experiment configure file name', required=True, type=str,
+                        default='experiments/fgfa_rfcn/cfgs/resnet_v1_101_flownet_vidor_vid_rfcn_end2end_ohem_test.yaml')
 
     args, rest = parser.parse_known_args()
     update_config(args.cfg)
@@ -46,9 +47,13 @@ from function.test_rcnn import test_rcnn
 from lib.utils.create_logger import create_logger
 
 
-def main():
+def main(batch_id=None):
     ctx = [mx.gpu(int(i)) for i in config.gpus.split(',')]
     print args
+
+    if batch_id is not None:
+        config.TEST.batch_id = batch_id
+        print('SUNX: processing batch: %d' % batch_id)
 
     logger, final_output_path = create_logger(config.output_path, args.cfg, config.dataset.test_image_set)
 
@@ -63,7 +68,7 @@ if __name__ == '__main__':
     import os
     print(time.strftime('Start at: %Y-%m-%d %H:%M:%S', time.localtime(time.time())))
     start_time = time.clock()
-    main()
+    # main()
     end_time = time.clock()
     runing_time = int(end_time - start_time)
     print(time.strftime('End at: %Y-%m-%d %H:%M:%S', time.localtime(time.time())))
