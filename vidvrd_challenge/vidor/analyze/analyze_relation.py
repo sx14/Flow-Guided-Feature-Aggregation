@@ -7,6 +7,8 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 
+spatials = ['above', 'away', 'behind', 'beneath', 'in_front_of', 'inside', 'next_to', 'toward']
+
 anno_root = '../../../data/VidOR/anno'
 vid_count = 0
 rlt_count = 0
@@ -87,6 +89,15 @@ for p, pkg in enumerate(pkg_list):
         vid_count += 1
 
         for rlt in rlts:
+
+            if rlt['predicate'] not in spatials:
+                continue
+
+            sid = rlt['subject_tid']
+            oid = rlt['object_tid']
+            sbj_dur = tid2dur[sid]
+            obj_dur = tid2dur[oid]
+
             stt_fid = rlt['begin_fid']
             end_fid = rlt['end_fid']
 
@@ -95,7 +106,8 @@ for p, pkg in enumerate(pkg_list):
             rlt_dur_max = max(rlt_dur_max, rlt_dur)
             rlt_dur_sum += rlt_dur
 
-            rlt_dur_ratio = rlt_dur * 1.0 / vid_dur
+            # rlt_dur_ratio = rlt_dur * 1.0 / vid_dur
+            rlt_dur_ratio = rlt_dur * 1.0 / min(sbj_dur, obj_dur)
             rlt_dur_ratio_min = min(rlt_dur_ratio_min, rlt_dur_ratio)
             rlt_dur_ratio_max = max(rlt_dur_ratio_max, rlt_dur_ratio)
             rlt_dur_ratio_sum += rlt_dur_ratio
