@@ -14,15 +14,17 @@ vid_count = 0
 rlt_count = 0
 obj_count = 0
 
+vid_dur_hist = []
+
 obj_cls_count = {}
 
-obj_max = 0
-obj_min = float('+Inf')
-obj_sum = 0
+obj_num_max = 0
+obj_num_min = float('+Inf')
+obj_num_sum = 0
 
-rlt_max = 0
-rlt_min = float('+Inf')
-rlt_sum = 0
+rlt_num_max = 0
+rlt_num_min = float('+Inf')
+rlt_num_sum = 0
 
 obj_dur_max = 0
 obj_dur_min = float('+Inf')
@@ -79,15 +81,16 @@ for p, pkg in enumerate(pkg_list):
 
         rlts = vid_anno['relation_instances']
         vid_dur = vid_anno['frame_count']
+        vid_dur_hist.append(vid_dur)
 
-        obj_max = max(obj_max, len(objs))
-        obj_min = min(obj_min, len(objs))
+        obj_num_max = max(obj_num_max, len(objs))
+        obj_num_min = min(obj_num_min, len(objs))
 
-        rlt_max = max(rlt_max, len(rlts))
-        rlt_min = min(rlt_min, len(rlts))
+        rlt_num_max = max(rlt_num_max, len(rlts))
+        rlt_num_min = min(rlt_num_min, len(rlts))
 
-        obj_sum += len(objs)
-        rlt_sum += len(rlts)
+        obj_num_sum += len(objs)
+        rlt_num_sum += len(rlts)
         vid_count += 1
 
         for rlt in rlts:
@@ -131,8 +134,8 @@ for p, pkg in enumerate(pkg_list):
 
 print('-' * 50)
 
-print('obj num: min(%d), max(%d), avg(%.2f)' % (obj_min, obj_max, obj_sum * 1.0 / vid_count))
-print('rlt num: min(%d), max(%d), avg(%.2f)' % (rlt_min, rlt_max, rlt_sum * 1.0 / vid_count))
+print('obj num: min(%d), max(%d), avg(%.2f)' % (obj_num_min, obj_num_max, obj_num_sum * 1.0 / vid_count))
+print('rlt num: min(%d), max(%d), avg(%.2f)' % (rlt_num_min, rlt_num_max, rlt_num_sum * 1.0 / vid_count))
 
 print('-' * 50)
 
@@ -152,10 +155,18 @@ print('-' * 50)
 #     plt.hist(cls_obj_dur_dist[cls], bins=200)
 #     plt.show()
 
-obj_sum = sum(obj_cls_count.values())
+obj_num_sum = sum(obj_cls_count.values())
 for cls in obj_cls_count:
     cls_count = obj_cls_count[cls]
-    print('%s: %.2f' % (cls, cls_count * 1.0 / obj_sum))
+    print('%s: %.2f' % (cls, cls_count * 1.0 / obj_num_sum))
+
+
+print('===== video duration distribution =====')
+vid_durs = np.array(vid_dur_hist)
+dur_percentiles = np.percentile(vid_durs, (25, 50, 75), interpolation='midpoint')
+print(dur_percentiles)
+plt.hist(vid_dur_hist, 200)
+plt.show()
 
 
 print('===== relation duration distribution =====')
