@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 spatials = ['above', 'away', 'behind', 'beneath', 'in_front_of', 'inside', 'next_to', 'toward']
 
-anno_root = '../../../data/VidOR/anno'
+anno_root = '../../../data/VidOR/anno/train'
 vid_count = 0
 rlt_count = 0
 obj_count = 0
@@ -159,9 +159,14 @@ for cls in obj_cls_count:
 
 
 print('===== relation duration distribution =====')
-plt.hist(rlt_dur_hist, 50)
+rlt_durs = np.array(rlt_dur_hist)
+dur_percentiles = np.percentile(rlt_durs, (25, 50, 75), interpolation='midpoint')
+print(dur_percentiles)
+plt.hist(rlt_dur_hist, 200)
 plt.show()
 
 print('===== relation duration ratio distribution =====')
-plt.hist(rlt_dur_hist, 50)
+rlt_dur_ratios = np.array(rlt_dur_ratio_hist)
+ration_percentiles = np.percentile(rlt_dur_ratios, (25, 50, 75), interpolation='midpoint')
+plt.hist(ration_percentiles, 100)
 plt.show()
