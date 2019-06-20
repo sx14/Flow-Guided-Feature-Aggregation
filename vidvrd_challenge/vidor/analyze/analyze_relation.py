@@ -41,6 +41,7 @@ rlt_dur_hist = []
 rlt_dur_ratio_sum = 0
 rlt_dur_ratio_max = 0.0
 rlt_dur_ratio_min = float('+Inf')
+rlt_dur_ratio_hist = []
 
 cls_obj_dur_dist = {}
 
@@ -113,6 +114,7 @@ for p, pkg in enumerate(pkg_list):
             rlt_dur_ratio_min = min(rlt_dur_ratio_min, rlt_dur_ratio)
             rlt_dur_ratio_max = max(rlt_dur_ratio_max, rlt_dur_ratio)
             rlt_dur_ratio_sum += rlt_dur_ratio
+            rlt_dur_ratio_hist.append(rlt_dur_ratio)
             rlt_count += 1
 
         for tid in tid2dur:
@@ -155,5 +157,11 @@ for cls in obj_cls_count:
     cls_count = obj_cls_count[cls]
     print('%s: %.2f' % (cls, cls_count * 1.0 / obj_sum))
 
+
+print('===== relation duration distribution =====')
+plt.hist(rlt_dur_hist, 50)
+plt.show()
+
+print('===== relation duration ratio distribution =====')
 plt.hist(rlt_dur_hist, 50)
 plt.show()
