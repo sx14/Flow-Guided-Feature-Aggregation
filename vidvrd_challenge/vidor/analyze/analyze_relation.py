@@ -36,6 +36,7 @@ obj_dur_ratio_min = float('+Inf')
 rlt_dur_max = 0
 rlt_dur_min = float('+Inf')
 rlt_dur_sum = 0
+rlt_dur_hist = []
 
 rlt_dur_ratio_sum = 0
 rlt_dur_ratio_max = 0.0
@@ -105,6 +106,7 @@ for p, pkg in enumerate(pkg_list):
             rlt_dur_min = min(rlt_dur_min, rlt_dur)
             rlt_dur_max = max(rlt_dur_max, rlt_dur)
             rlt_dur_sum += rlt_dur
+            rlt_dur_hist.append(rlt_dur)
 
             # rlt_dur_ratio = rlt_dur * 1.0 / vid_dur
             rlt_dur_ratio = rlt_dur * 1.0 / min(sbj_dur, obj_dur)
@@ -152,3 +154,6 @@ obj_sum = sum(obj_cls_count.values())
 for cls in obj_cls_count:
     cls_count = obj_cls_count[cls]
     print('%s: %.2f' % (cls, cls_count * 1.0 / obj_sum))
+
+plt.hist(rlt_dur_hist, 50)
+plt.show()
