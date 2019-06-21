@@ -21,6 +21,7 @@ obj_cls_count = {}
 obj_num_max = 0
 obj_num_min = float('+Inf')
 obj_num_sum = 0
+obj_stt_fid_hist = []
 
 rlt_num_max = 0
 rlt_num_min = float('+Inf')
@@ -60,6 +61,7 @@ for p, pkg in enumerate(pkg_list):
 
         tid2dur = {}
         tid2cls = {}
+        tid2stt_fid = {}
         for obj in objs:
             if obj['category'] not in obj_cls_count:
                 obj_cls_count[obj['category']] = 1
@@ -68,16 +70,23 @@ for p, pkg in enumerate(pkg_list):
 
             tid2dur[obj['tid']] = 0
             tid2cls[obj['tid']] = obj['category']
+            tid2stt_fid[obj['tid']] = -1
+
         frame_trajs = vid_anno['trajectories']
-        for frame_boxes in frame_trajs:
+        for fid, frame_boxes in enumerate(frame_trajs):
             for box in frame_boxes:
                 tid2dur[box['tid']] += 1
+
+                if tid2stt_fid[box['tid']] == -1:
+                    tid2stt_fid[box['tid']] = fid
 
         for tid in tid2dur:
             cls = tid2cls[tid]
             if cls not in cls_obj_dur_dist:
                 cls_obj_dur_dist[cls] = []
             cls_obj_dur_dist[cls].append(tid2dur[tid])
+
+            obj_stt_fid_hist.append(tid2stt_fid[tid])
 
         rlts = vid_anno['relation_instances']
         vid_dur = vid_anno['frame_count']
@@ -179,5 +188,10 @@ plt.show()
 print('===== relation duration ratio distribution =====')
 rlt_dur_ratios = np.array(rlt_dur_ratio_hist)
 ration_percentiles = np.percentile(rlt_dur_ratios, (25, 50, 75), interpolation='midpoint')
-plt.hist(ration_percentiles, 100)
+print(ration_percentiles)
+plt.hist(rlt_dur_ratios, 100)
+plt.show()
+
+print('===== object start fid distribution =====')
+plt.hist(obj_stt_fid_hist, 100)
 plt.show()
