@@ -21,7 +21,7 @@ obj_cls_count = {}
 obj_num_max = 0
 obj_num_min = float('+Inf')
 obj_num_sum = 0
-obj_stt_fid_hist = []
+
 
 rlt_num_max = 0
 rlt_num_min = float('+Inf')
@@ -47,6 +47,10 @@ rlt_dur_ratio_min = float('+Inf')
 rlt_dur_ratio_hist = []
 
 cls_obj_dur_dist = {}
+
+obj_stt_fid_hist = []
+rlt_spa_stt_fid_hist = []
+rlt_act_stt_fid_hist = []
 
 
 pkg_list = os.listdir(anno_root)
@@ -103,6 +107,11 @@ for p, pkg in enumerate(pkg_list):
         vid_count += 1
 
         for rlt in rlts:
+
+            if rlt['predicate'] in spatials:
+                rlt_spa_stt_fid_hist.append(rlt['begin_fid'])
+            else:
+                rlt_act_stt_fid_hist.append(rlt['begin_fid'])
 
             if rlt['predicate'] not in spatials:
                 continue
@@ -194,4 +203,12 @@ plt.show()
 
 print('===== object start fid distribution =====')
 plt.hist(obj_stt_fid_hist, 100)
+plt.show()
+
+print('===== spatial relation start fid distribution =====')
+plt.hist(rlt_spa_stt_fid_hist, 100)
+plt.show()
+
+print('===== action relation start fid distribution =====')
+plt.hist(rlt_act_stt_fid_hist, 100)
 plt.show()
