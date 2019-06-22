@@ -58,7 +58,14 @@ def show_video(frame_root, anno_path):
         before_len = min(30, stt_fid)
         after_len = min(30, frame_num - end_fid - 1)
         plt.figure(0)
+        count = 0
         for fid in range(stt_fid-before_len, end_fid+after_len):
+
+            if count == 100:
+                break
+
+            count += 1
+
             colors = colors0
             if fid < stt_fid or fid > end_fid:
                 colors = [[1,1,1], [1,1,1]]
