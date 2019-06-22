@@ -4,6 +4,7 @@ import random
 import matplotlib.pyplot as plt
 from show_frame import *
 
+
 def read_anno(anno_path):
     with open(anno_path) as f:
         vid_anno = json.load(f)
@@ -41,8 +42,6 @@ def show_video(frame_root, anno_path):
     frame_num = len(objs[0])
 
     for i, rlt in enumerate(relations):
-        if i < 5:
-            continue
 
         stt_fid = rlt['begin_fid']
         end_fid = rlt['end_fid']
@@ -50,6 +49,9 @@ def show_video(frame_root, anno_path):
         obj_tid = rlt['object_tid']
         colors0 = [all_colors[sbj_tid], all_colors[obj_tid]]
         predicate = rlt['predicate']
+
+        if predicate != 'above':
+            continue
 
         print('R[%d/%d] %s [0| %d -> %d |%d]' % (len(relations), i+1, predicate, stt_fid, end_fid, frame_num - 1))
 
@@ -74,15 +76,14 @@ def show_video(frame_root, anno_path):
         plt.close()
 
 
-
-
-
-
 if __name__ == '__main__':
-    data_root = '/media/sunx/Data/linux-workspace/python-workspace/Flow-Guided-Feature-Aggregation/data/VidOR/Data/VID/val/'
-    anno_root = '/media/sunx/Data/dataset/vidor/vidor-dataset/val/'
-    vid_id = '0006/3741856882'
+    data_root = '../../../data/VidOR/Data/VID/val/'
+    anno_root = '../../../data/VidOR/anno/val/'
 
-    video_dir_path = data_root + vid_id
-    anno_path = anno_root + vid_id + '.json'
-    show_video(video_dir_path, anno_path)
+    for pkg in os.listdir(data_root):
+        pkg_path = os.path.join(data_root, pkg)
+        for vid in os.listdir(pkg_path):
+            video_dir_path = os.path.join(pkg_path, vid)
+
+            anno_path = os.path.join(anno_root, pkg, vid+'.json')
+            show_video(video_dir_path, anno_path)

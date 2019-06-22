@@ -90,7 +90,8 @@ for p, pkg in enumerate(pkg_list):
                 cls_obj_dur_dist[cls] = []
             cls_obj_dur_dist[cls].append(tid2dur[tid])
 
-            obj_stt_fid_hist.append(tid2stt_fid[tid])
+            if tid2stt_fid[tid] < 1000:
+                obj_stt_fid_hist.append(tid2stt_fid[tid])
 
         rlts = vid_anno['relation_instances']
         vid_dur = vid_anno['frame_count']
@@ -109,9 +110,11 @@ for p, pkg in enumerate(pkg_list):
         for rlt in rlts:
 
             if rlt['predicate'] in spatials:
-                rlt_spa_stt_fid_hist.append(rlt['begin_fid'])
+                if rlt['begin_fid'] < 1000:
+                    rlt_spa_stt_fid_hist.append(rlt['begin_fid'])
             else:
-                rlt_act_stt_fid_hist.append(rlt['begin_fid'])
+                if rlt['begin_fid'] < 1000:
+                    rlt_act_stt_fid_hist.append(rlt['begin_fid'])
 
             if rlt['predicate'] not in spatials:
                 continue
@@ -202,13 +205,13 @@ plt.hist(rlt_dur_ratios, 100)
 plt.show()
 
 print('===== object start fid distribution =====')
-plt.hist(obj_stt_fid_hist, 100)
+plt.hist(obj_stt_fid_hist, 1000)
 plt.show()
 
 print('===== spatial relation start fid distribution =====')
-plt.hist(rlt_spa_stt_fid_hist, 100)
+plt.hist(rlt_spa_stt_fid_hist, 1000)
 plt.show()
 
 print('===== action relation start fid distribution =====')
-plt.hist(rlt_act_stt_fid_hist, 100)
+plt.hist(rlt_act_stt_fid_hist, 1000)
 plt.show()
