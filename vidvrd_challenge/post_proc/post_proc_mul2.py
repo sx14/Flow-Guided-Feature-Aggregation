@@ -109,15 +109,18 @@ def proc_video_detections(dets, vid):
 if __name__ == '__main__':
     split = 'val'
     res_path = '../evaluation/vidor_%s_object_pred_proc_all_2.json' % split
+
+    print('loading %s' % res_path)
     with open(res_path) as f:
         res = json.load(f)
         all_results = res['results']
 
     for vid in all_results:
         vid_dets = all_results[vid]
-        all_results[vid] = proc_video_detections(vid_dets)
+        all_results[vid] = proc_video_detections(vid_dets, vid)
 
     sav_path = '../evaluation/vidor_%s_object_pred_proc_all_2_nms.json' % split
+    print('saving %s' % sav_path)
     with open(sav_path, 'w') as f:
         res = {'results': all_results}
         json.dump(res, f)
