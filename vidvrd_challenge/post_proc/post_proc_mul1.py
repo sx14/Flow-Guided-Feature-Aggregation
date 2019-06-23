@@ -296,7 +296,6 @@ def connect(video_dets):
         del_det_inds = set()
         new_dets = []
         for i in range(len(video_dets) - 1):
-            # assume before
             det1 = video_dets[i]
             traj1 = det1['trajectory']
             cls1 = det1['category']
@@ -485,7 +484,7 @@ def extend_traj(det, tid, frame_list, video_dir):
     return det
 
 
-def post_process(res_path, sav_path, data_root):
+def post_process1(res_path, sav_path, data_root):
     from multiprocessing.pool import Pool as Pool
     from multiprocessing import cpu_count
 
@@ -555,6 +554,10 @@ def check_fid(res):
                 det['end_fid'] = end_fid
 
 
+
+
+
+
 if __name__ == '__main__':
     split = 'val'
     res_ids = [0, 1, 2, 3]
@@ -564,7 +567,7 @@ if __name__ == '__main__':
         res_path = '../evaluation/vidor_%s_object_pred%d.json' % (split, res_id)
         sav_path = res_path[:-5] + '_proc.json'
         t = time.time()
-        post_process(res_path, sav_path, data_root)
+        post_process1(res_path, sav_path, data_root)
         t1 = time.time()
         dur = int(t1 - t)
         h = dur / 60 / 60

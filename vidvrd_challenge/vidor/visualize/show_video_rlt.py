@@ -50,8 +50,6 @@ def show_video(frame_root, anno_path):
         colors0 = [all_colors[sbj_tid], all_colors[obj_tid]]
         predicate = rlt['predicate']
 
-        if predicate != 'above':
-            continue
 
         print('R[%d/%d] %s [0| %d -> %d |%d]' % (len(relations), i+1, predicate, stt_fid, end_fid, frame_num - 1))
 
@@ -90,7 +88,8 @@ if __name__ == '__main__':
     for pkg in os.listdir(data_root):
         pkg_path = os.path.join(data_root, pkg)
         for vid in os.listdir(pkg_path):
-            video_dir_path = os.path.join(pkg_path, vid)
-
-            anno_path = os.path.join(anno_root, pkg, vid+'.json')
+            # video_dir_path = os.path.join(pkg_path, vid)
+            # anno_path = os.path.join(anno_root, pkg, vid+'.json')
+            video_dir_path = os.path.join(data_root, '1025/6163877860')
+            anno_path = os.path.join(anno_root, '1025/6163877860.json')
             show_video(video_dir_path, anno_path)

@@ -4,7 +4,7 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 
-from post_proc_mul import track, connect, cal_viou
+from post_proc_mul1 import track, connect, cal_viou
 from vidvrd_challenge.evaluation.show_prediction import show_boxes
 
 

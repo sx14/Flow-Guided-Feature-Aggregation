@@ -137,5 +137,5 @@ def show_prediction(video_root, pred_path, vid=None):
 if __name__ == '__main__':
     video_root = '../../data/VidOR/Data/VID/val'
     res_path = 'vidor_val_object_pred_proc.json'
-    vid = u'0004/11566980553'
+    vid = u'1025/6163877860'
     show_prediction(video_root, res_path, vid)
