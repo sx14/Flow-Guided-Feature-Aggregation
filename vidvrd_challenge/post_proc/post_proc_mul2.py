@@ -25,7 +25,7 @@ def cal_cover(box1, box2):
     return iou
 
 
-def cal_vcover(det1, det2, cover_thr=0.8):
+def cal_vcover(det1, det2, cover_thr=0.6):
     # det2's cover ratio
 
     traj1 = det1['trajectory']
@@ -54,7 +54,7 @@ def cal_vcover(det1, det2, cover_thr=0.8):
     return viou
 
 
-def special_nms(dets, vcover_thr=0.8):
+def special_nms(dets, vcover_thr=0.6):
     remove_ids = set()
     for i in range(len(dets)):
         for j in range(len(dets)):
@@ -82,7 +82,7 @@ def proc_video_detections(dets, vid):
             cls_dets.append(det)
         else:
             cls_dets = [det]
-            all_cls_dets['category'] = cls_dets
+            all_cls_dets[det['category']] = cls_dets
 
     det_num1 = 0
     det_num2 = 0
