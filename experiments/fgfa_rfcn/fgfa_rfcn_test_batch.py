@@ -40,5 +40,5 @@ if __name__ == "__main__":
         if os.path.exists(cache_path):
             shutil.rmtree(cache_path)
 
-        print('[%d] %s: %d -> %d' % (split, batch_ids[i], batch_boundaries[i], batch_boundaries[i+1]))
+        print('[%d] %s: %d -> %d' % (batch_ids[i], split, batch_boundaries[i], batch_boundaries[i+1]))
         test.main(batch_id=batch_ids[i])
