@@ -2,7 +2,7 @@ import os
 import json
 from supplement_mul import temporal_nms
 
-special_nms_cls = ['sofa', 'ball/sports_ball', 'backpack']
+special_nms_cls = ['sofa', 'ball/sports_ball', 'table']
 
 
 def cal_cover(box1, box2):

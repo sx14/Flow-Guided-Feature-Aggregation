@@ -301,12 +301,14 @@ class VidORVID(IMDB):
         start_video = np.searchsorted(sum_frame_ids, first_true_id)
 
         # ==== sunx: conf filler ====
-        conf_thr = 0.01
         for c in range(len(all_boxes)):
             for f in range(len(all_boxes[c])):
                 frame_boxes = all_boxes[c][f]
                 if len(frame_boxes) > 0:
-                    frame_boxes = frame_boxes[frame_boxes[:, 4] > conf_thr]
+                    if c >= 78:
+                        frame_boxes = frame_boxes[frame_boxes[:, 4] > 0.2]
+                    else:
+                        frame_boxes = frame_boxes[frame_boxes[:, 4] > 0.1]
                 all_boxes[c][f] = frame_boxes
         # ===========================
 
