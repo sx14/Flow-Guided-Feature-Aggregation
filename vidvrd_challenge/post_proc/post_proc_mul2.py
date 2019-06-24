@@ -1,8 +1,88 @@
 import os
 import json
+import copy
 from supplement_mul import temporal_nms
+from post_proc_mul1 import cal_iou, connect
 
 special_nms_cls = ['sofa', 'ball/sports_ball', 'table']
+
+
+def split_trajectory_by_tracking(frame_dir, traj, vis=False):
+    import matplotlib.pyplot as plt
+    import cv2
+
+    if vis:
+        plt.figure(0)
+
+    traj_splits = []
+    tracker = cv2.TrackerKCF_create()
+
+    org_fids = sorted([int(fid) for fid in traj])
+    org_stt_fid = org_fids[0]
+    org_end_fid = org_fids[-1]
+
+    need_init = False
+    curr_split_stt_fid = org_stt_fid
+    for fid in range(org_stt_fid, org_end_fid + 1):
+        frame_path = os.path.join(frame_dir, '%06d.JPEG' % fid)
+        frame = cv2.imread(frame_path)
+        im_h, im_w, _ = frame.shape
+
+        curr_box = traj['%06d' % fid]
+        if (fid - org_stt_fid) % 30 == 0 or need_init:
+            # init tracker
+            init_box = (curr_box[0],
+                        curr_box[1],
+                        curr_box[2] - curr_box[0] + 1,
+                        curr_box[3] - curr_box[1] + 1)
+            tracker.init(frame, init_box)
+            box = init_box
+        else:
+            ok, box = tracker.update(frame)
+            # [x1,y1,w,h] -> [x1,y1,x2,y2]
+            box = [int(box[0]),
+                   int(box[1]),
+                   int(box[0] + box[2]),
+                   int(box[1] + box[3])]
+            box = [max(0, box[0]),
+                   max(0, box[1]),
+                   max(0, box[2]),
+                   max(0, box[3])]
+            box = [min(box[0], im_w-1),
+                   min(box[1], im_h-1),
+                   min(box[2], im_w-1),
+                   min(box[3], im_h-1)]
+
+            next_box = traj['%06d' % (fid + 1)]
+            if (not ok) or cal_iou(next_box, box) < 0.5 or fid == org_end_fid:
+                # generate a trajectory split
+                split_traj = {}
+                for split_fid in range(curr_split_stt_fid, fid):
+                    split_traj['%06d' % split_fid] = traj[split_fid]
+                traj_splits.append(split_traj)
+                need_init = True
+                curr_split_stt_fid = fid
+
+        if vis:
+            plt.ion()
+            plt.axis('off')
+            frame_show = plt.imread(frame_path)
+            plt.imshow(frame_show)
+
+            if box is not None:
+                rect = plt.Rectangle((box[0], box[1]),
+                                     box[2] - box[0],
+                                     box[3] - box[1], fill=False,
+                                     edgecolor=[1.0, 0, 0], linewidth=2)
+                plt.gca().add_patch(rect)
+            plt.show()
+            plt.pause(0.01)
+            plt.cla()
+
+    if vis:
+        plt.close()
+
+    return traj_splits
 
 
 def cal_cover(box1, box2):
@@ -71,7 +151,7 @@ def special_nms(dets, vcover_thr=0.6):
     return last_dets
 
 
-def proc_video_detections(dets, vid):
+def tricky_check(dets, vid):
     det_num0 = len(dets)
     nms_dets = []
 
@@ -106,9 +186,32 @@ def proc_video_detections(dets, vid):
     return nms_dets
 
 
+def tracking_check(dets, vid, data_root):
+    checked_dets = []
+    for det in dets:
+        frame_dir = os.path.join(data_root, vid)
+        traj_splits = split_trajectory_by_tracking(frame_dir, det['trajectory'])
+        for traj_split in traj_splits:
+            split_fids = sorted([int(fid) for fid in traj_split])
+
+            if len(split_fids) < 0.1 * len(det['trajectory'].keys()):
+                continue
+
+            det_split = dict()
+            det_split['trajectory'] = traj_split
+            det_split['start_fid'] = split_fids[0]
+            det_split['end_fid'] = split_fids[-1]
+            det_split['category'] = det['category']
+            det_split['score'] = det['score']
+            checked_dets.append(det_split)
+    print('%s [%d -> %d]')
+    return checked_dets
+
+
 if __name__ == '__main__':
     split = 'val'
     res_path = '../evaluation/vidor_%s_object_pred_proc_all_2.json' % split
+    data_root = '../../data/VidOR/data/VID'
 
     print('loading %s' % res_path)
     with open(res_path) as f:
@@ -117,7 +220,13 @@ if __name__ == '__main__':
 
     for vid in all_results:
         vid_dets = all_results[vid]
-        all_results[vid] = proc_video_detections(vid_dets, vid)
+
+        vid_frame_root = os.path.join(data_root, vid)
+        vid_dets = tracking_check(vid_dets, vid, vid_frame_root)
+        connect(vid_dets)
+        vid_dets = tricky_check(vid_dets, vid)
+
+        all_results[vid] = vid_dets
 
     sav_path = '../evaluation/vidor_%s_object_pred_proc_all_2_nms.json' % split
     print('saving %s' % sav_path)
