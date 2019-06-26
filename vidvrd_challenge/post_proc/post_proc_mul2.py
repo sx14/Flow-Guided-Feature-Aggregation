@@ -4,10 +4,42 @@ import copy
 from supplement_mul import temporal_nms
 from post_proc_mul1 import cal_iou, connect
 
-special_nms_cls = ['sofa', 'ball/sports_ball', 'table']
+ignore_nms_set = set()
+
+ignore_nms_set.add('crab')
+ignore_nms_set.add('bird')
+ignore_nms_set.add('chicken')
+ignore_nms_set.add('duck')
+ignore_nms_set.add('penguin')
+ignore_nms_set.add('fish')
+ignore_nms_set.add('stingray')
+ignore_nms_set.add('crocodile')
+ignore_nms_set.add('snake')
+ignore_nms_set.add('turtle')
+ignore_nms_set.add('antelope')
+ignore_nms_set.add('bear')
+ignore_nms_set.add('camel')
+ignore_nms_set.add('cat')
+ignore_nms_set.add('cattle/cow')
+ignore_nms_set.add('dog')
+ignore_nms_set.add('elephant')
+ignore_nms_set.add('hamster/rat')
+ignore_nms_set.add('horse')
+ignore_nms_set.add('kangaroo')
+ignore_nms_set.add('leopard')
+ignore_nms_set.add('lion')
+ignore_nms_set.add('panda')
+ignore_nms_set.add('pig')
+ignore_nms_set.add('rabbit')
+ignore_nms_set.add('sheep/goat')
+ignore_nms_set.add('squirrel')
+ignore_nms_set.add('tiger')
+ignore_nms_set.add('adult')
+ignore_nms_set.add('baby')
+ignore_nms_set.add('child')
 
 
-def split_trajectory_by_tracking(frame_dir, traj, vis=False):
+def split_trajectory_by_tracking(frame_dir, traj, vis=True):
     import matplotlib.pyplot as plt
     import cv2
 
@@ -15,15 +47,19 @@ def split_trajectory_by_tracking(frame_dir, traj, vis=False):
         plt.figure(0)
 
     traj_splits = []
-    tracker = cv2.TrackerKCF_create()
+    tracker = None
 
     org_fids = sorted([int(fid) for fid in traj])
     org_stt_fid = org_fids[0]
     org_end_fid = org_fids[-1]
 
+    print('-------------')
+    print('%d -> %d' % (org_stt_fid, org_end_fid))
+
+
     need_init = False
     curr_split_stt_fid = org_stt_fid
-    for fid in range(org_stt_fid, org_end_fid + 1):
+    for fid in range(org_stt_fid, org_end_fid):
         frame_path = os.path.join(frame_dir, '%06d.JPEG' % fid)
         frame = cv2.imread(frame_path)
         im_h, im_w, _ = frame.shape
@@ -31,12 +67,15 @@ def split_trajectory_by_tracking(frame_dir, traj, vis=False):
         curr_box = traj['%06d' % fid]
         if (fid - org_stt_fid) % 30 == 0 or need_init:
             # init tracker
+            tracker = cv2.TrackerKCF_create()
             init_box = (curr_box[0],
                         curr_box[1],
                         curr_box[2] - curr_box[0] + 1,
                         curr_box[3] - curr_box[1] + 1)
             tracker.init(frame, init_box)
-            box = init_box
+            box = curr_box
+            next_box = None
+            need_init = False
         else:
             ok, box = tracker.update(frame)
             # [x1,y1,w,h] -> [x1,y1,x2,y2]
@@ -54,11 +93,12 @@ def split_trajectory_by_tracking(frame_dir, traj, vis=False):
                    min(box[3], im_h-1)]
 
             next_box = traj['%06d' % (fid + 1)]
-            if (not ok) or cal_iou(next_box, box) < 0.5 or fid == org_end_fid:
+            if (not ok) or cal_iou(next_box, box) < 0.5 or fid == org_end_fid - 1:
                 # generate a trajectory split
+                print('split [%d %d]' % (curr_split_stt_fid, fid - 1))
                 split_traj = {}
                 for split_fid in range(curr_split_stt_fid, fid):
-                    split_traj['%06d' % split_fid] = traj[split_fid]
+                    split_traj['%06d' % split_fid] = traj['%06d' % split_fid]
                 traj_splits.append(split_traj)
                 need_init = True
                 curr_split_stt_fid = fid
@@ -73,15 +113,24 @@ def split_trajectory_by_tracking(frame_dir, traj, vis=False):
                 rect = plt.Rectangle((box[0], box[1]),
                                      box[2] - box[0],
                                      box[3] - box[1], fill=False,
+                                     edgecolor=[0, 1, 0], linewidth=2)
+                plt.gca().add_patch(rect)
+            if next_box is not None:
+                rect = plt.Rectangle((next_box[0], next_box[1]),
+                                     next_box[2] - next_box[0],
+                                     next_box[3] - next_box[1], fill=False,
                                      edgecolor=[1.0, 0, 0], linewidth=2)
                 plt.gca().add_patch(rect)
+
             plt.show()
-            plt.pause(0.01)
+            plt.pause(0.0000001)
             plt.cla()
 
     if vis:
         plt.close()
 
+    print('we get %d' % len(traj_splits))
+    print('-------------')
     return traj_splits
 
 
@@ -175,7 +224,7 @@ def tricky_check(dets, vid):
             cls_dets_nms.append(cls_dets[i])
         det_num1 += len(cls_dets_nms)
 
-        if cls in special_nms_cls:
+        if cls not in ignore_nms_set:
             cls_dets_nms = special_nms(cls_dets_nms)
             det_num2 += len(cls_dets_nms)
         else:
@@ -188,7 +237,10 @@ def tricky_check(dets, vid):
 
 def tracking_check(dets, vid, data_root):
     checked_dets = []
-    for det in dets:
+    for i, det in enumerate(dets):
+        if i < 1:
+            continue
+
         frame_dir = os.path.join(data_root, vid)
         traj_splits = split_trajectory_by_tracking(frame_dir, det['trajectory'])
         for traj_split in traj_splits:
@@ -211,7 +263,7 @@ def tracking_check(dets, vid, data_root):
 if __name__ == '__main__':
     split = 'val'
     res_path = '../evaluation/vidor_%s_object_pred_proc_all_2.json' % split
-    data_root = '../../data/VidOR/data/VID'
+    data_root = '../../data/VidOR/Data/VID/'+split
 
     print('loading %s' % res_path)
     with open(res_path) as f:
@@ -219,11 +271,10 @@ if __name__ == '__main__':
         all_results = res['results']
 
     for vid in all_results:
-        vid_dets = all_results[vid]
 
-        vid_frame_root = os.path.join(data_root, vid)
-        vid_dets = tracking_check(vid_dets, vid, vid_frame_root)
-        connect(vid_dets)
+        vid_dets = all_results[vid]
+        # vid_dets = tracking_check(vid_dets, vid, data_root)
+        # connect(vid_dets)
         vid_dets = tricky_check(vid_dets, vid)
 
         all_results[vid] = vid_dets
