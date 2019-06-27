@@ -39,14 +39,15 @@ ignore_nms_set.add('baby')
 ignore_nms_set.add('child')
 
 
-def split_trajectory_by_tracking(frame_dir, traj, vis=True):
+def split_trajectory_by_tracking(frame_dir, det, vis=True):
     import matplotlib.pyplot as plt
     import cv2
 
     if vis:
         plt.figure(0)
 
-    traj_splits = []
+    det_splits = []
+    traj = det['trajectory']
     tracker = None
 
     org_fids = sorted([int(fid) for fid in traj])
@@ -91,14 +92,17 @@ def split_trajectory_by_tracking(frame_dir, traj, vis=True):
                    min(box[2], im_w-1),
                    min(box[3], im_h-1)]
 
-            if (fid - org_stt_fid) % 60 == 59 or (not ok):
-                if cal_iou(curr_box, box) < 0.3 or (not ok):
+            if (fid - org_stt_fid) % 60 == 59:
+                if cal_iou(curr_box, box) < 0.5 or (not ok):
                     # generate a trajectory split
                     print('split [%d %d]' % (curr_split_stt_fid, fid))
                     split_traj = {}
                     for split_fid in range(curr_split_stt_fid, fid+1):
                         split_traj['%06d' % split_fid] = traj['%06d' % split_fid]
-                    traj_splits.append(split_traj)
+
+                    det_split = copy.deepcopy(det)
+                    det_split['trajectory'] = split_traj
+                    det_splits.append(det_split)
                     curr_split_stt_fid = fid+1
 
             # to the end
@@ -107,12 +111,15 @@ def split_trajectory_by_tracking(frame_dir, traj, vis=True):
                 split_traj = {}
                 for split_fid in range(curr_split_stt_fid, fid + 1):
                     split_traj['%06d' % split_fid] = traj['%06d' % split_fid]
-                traj_splits.append(split_traj)
+
+                det_split = copy.deepcopy(det)
+                det_split['trajectory'] = split_traj
+                det_splits.append(det_split)
 
         if vis:
 
             if (fid - org_stt_fid) % 60 == 0:
-                color = [0, 0, 1]
+                color = [1, 0, 0]
             else:
                 color = [0, 1, 0]
 
@@ -135,16 +142,16 @@ def split_trajectory_by_tracking(frame_dir, traj, vis=True):
     if vis:
         plt.close()
 
-    print('we get %d splits' % len(traj_splits))
+    print('we get %d detection split' % len(det_splits))
     print('-------------')
     frame_list = sorted(os.listdir(frame_dir))
 
     # tracking 180 frame bidirectional
-    for i, traj_split in enumerate(traj_splits):
-        new_traj_split = extend_traj(traj_split, i, frame_list, frame_dir, max_new_box=180)
-        traj_splits[i] = new_traj_split
+    for i, det_split in enumerate(det_splits):
+        new_det_split = extend_traj(det_split, i, frame_list, frame_dir, max_new_box=180)
+        det_splits[i] = new_det_split
 
-    return traj_splits
+    return det_splits
 
 
 def cal_cover(box1, box2):
@@ -260,26 +267,19 @@ def tracking_check(dets, vid, data_root):
     checked_dets = []
     for i, det in enumerate(dets):
 
+        if i < 2:
+            continue
+
         if det['category'] not in human_cls:
             checked_dets.append(det)
         else:
             frame_dir = os.path.join(data_root, vid)
-            traj_splits = split_trajectory_by_tracking(frame_dir, det['trajectory'])
+            det_splits = split_trajectory_by_tracking(frame_dir, det)
 
-            for traj_split in traj_splits:
-                split_fids = sorted([int(fid) for fid in traj_split])
-
-                if len(split_fids) < 0.1 * len(det['trajectory']):
-                    continue
-
-                det_split = dict()
-                det_split['trajectory'] = traj_split
-                det_split['start_fid'] = split_fids[0]
-                det_split['end_fid'] = split_fids[-1]
-                det_split['category'] = det['category']
-                det_split['score'] = det['score']
+            for det_split in det_splits:
                 checked_dets.append(det_split)
-    print('%s [%d -> %d]')
+
+    print('%s [%d -> %d]' % (vid, len(dets), len(checked_dets)))
     return checked_dets
 
 
@@ -295,11 +295,12 @@ if __name__ == '__main__':
 
     for vid in all_results:
 
+        vid = '1005/4967810888'
+
         vid_dets = all_results[vid]
         vid_dets = tracking_check(vid_dets, vid, data_root)
         connect(vid_dets)
         vid_dets = tricky_check(vid_dets, vid)
-
         all_results[vid] = vid_dets
 
     sav_path = '../evaluation/vidor_%s_object_pred_proc_all_2_nms.json' % split
