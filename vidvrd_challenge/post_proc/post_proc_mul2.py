@@ -58,13 +58,15 @@ def split_trajectory_by_tracking(frame_dir, traj, vis=True):
 
     need_init = False
     curr_split_stt_fid = org_stt_fid
-    for fid in range(org_stt_fid, org_end_fid):
+
+    # frame [0 -> N]
+    for fid in range(org_stt_fid, org_end_fid + 1):
         frame_path = os.path.join(frame_dir, '%06d.JPEG' % fid)
         frame = cv2.imread(frame_path)
         im_h, im_w, _ = frame.shape
 
         curr_box = traj['%06d' % fid]
-        if (fid - org_stt_fid) % 60 == 0 or need_init:
+        if (fid - org_stt_fid) % 60 == 0:
             # init tracker
             tracker = cv2.TrackerKCF_create()
             init_box = (curr_box[0],
@@ -73,8 +75,6 @@ def split_trajectory_by_tracking(frame_dir, traj, vis=True):
                         curr_box[3] - curr_box[1] + 1)
             tracker.init(frame, init_box)
             box = curr_box
-            next_box = None
-            need_init = False
         else:
             ok, box = tracker.update(frame)
             # [x1,y1,w,h] -> [x1,y1,x2,y2]
@@ -91,16 +91,24 @@ def split_trajectory_by_tracking(frame_dir, traj, vis=True):
                    min(box[2], im_w-1),
                    min(box[3], im_h-1)]
 
-            next_box = traj['%06d' % (fid + 1)]
-            if (not ok) or cal_iou(next_box, box) < 0.5 or fid == org_end_fid - 1:
-                # generate a trajectory split
-                print('split [%d %d]' % (curr_split_stt_fid, fid - 1))
+            if (fid - org_stt_fid) % 60 == 59 or (not ok):
+                curr_box = traj['%06d' % fid]
+                if cal_iou(curr_box, box) < 0.3 or (not ok):
+                    # generate a trajectory split
+                    print('split [%d %d]' % (curr_split_stt_fid, fid))
+                    split_traj = {}
+                    for split_fid in range(curr_split_stt_fid, fid+1):
+                        split_traj['%06d' % split_fid] = traj['%06d' % split_fid]
+                    traj_splits.append(split_traj)
+                    curr_split_stt_fid = fid + 1
+
+            # to the end
+            if fid == org_end_fid:
+                print('split [%d %d]' % (curr_split_stt_fid, fid))
                 split_traj = {}
-                for split_fid in range(curr_split_stt_fid, fid):
+                for split_fid in range(curr_split_stt_fid, fid + 1):
                     split_traj['%06d' % split_fid] = traj['%06d' % split_fid]
                 traj_splits.append(split_traj)
-                need_init = True
-                curr_split_stt_fid = fid
 
         if vis:
             plt.ion()

@@ -3,7 +3,7 @@ import json
 import math
 import time
 import numpy as np
-
+import cv2
 
 cls_score_thr = {
     'bread': 0,
@@ -413,8 +413,11 @@ def is_over(det, im_w, im_h):
 
 
 def extend_traj(det, tid, frame_list, video_dir, max_new_box=1000):
-    w = det['width']
-    h = det['height']
+
+    frame0_path = os.path.join(video_dir, frame_list[0])
+    frame0 = cv2.imread(frame0_path)
+    h, w, _ = frame0.shape
+
     cate = det['category']
     traj = det['trajectory']
 
@@ -446,7 +449,7 @@ def extend_traj(det, tid, frame_list, video_dir, max_new_box=1000):
 
         seg_frames = frame_list[track_stt_fid::-1]
         seg_frame_paths = [os.path.join(video_dir, frame_id) for frame_id in seg_frames]
-        new_boxes = track(seg_frame_paths, traj['%06d' % track_stt_fid], vis=False)
+        new_boxes = track(seg_frame_paths, traj['%06d' % track_stt_fid], vis=False, max_new_box_num=max_new_box)
         print('\t[%d] head add: %d <%s>' % (tid, len(new_boxes) - curr_cache_len, cate))
 
         for i in range(len(new_boxes)):
