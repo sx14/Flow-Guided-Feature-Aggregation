@@ -92,7 +92,6 @@ def split_trajectory_by_tracking(frame_dir, traj, vis=True):
                    min(box[3], im_h-1)]
 
             if (fid - org_stt_fid) % 60 == 59 or (not ok):
-                curr_box = traj['%06d' % fid]
                 if cal_iou(curr_box, box) < 0.3 or (not ok):
                     # generate a trajectory split
                     print('split [%d %d]' % (curr_split_stt_fid, fid))
@@ -100,7 +99,7 @@ def split_trajectory_by_tracking(frame_dir, traj, vis=True):
                     for split_fid in range(curr_split_stt_fid, fid+1):
                         split_traj['%06d' % split_fid] = traj['%06d' % split_fid]
                     traj_splits.append(split_traj)
-                    curr_split_stt_fid = fid + 1
+                    curr_split_stt_fid = fid+1
 
             # to the end
             if fid == org_end_fid:
@@ -111,6 +110,12 @@ def split_trajectory_by_tracking(frame_dir, traj, vis=True):
                 traj_splits.append(split_traj)
 
         if vis:
+
+            if (fid - org_stt_fid) % 60 == 0:
+                color = [0, 0, 1]
+            else:
+                color = [0, 1, 0]
+
             plt.ion()
             plt.axis('off')
             frame_show = plt.imread(frame_path)
@@ -120,13 +125,7 @@ def split_trajectory_by_tracking(frame_dir, traj, vis=True):
                 rect = plt.Rectangle((box[0], box[1]),
                                      box[2] - box[0],
                                      box[3] - box[1], fill=False,
-                                     edgecolor=[0, 1, 0], linewidth=2)
-                plt.gca().add_patch(rect)
-            if next_box is not None:
-                rect = plt.Rectangle((next_box[0], next_box[1]),
-                                     next_box[2] - next_box[0],
-                                     next_box[3] - next_box[1], fill=False,
-                                     edgecolor=[1.0, 0, 0], linewidth=2)
+                                     edgecolor=color, linewidth=2)
                 plt.gca().add_patch(rect)
 
             plt.show()
