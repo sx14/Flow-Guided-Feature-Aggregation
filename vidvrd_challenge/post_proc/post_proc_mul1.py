@@ -450,7 +450,7 @@ def extend_traj(det, tid, frame_list, video_dir, max_new_box=1000):
         seg_frames = frame_list[track_stt_fid::-1]
         seg_frame_paths = [os.path.join(video_dir, frame_id) for frame_id in seg_frames]
         new_boxes = track(seg_frame_paths, traj['%06d' % track_stt_fid], vis=False, max_new_box_num=max_new_box)
-        print('\t[%d] head add: %d <%s>' % (tid, len(new_boxes) - curr_cache_len, cate))
+        # print('\t[%d] head add: %d <%s>' % (tid, len(new_boxes) - curr_cache_len, cate))
 
         for i in range(len(new_boxes)):
             new_box = new_boxes[i]
@@ -471,7 +471,7 @@ def extend_traj(det, tid, frame_list, video_dir, max_new_box=1000):
         seg_frames = frame_list[track_stt_fid:]
         seg_frame_paths = [os.path.join(video_dir, frame_id) for frame_id in seg_frames]
         new_boxes = track(seg_frame_paths, traj['%06d' % track_stt_fid], vis=False, max_new_box_num=max_new_box)
-        print('\t[%d] tail add: %d <%s>' % (tid, len(new_boxes) - curr_cache_len, cate))
+        # print('\t[%d] tail add: %d <%s>' % (tid, len(new_boxes) - curr_cache_len, cate))
 
         for i in range(len(new_boxes)):
             new_box = new_boxes[i]
@@ -479,7 +479,8 @@ def extend_traj(det, tid, frame_list, video_dir, max_new_box=1000):
             traj[frame_id] = new_box
 
     if head_is_over and tail_is_over:
-        print('\t[%d] complete traj <%s>' % (tid, cate))
+        pass
+        # print('\t[%d] complete traj <%s>' % (tid, cate))
 
     boxes = sorted(traj.items(), key=lambda d: int(d[0]))
     det['start_fid'] = int(boxes[0][0])

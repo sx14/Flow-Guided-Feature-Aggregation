@@ -265,19 +265,23 @@ def tracking_check(dets, vid, data_root):
     human_cls.add('adult')
 
     checked_dets = []
+    human_dets = []
     for i, det in enumerate(dets):
-
-        if i < 2:
-            continue
 
         if det['category'] not in human_cls:
             checked_dets.append(det)
         else:
+            human_dets.append(det)
+
+    if len(human_dets) > 2:
+        for i, det in enumerate(human_dets):
             frame_dir = os.path.join(data_root, vid)
             det_splits = split_trajectory_by_tracking(frame_dir, det)
 
             for det_split in det_splits:
                 checked_dets.append(det_split)
+    else:
+        checked_dets += human_dets
 
     print('%s [%d -> %d]' % (vid, len(dets), len(checked_dets)))
     return checked_dets
