@@ -412,7 +412,7 @@ def is_over(det, im_w, im_h):
     return False
 
 
-def extend_traj(det, tid, frame_list, video_dir):
+def extend_traj(det, tid, frame_list, video_dir, max_new_box=1000):
     w = det['width']
     h = det['height']
     cate = det['category']

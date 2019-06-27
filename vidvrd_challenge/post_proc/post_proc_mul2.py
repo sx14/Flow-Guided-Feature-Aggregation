@@ -2,7 +2,7 @@ import os
 import json
 import copy
 from supplement_mul import temporal_nms
-from post_proc_mul1 import cal_iou, connect
+from post_proc_mul1 import cal_iou, connect, extend_traj
 
 ignore_nms_set = set()
 
@@ -56,7 +56,6 @@ def split_trajectory_by_tracking(frame_dir, traj, vis=True):
     print('-------------')
     print('%d -> %d' % (org_stt_fid, org_end_fid))
 
-
     need_init = False
     curr_split_stt_fid = org_stt_fid
     for fid in range(org_stt_fid, org_end_fid):
@@ -65,7 +64,7 @@ def split_trajectory_by_tracking(frame_dir, traj, vis=True):
         im_h, im_w, _ = frame.shape
 
         curr_box = traj['%06d' % fid]
-        if (fid - org_stt_fid) % 30 == 0 or need_init:
+        if (fid - org_stt_fid) % 60 == 0 or need_init:
             # init tracker
             tracker = cv2.TrackerKCF_create()
             init_box = (curr_box[0],
@@ -129,8 +128,15 @@ def split_trajectory_by_tracking(frame_dir, traj, vis=True):
     if vis:
         plt.close()
 
-    print('we get %d' % len(traj_splits))
+    print('we get %d splits' % len(traj_splits))
     print('-------------')
+    frame_list = sorted(os.listdir(frame_dir))
+
+    # tracking 180 frame bidirectional
+    for i, traj_split in enumerate(traj_splits):
+        new_traj_split = extend_traj(traj_split, i, frame_list, frame_dir, max_new_box=180)
+        traj_splits[i] = new_traj_split
+
     return traj_splits
 
 
@@ -154,7 +160,7 @@ def cal_cover(box1, box2):
     return iou
 
 
-def cal_vcover(det1, det2, cover_thr=0.6):
+def cal_vcover(det1, det2, cover_thr=0.7):
     # det2's cover ratio
 
     traj1 = det1['trajectory']
@@ -183,8 +189,10 @@ def cal_vcover(det1, det2, cover_thr=0.6):
     return viou
 
 
-def special_nms(dets, vcover_thr=0.6):
+def special_nms(dets, vcover_thr=0.7):
     remove_ids = set()
+    pairs = set()
+
     for i in range(len(dets)):
         for j in range(len(dets)):
             if i == j:
@@ -192,7 +200,10 @@ def special_nms(dets, vcover_thr=0.6):
             else:
                 vcover_ratio = cal_vcover(dets[i], dets[j])
                 if vcover_ratio > vcover_thr:
-                    remove_ids.add(j)
+                    if ('%s+%s' % (j, i)) not in pairs:
+                        remove_ids.add(j)
+                        pairs.add('%d+%d' % (i, j))
+
     last_dets = []
     for i in range(len(dets)):
         if i not in remove_ids:
@@ -236,26 +247,31 @@ def tricky_check(dets, vid):
 
 
 def tracking_check(dets, vid, data_root):
+    human_cls = set()
+    human_cls.add('adult')
+
     checked_dets = []
     for i, det in enumerate(dets):
-        if i < 1:
-            continue
 
-        frame_dir = os.path.join(data_root, vid)
-        traj_splits = split_trajectory_by_tracking(frame_dir, det['trajectory'])
-        for traj_split in traj_splits:
-            split_fids = sorted([int(fid) for fid in traj_split])
+        if det['category'] not in human_cls:
+            checked_dets.append(det)
+        else:
+            frame_dir = os.path.join(data_root, vid)
+            traj_splits = split_trajectory_by_tracking(frame_dir, det['trajectory'])
 
-            if len(split_fids) < 0.1 * len(det['trajectory'].keys()):
-                continue
+            for traj_split in traj_splits:
+                split_fids = sorted([int(fid) for fid in traj_split])
 
-            det_split = dict()
-            det_split['trajectory'] = traj_split
-            det_split['start_fid'] = split_fids[0]
-            det_split['end_fid'] = split_fids[-1]
-            det_split['category'] = det['category']
-            det_split['score'] = det['score']
-            checked_dets.append(det_split)
+                if len(split_fids) < 0.1 * len(det['trajectory']):
+                    continue
+
+                det_split = dict()
+                det_split['trajectory'] = traj_split
+                det_split['start_fid'] = split_fids[0]
+                det_split['end_fid'] = split_fids[-1]
+                det_split['category'] = det['category']
+                det_split['score'] = det['score']
+                checked_dets.append(det_split)
     print('%s [%d -> %d]')
     return checked_dets
 
@@ -273,8 +289,8 @@ if __name__ == '__main__':
     for vid in all_results:
 
         vid_dets = all_results[vid]
-        # vid_dets = tracking_check(vid_dets, vid, data_root)
-        # connect(vid_dets)
+        vid_dets = tracking_check(vid_dets, vid, data_root)
+        connect(vid_dets)
         vid_dets = tricky_check(vid_dets, vid)
 
         all_results[vid] = vid_dets
