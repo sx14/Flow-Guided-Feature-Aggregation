@@ -105,6 +105,7 @@ def evaluate(gt, pred, use_07_metric=True, thresh_t=0.8):
 
             for g, max_overlap in enumerate(max_overlaps):
                 if max_overlap >= thresh_t:
+                    pred_traj['viou'] = max_overlap
                     R['det'][g] = True
                     hit_pred_scr_dist.append(sorted_scrs[d])
                     hit_pred_len_dist.append(len(sorted_traj[d].keys()))
@@ -182,3 +183,7 @@ if __name__ == "__main__":
     mean_rec, rec_class, output = evaluate(gt, pred['results'])
     with open('vidor_val_object_segment_results.txt', 'w') as f:
         f.writelines(output)
+
+    with open(args.prediction, 'w') as fp:
+        print('updating predictions...')
+        json.dump(pred, fp)

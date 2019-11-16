@@ -66,8 +66,7 @@ def show_trajectory(frame_paths, traj, colors):
                                  edgecolor=color, linewidth=3.5)
             plt.gca().add_patch(rect)
         plt.show()
-        if bbox is None:
-            plt.pause(0.0000005)
+        plt.pause(0.0000005)
         plt.cla()
     plt.close()
 
