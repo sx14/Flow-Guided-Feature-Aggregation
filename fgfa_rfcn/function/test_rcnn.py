@@ -25,6 +25,7 @@ from fgfa_rfcn.core.loader import TestLoader
 from fgfa_rfcn.core.tester import Predictor, pred_eval, pred_eval_multiprocess
 from lib.utils.load_model import load_param
 
+
 def get_predictor(sym, sym_instance, cfg, arg_params, aux_params, test_data, ctx):
     # infer shape
     data_shape_dict = dict(test_data.provide_data_single)
@@ -35,8 +36,7 @@ def get_predictor(sym, sym_instance, cfg, arg_params, aux_params, test_data, ctx
     data_names = [k[0] for k in test_data.provide_data_single]
     label_names = None
     max_data_shape = [[('data', (1, 3, max([v[0] for v in cfg.SCALES]), max([v[1] for v in cfg.SCALES]))),
-                       ('data_cache', (19, 3, max([v[0] for v in cfg.SCALES]), max([v[1] for v in cfg.SCALES]))),
-                       ]]
+                       ('data_cache', (19, 3, max([v[0] for v in cfg.SCALES]), max([v[1] for v in cfg.SCALES]))),]]
 
     # create predictor
     predictor = Predictor(sym, data_names, label_names,
@@ -58,11 +58,11 @@ def test_rcnn(cfg, dataset, image_set, root_path, dataset_path, motion_iou_path,
 
     # load symbol and testing data
 
-    # feat_sym_instance = eval(cfg.symbol + '.' + cfg.symbol)()
-    # aggr_sym_instance = eval(cfg.symbol + '.' + cfg.symbol)()
-    #
-    # feat_sym = feat_sym_instance.get_feat_symbol(cfg)
-    # aggr_sym = aggr_sym_instance.get_aggregation_symbol(cfg)
+    feat_sym_instance = eval(cfg.symbol + '.' + cfg.symbol)()
+    aggr_sym_instance = eval(cfg.symbol + '.' + cfg.symbol)()
+
+    feat_sym = feat_sym_instance.get_feat_symbol(cfg)
+    aggr_sym = aggr_sym_instance.get_aggregation_symbol(cfg)
 
     imdb = eval(dataset)(image_set, root_path, dataset_path, motion_iou_path, result_path=output_path, enable_detailed_eval=enable_detailed_eval)
     roidb = imdb.gt_roidb()
@@ -81,12 +81,12 @@ def test_rcnn(cfg, dataset, image_set, root_path, dataset_path, motion_iou_path,
     test_datas = [TestLoader(x, cfg, batch_size=1, shuffle=shuffle, has_rpn=has_rpn) for x in roidbs]
 
     # load model
-    # arg_params, aux_params = load_param(prefix, epoch, process=True)
+    arg_params, aux_params = load_param(prefix, epoch, process=True)
     #
     # # create predictor
-    # feat_predictors = [get_predictor(feat_sym, feat_sym_instance, cfg, arg_params, aux_params, test_datas[i], [ctx[i]]) for i in range(gpu_num)]
-    # aggr_predictors = [get_predictor(aggr_sym, aggr_sym_instance, cfg, arg_params, aux_params, test_datas[i], [ctx[i]]) for i in range(gpu_num)]
+    feat_predictors = [get_predictor(feat_sym, feat_sym_instance, cfg, arg_params, aux_params, test_datas[i], [ctx[i]]) for i in range(gpu_num)]
+    aggr_predictors = [get_predictor(aggr_sym, aggr_sym_instance, cfg, arg_params, aux_params, test_datas[i], [ctx[i]]) for i in range(gpu_num)]
 
     # start detection
-    # pred_eval_multiprocess(gpu_num, feat_predictors, aggr_predictors, test_datas, imdb, cfg, vis=vis, ignore_cache=ignore_cache, thresh=thresh, logger=logger)
-    pred_eval_multiprocess(gpu_num, [1], [1], test_datas, imdb, cfg, vis=vis, ignore_cache=ignore_cache, thresh=thresh, logger=logger)
+    pred_eval_multiprocess(gpu_num, feat_predictors, aggr_predictors, test_datas, imdb, cfg, vis=vis, ignore_cache=ignore_cache, thresh=thresh, logger=logger)
+    # pred_eval_multiprocess(gpu_num, [1], [1], test_datas, imdb, cfg, vis=vis, ignore_cache=ignore_cache, thresh=thresh, logger=logger)
