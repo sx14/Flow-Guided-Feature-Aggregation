@@ -7,7 +7,7 @@ import cv2
 
 
 def gen_vidor_pred(imageset_path, res_paths, save_file_name, category_list, data_root):
-    # max_per_video = 50
+    max_per_video = 50
     score_thr = 0.00
 
     # load frame-idx
@@ -115,8 +115,8 @@ def gen_vidor_pred(imageset_path, res_paths, save_file_name, category_list, data
             }
             video_dets.append(video_det)
 
-        # video_dets = sorted(video_dets, key=lambda det: det['score'], reverse=True)
-        # video_dets = video_dets[:max_per_video]
+        video_dets = sorted(video_dets, key=lambda det: det['score'], reverse=True)
+        video_dets = video_dets[:max_per_video]
         print('%s: %d %d' % (video_id, len(video_dets), det_num))
         pred_results[video_id] = video_dets
 
