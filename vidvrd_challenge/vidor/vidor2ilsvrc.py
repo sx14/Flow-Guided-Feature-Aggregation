@@ -9,7 +9,7 @@ def prepare_Data(org_ds_root, tgt_ds_root):
     org_data_root = os.path.join(org_ds_root, 'vidor')
     tgt_data_root = os.path.join(tgt_ds_root, 'Data', 'VID')
     # org, target
-    splits = [('validation', 'val'), ('training', 'train'), ('testing', 'test')]
+    splits = [('validation', 'val'), ('training', 'train')]
     for split in splits:
         # target split
         tgt_split_root = os.path.join(tgt_data_root, split[1])

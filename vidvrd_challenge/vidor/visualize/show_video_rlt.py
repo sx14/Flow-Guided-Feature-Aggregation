@@ -75,7 +75,7 @@ def show_video(frame_root, anno_path):
             plt.ion()
             plt.axis('off')
             show_boxes(frame_path, [sbj_box, obj_box], ['%s, %s' % (sbj_cls, predicate), obj_cls], colors)
-            plt.pause(0.001)
+            plt.pause(0.00001)
             plt.cla()
 
         plt.close()
@@ -90,6 +90,6 @@ if __name__ == '__main__':
         for vid in os.listdir(pkg_path):
             # video_dir_path = os.path.join(pkg_path, vid)
             # anno_path = os.path.join(anno_root, pkg, vid+'.json')
-            video_dir_path = os.path.join(data_root, '1025/6163877860')
-            anno_path = os.path.join(anno_root, '1025/6163877860.json')
+            video_dir_path = os.path.join(data_root, '0004/11566980553')
+            anno_path = os.path.join(anno_root, '0004/11566980553.json')
             show_video(video_dir_path, anno_path)

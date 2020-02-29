@@ -564,7 +564,7 @@ def check_fid(res):
 
 if __name__ == '__main__':
     split = 'val'
-    res_ids = [0, 1, 2, 3]
+    res_ids = [0]
 
     data_root = '../../data/VidOR/Data/VID/%s' % split
     for res_id in res_ids:

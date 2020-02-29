@@ -9,36 +9,30 @@ import numpy as np
 from vidvrd_challenge.evaluation.common import voc_ap, iou
 
 
+
 def trajectory_overlap(gt_trajs, pred_traj):
     """
     Calculate overlap among trajectories
-    :param gt_trajs:
-    :param pred_traj:
-    :param thresh_s:
-    :return:
     """
     max_overlap = 0
-    max_index = 0
-    thresh_s = [0.5, 0.7, 0.9]
+    max_index = -1
+    thresh = 0.5
     for t, gt_traj in enumerate(gt_trajs):
-        top1, top2, top3 = 0, 0, 0
+        top1 = 0
         total = len(set(gt_traj.keys()) | set(pred_traj.keys()))
         for i, fid in enumerate(gt_traj):
             if fid not in pred_traj:
                 continue
             sIoU = iou(gt_traj[fid], pred_traj[fid])
-            if sIoU >= thresh_s[0]:
+            if sIoU >= thresh:
                 top1 += 1
-                if sIoU >= thresh_s[1]:
-                    top2 += 1
-                    if sIoU >= thresh_s[2]:
-                        top3 += 1
 
-        tIoU = (top1 + top2 + top3) * 1.0 / (3 * total)
+        # tIoU = (top1 + top2 + top3) * 1.0 / (3 * total)
+        tIoU = (top1) * 1.0 / (total)
 
         if tIoU > max_overlap:
-            max_overlap = tIoU
             max_index = t
+            max_overlap = tIoU
 
     return max_overlap, max_index
 
@@ -48,7 +42,7 @@ def evaluate(gt, pred, use_07_metric=True, thresh_t=0.5):
     Evaluate the predictions
     """
     gt_classes = set()
-    for tracks in gt.values():
+    for vid, tracks in gt.items():
         for traj in tracks:
             gt_classes.add(traj['category'])
     gt_class_num = len(gt_classes)
@@ -56,10 +50,13 @@ def evaluate(gt, pred, use_07_metric=True, thresh_t=0.5):
     result_class = dict()
     for vid, tracks in pred.items():
         for traj in tracks:
+            traj['vid'] = vid
+            traj['viou'] = 0
+            traj['hit_tid'] = -1
             if traj['category'] not in result_class:
-                result_class[traj['category']] = [[vid, traj['score'], traj['trajectory']]]
+                result_class[traj['category']] = [traj]
             else:
-                result_class[traj['category']].append([vid, traj['score'], traj['trajectory']])
+                result_class[traj['category']].append(traj)
 
     ap_class = dict()
     recall_class = dict()
@@ -72,30 +69,36 @@ def evaluate(gt, pred, use_07_metric=True, thresh_t=0.5):
         npos = 0
         class_recs = {}
 
+        # collect gt
         for vid in gt:
             gt_trajs = [trk['trajectory'] for trk in gt[vid] if trk['category'] == c]
+            gt_tids = [trk['tid'] for trk in gt[vid] if trk['category'] == c]
             det = [False] * len(gt_trajs)
             npos += len(gt_trajs)
-            class_recs[vid] = {'trajectories': gt_trajs, 'det': det}
+            class_recs[vid] = {'trajectories': gt_trajs, 'det': det, 'tids': gt_tids}
 
+        # collect pred
         trajs = result_class[c]
-        vids = [trj[0] for trj in trajs]
-        scores = np.array([trj[1] for trj in trajs])
-        trajectories = [trj[2] for trj in trajs]
-
-        nd = len(vids)
+        nd = len(trajs)
         fp = np.zeros(nd)
         tp = np.zeros(nd)
 
+        scores = np.array([trj['score'] for trj in trajs])
+        vids = [trj['vid'] for trj in trajs]
         sorted_inds = np.argsort(-scores)
         sorted_vids = [vids[id] for id in sorted_inds]
-        sorted_traj = [trajectories[id] for id in sorted_inds]
+        sorted_traj = [trajs[id] for id in sorted_inds]
 
         for d in range(nd):
             R = class_recs[sorted_vids[d]]
             gt_trajs = R['trajectories']
+            gt_tids = R['tids']
             pred_traj = sorted_traj[d]
-            max_overlap, max_index = trajectory_overlap(gt_trajs, pred_traj)
+            max_overlap, max_index = trajectory_overlap(gt_trajs, pred_traj['trajectory'])
+
+            if max_overlap > 0:
+                pred_traj['viou'] = max_overlap
+                pred_traj['hit_tid'] = gt_tids[max_index]
 
             if max_overlap >= thresh_t:
                 if not R['det'][max_index]:
@@ -164,3 +167,7 @@ if __name__ == "__main__":
     print('Number of videos in prediction: {}'.format(len(pred['results'])))
 
     mean_ap, ap_class = evaluate(gt, pred['results'])
+
+    with open(args.prediction, 'w') as fp:
+        print('updating predictions...')
+        json.dump(pred, fp)

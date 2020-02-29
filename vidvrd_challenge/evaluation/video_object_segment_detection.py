@@ -74,9 +74,10 @@ def evaluate(gt, pred, use_07_metric=True, thresh_t=0.8):
         for vid in gt:
             # print(vid)
             gt_trajs = [trk['trajectory'] for trk in gt[vid] if trk['category'] == c]
+            gt_tids = [trk['tid'] for trk in gt[vid] if trk['category'] == c]
             det = [False] * len(gt_trajs)
             npos += len(gt_trajs)
-            class_recs[vid] = {'trajectories': gt_trajs, 'det': det}
+            class_recs[vid] = {'trajectories': gt_trajs, 'det': det, 'tids': gt_tids}
 
         if c not in result_class:
             rec_class[c] = [0, npos]
@@ -99,13 +100,21 @@ def evaluate(gt, pred, use_07_metric=True, thresh_t=0.8):
 
         for d in range(nd):
             R = class_recs[sorted_vids[d]]
+            gt_tids = R['tids']
             gt_trajs = R['trajectories']
             pred_traj = sorted_traj[d]
             max_overlaps = trajectory_overlap(gt_trajs, pred_traj)
 
+            pred_traj['viou'] = 0
+            pred_traj['hit_tid'] = -1
+
             for g, max_overlap in enumerate(max_overlaps):
-                if max_overlap >= thresh_t:
+
+                if max_overlap > pred_traj['viou']:
                     pred_traj['viou'] = max_overlap
+                    pred_traj['hit_tid'] = gt_tids[g]
+
+                if max_overlap >= thresh_t:
                     R['det'][g] = True
                     hit_pred_scr_dist.append(sorted_scrs[d])
                     hit_pred_len_dist.append(len(sorted_traj[d].keys()))

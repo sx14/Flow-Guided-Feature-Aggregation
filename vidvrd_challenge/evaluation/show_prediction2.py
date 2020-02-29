@@ -2,12 +2,15 @@ import os
 import json
 import shutil
 import random
+from pynput import keyboard
 import numpy as np
 import matplotlib.pyplot as plt
 
 
+
 def good_colors():
     colors = [
+        [255, 255, 255],
         [255, 0, 0],
         [0, 0, 255],
         [0, 255, 0],
@@ -30,6 +33,13 @@ def random_color():
 def show_trajectories(frame_dir, frame_dets, tid2color, save=False):
     import matplotlib.pyplot as plt
 
+    show = []
+    def stop(key):
+        if key != keyboard.Key.space:
+            show.append(0)
+            print('next!')
+        return False
+
     save_dir = 'temp'
     if save:
         if os.path.exists(save_dir):
@@ -41,7 +51,16 @@ def show_trajectories(frame_dir, frame_dets, tid2color, save=False):
     fids = sorted([int(fid) for fid in frame_dets if fid != 'viou'])
 
     plt.figure(0)
-    for fid in fids:
+    for i, fid in enumerate(fids):
+
+        if i % 100 == 0 and i > 0:
+            with keyboard.Listener(on_press=stop) as listener:
+                listener.join()
+                listener.stop()
+
+            if len(show) > 0:
+                break
+
         str_fid = '%06d' % fid
         plt.ion()
         plt.axis('off')
@@ -72,11 +91,14 @@ def show_trajectories(frame_dir, frame_dets, tid2color, save=False):
     plt.close()
 
 
-def show_prediction(video_root, pred_path, vid=None):
+def show_prediction(video_root, pred_path, gt_path, vid=None):
 
     with open(pred_path) as f:
         pred_res = json.load(f)
         vid_res = pred_res['results']
+
+    with open(gt_path) as f:
+        gt = json.load(f)
 
     if vid is not None:
         vid_res = {vid: vid_res[vid]}
@@ -88,32 +110,38 @@ def show_prediction(video_root, pred_path, vid=None):
         frame_num = len(frame_list)
         print('>>>> %s [%d] <<<<' % (vid, frame_num))
 
+        video_gts = gt[vid]
         video_dets = vid_res[vid]
-        video_dets = sorted(video_dets, key=lambda item: item['score'], reverse=True)
-        good_dets = {}
-        good_tids = []
-        for tid, det in enumerate(video_dets):
-            if 'viou' not in det['trajectory']:
-                continue
-            good_tids.append(tid)
-            traj = det['trajectory']
-            for fid in traj:
-                if fid not in good_dets:
+        video_dets = sorted(video_dets, key=lambda item: item['viou'], reverse=True)
+
+        for gt in video_gts:
+            for det in video_dets:
+                if det['hit_tid'] == gt['tid']:
+                    print('vIoU: %5f    score: %5f' % (det['viou'], det['score']))
+
+                    nTrajShown = 1
                     frame_dets = {}
-                    good_dets[fid] = frame_dets
-                else:
-                    frame_dets = good_dets[fid]
+                    for fid, box in gt['trajectory'].items():
+                        if fid in frame_dets:
+                            frame_dets[fid][0] = box
+                        else:
+                            frame_dets[fid] = {0: box}
 
-                frame_dets[tid] = traj[fid]
+                    nTrajShown += 1
+                    for fid, box in det['trajectory'].items():
+                        if fid in frame_dets:
+                            frame_dets[fid][1] = box
+                        else:
+                            frame_dets[fid] = {1: box}
 
-        tid2colors = {}
-        colors = good_colors()
-        for i, tid in enumerate(good_tids):
-            if i < len(colors):
-                tid2colors[tid] = colors[i]
-            else:
-                tid2colors[tid] = random_color()
-        show_trajectories(frame_dir, good_dets, tid2colors)
+                    tid2colors = {}
+                    colors = good_colors()
+                    for i in range(nTrajShown):
+                        if i < len(colors):
+                            tid2colors[i] = colors[i]
+                        else:
+                            tid2colors[i] = random_color()
+                    show_trajectories(frame_dir, frame_dets, tid2colors)
 
 
 
@@ -122,6 +150,7 @@ def show_prediction(video_root, pred_path, vid=None):
 
 if __name__ == '__main__':
     video_root = '../../data/VidOR/Data/VID/val'
-    res_path = 'vidor_val_object_pred_proc_all_2.json'
-    vid = u'1025/6163877860'
-    show_prediction(video_root, res_path, vid)
+    res_path = 'vidor_val_object_pred_all.json'
+    gt_path = 'vidor_val_object_gt.json'
+    vid = u'0001/2793806282'
+    show_prediction(video_root, res_path, gt_path, vid)
