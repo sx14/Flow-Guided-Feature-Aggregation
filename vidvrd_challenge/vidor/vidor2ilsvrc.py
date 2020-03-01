@@ -1,4 +1,5 @@
 import json
+import time
 from tqdm import tqdm
 
 from vidvrd_challenge.vidor.format.to_ilsvrc_vid_format import *
@@ -8,11 +9,14 @@ from vidvrd_challenge.vidor.format.split_video import *
 def prepare_Data(org_ds_root, tgt_ds_root):
     # extract Data
     org_data_root = os.path.join(org_ds_root, 'vidor')
+    org_anno_root = os.path.join(org_ds_root, 'annotation')
     tgt_data_root = os.path.join(tgt_ds_root, 'Data', 'VID')
+
     # org, target
     splits = [('validation', 'val'), ('training', 'train')]
     for split in splits:
         print('Data: %s' % split[0])
+        time.sleep(1)
 
         # target split
         tgt_split_root = os.path.join(tgt_data_root, split[1])
@@ -20,26 +24,28 @@ def prepare_Data(org_ds_root, tgt_ds_root):
             os.makedirs(tgt_split_root)
 
         # original split
-        org_split_root = os.path.join(org_data_root, split[0])
-        pkgs = sorted(os.listdir(org_split_root))
-        for pkg in tqdm(pkgs):
+        org_anno_split_root = os.path.join(org_anno_root, split[0])
+        pkgs = sorted(os.listdir(org_anno_split_root))
+        for pkg_id in tqdm(pkgs):
             # original package
-            org_pkg_root = os.path.join(org_split_root, pkg)
+            org_anno_pkg_root = os.path.join(org_anno_split_root, pkg_id)
 
-            # new package
-            tgt_pkg_root = os.path.join(tgt_split_root, pkg)
+            # target package
+            tgt_pkg_root = os.path.join(tgt_split_root, pkg_id)
             if not os.path.exists(tgt_pkg_root):
                 os.mkdir(tgt_pkg_root)
 
-            for vid in sorted(os.listdir(org_pkg_root)):
+            # for each annotation file
+            for anno_file in sorted(os.listdir(org_anno_pkg_root)):
+                vid = anno_file.split('.')[0]
 
                 # new frame dir
-                video_frame_root = os.path.join(tgt_pkg_root, vid.split('.')[0])
+                video_frame_root = os.path.join(tgt_pkg_root, vid)
                 if not os.path.exists(video_frame_root):
                     os.mkdir(video_frame_root)
 
                     # load video
-                    video_path = os.path.join(org_pkg_root, vid)
+                    video_path = os.path.join(org_data_root, split, pkg_id, vid+'.mp4')
                     split_video_ffmpeg(video_path, video_frame_root)
 
 
@@ -386,12 +392,12 @@ def collect_category_error(org_ds_root, tgt_ds_root):
 if __name__ == '__main__':
     org_ds_root = '/media/sunx/Data/dataset/vidor-hoid/vidor-dataset'
     tgt_ds_root = '/media/sunx/Data/dataset/vidor-hoid/vidor-ilsvrc'
-    # prepare_Data(org_ds_root, tgt_ds_root)
+    prepare_Data(org_ds_root, tgt_ds_root)
     # prepare_Annotations(org_ds_root, tgt_ds_root)
     # prepare_Annotations_test(tgt_ds_root)
     # prepare_ImageSets(tgt_ds_root)
 
     # collect_frame_error(org_ds_root, tgt_ds_root)
-    collect_category_error(org_ds_root, tgt_ds_root)
+    # collect_category_error(org_ds_root, tgt_ds_root)
 
 
