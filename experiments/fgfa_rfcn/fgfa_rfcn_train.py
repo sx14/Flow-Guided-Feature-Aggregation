@@ -16,7 +16,6 @@ sys.path.insert(0, os.path.join(this_dir, '..', '..', 'fgfa_rfcn'))
 # import train_end2end
 # import test
 from fgfa_rfcn import train_end2end
-from fgfa_rfcn import test
 
 if __name__ == "__main__":
     train_end2end.main()

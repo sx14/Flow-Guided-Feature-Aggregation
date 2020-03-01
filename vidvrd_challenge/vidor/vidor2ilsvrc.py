@@ -1,4 +1,5 @@
 import json
+from tqdm import tqdm
 
 from vidvrd_challenge.vidor.format.to_ilsvrc_vid_format import *
 from vidvrd_challenge.vidor.format.split_video import *
@@ -11,6 +12,8 @@ def prepare_Data(org_ds_root, tgt_ds_root):
     # org, target
     splits = [('validation', 'val'), ('training', 'train')]
     for split in splits:
+        print('Data: %s' % split[0])
+
         # target split
         tgt_split_root = os.path.join(tgt_data_root, split[1])
         if not os.path.exists(tgt_split_root):
@@ -19,8 +22,7 @@ def prepare_Data(org_ds_root, tgt_ds_root):
         # original split
         org_split_root = os.path.join(org_data_root, split[0])
         pkgs = sorted(os.listdir(org_split_root))
-        for p, pkg in enumerate(pkgs):
-            print('Data: [%d/%d]' % (len(pkgs), p+1))
+        for pkg in tqdm(pkgs):
             # original package
             org_pkg_root = os.path.join(org_split_root, pkg)
 
@@ -114,44 +116,44 @@ def prepare_ImageSets(tgt_ds_root):
         f.writelines(train_key_frames)
 
     # 4. VID_test_frames.txt
-    print('ImageSets: VID_test_frames.txt')
-    val_frames = []
-    val_frame_cnt = 1   # start from 1
-    val_root = os.path.join(tgt_ds_root, 'Data', 'VID', 'test')
-    for pkg in sorted(os.listdir(val_root)):
-        pkg_root = os.path.join(val_root, pkg)
-
-        for vid in sorted(os.listdir(pkg_root)):
-            vid_path = os.path.join(pkg_root, vid)
-
-            n_frame = len(os.listdir(vid_path))
-            for i in range(n_frame):
-                frame_info = os.path.join('test/%s/%s/%06d %d\n' % (pkg, vid, i, val_frame_cnt))
-                val_frames.append(frame_info)
-                val_frame_cnt += 1
-
-    val_frame_file_path = os.path.join(tgt_imageset_root, 'VID_test_frames.txt')
-    with open(val_frame_file_path, 'w') as f:
-        f.writelines(val_frames)
+    # print('ImageSets: VID_test_frames.txt')
+    # val_frames = []
+    # val_frame_cnt = 1   # start from 1
+    # val_root = os.path.join(tgt_ds_root, 'Data', 'VID', 'test')
+    # for pkg in sorted(os.listdir(val_root)):
+    #     pkg_root = os.path.join(val_root, pkg)
+    #
+    #     for vid in sorted(os.listdir(pkg_root)):
+    #         vid_path = os.path.join(pkg_root, vid)
+    #
+    #         n_frame = len(os.listdir(vid_path))
+    #         for i in range(n_frame):
+    #             frame_info = os.path.join('test/%s/%s/%06d %d\n' % (pkg, vid, i, val_frame_cnt))
+    #             val_frames.append(frame_info)
+    #             val_frame_cnt += 1
+    #
+    # val_frame_file_path = os.path.join(tgt_imageset_root, 'VID_test_frames.txt')
+    # with open(val_frame_file_path, 'w') as f:
+    #     f.writelines(val_frames)
 
     # 5. VID_test_videos.txt
-    print('ImageSets: VID_test_videos.txt')
-    val_videos = []
-    video_frame_start = 1   # start from 1
-    for pkg in sorted(os.listdir(val_root)):
-        pkg_root = os.path.join(val_root, pkg)
-
-        for vid in sorted(os.listdir(pkg_root)):
-            frame_root = os.path.join(pkg_root, vid)
-
-            n_frame = len(os.listdir(frame_root))
-            video_info = os.path.join('test/%s/%s %d %d %d\n' % (pkg, vid, video_frame_start, 0, n_frame))
-            val_videos.append(video_info)
-            video_frame_start += n_frame
-
-    val_video_file_path = os.path.join(tgt_imageset_root, 'VID_test_videos.txt')
-    with open(val_video_file_path, 'w') as f:
-        f.writelines(val_videos)
+    # print('ImageSets: VID_test_videos.txt')
+    # val_videos = []
+    # video_frame_start = 1   # start from 1
+    # for pkg in sorted(os.listdir(val_root)):
+    #     pkg_root = os.path.join(val_root, pkg)
+    #
+    #     for vid in sorted(os.listdir(pkg_root)):
+    #         frame_root = os.path.join(pkg_root, vid)
+    #
+    #         n_frame = len(os.listdir(frame_root))
+    #         video_info = os.path.join('test/%s/%s %d %d %d\n' % (pkg, vid, video_frame_start, 0, n_frame))
+    #         val_videos.append(video_info)
+    #         video_frame_start += n_frame
+    #
+    # val_video_file_path = os.path.join(tgt_imageset_root, 'VID_test_videos.txt')
+    # with open(val_video_file_path, 'w') as f:
+    #     f.writelines(val_videos)
 
 
 def prepare_Annotations(org_ds_root, tgt_ds_root):
@@ -160,6 +162,8 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
     # org, target
     splits = [('validation', 'val'), ('training', 'train')]
     for split in splits:
+        print('Annotations: %s' % split[0])
+
         # target path
         tgt_split_root = os.path.join(tgt_anno_root, split[1])
         if not os.path.exists(tgt_split_root):
@@ -168,8 +172,7 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
         # original path
         org_split_root = os.path.join(org_anno_root, split[0])
         pkgs = sorted(os.listdir(org_split_root))
-        for p, pkg in enumerate(pkgs):
-            print('Annotations: [%d/%d]' % (len(pkgs), p + 1))
+        for pkg in tqdm(pkgs):
             org_pkg_root = os.path.join(org_split_root, pkg)
 
             # new package
@@ -194,14 +197,14 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
                     os.mkdir(anno_frame_root)
 
                 data_frame_root = anno_frame_root.replace('Annotations', 'Data')
-                data_frame_n = len(os.listdir(data_frame_root))
+                # data_frame_n = len(os.listdir(data_frame_root))
 
                 # for each frame
                 vid_frame_objs = vid_anno['trajectories']
                 anno_frame_n = len(vid_frame_objs)
 
-                if data_frame_n != anno_frame_n:
-                    print('[WARNING]%s: A(%d) | F(%d)' % (anno_frame_root, anno_frame_n, data_frame_n))
+                # if data_frame_n != anno_frame_n:
+                #     print('[WARNING]%s: A(%d) | F(%d)' % (anno_frame_root, anno_frame_n, data_frame_n))
 
                 for f in range(len(vid_frame_objs)):
                     mid_anno = dict()
@@ -230,13 +233,14 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
 
 
 def prepare_Annotations_test(tgt_ds_root):
+    print('Annotations: testing (stub)')
+
     data_root = os.path.join(tgt_ds_root, 'Data', 'VID', 'test')
     anno_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', 'test')
 
     # original path
     pkgs = sorted(os.listdir(data_root))
-    for p, pkg in enumerate(pkgs):
-        print('Annotations test: [%d/%d]' % (len(pkgs), p + 1))
+    for pkg in tqdm(pkgs):
         pkg_root = os.path.join(data_root, pkg)
 
         # new package
@@ -292,12 +296,12 @@ def collect_frame_error(org_ds_root, tgt_ds_root):
     # (org split, target split)
     splits = [('validation', 'val'), ('training', 'train')]
     for split in splits:
+        print('Frame error: %s' % split[0])
         tgt_split_root = os.path.join(tgt_anno_root, split[1])
         org_split_root = os.path.join(org_anno_root, split[0])
 
         pkgs = sorted(os.listdir(org_split_root))
-        for p, pkg in enumerate(pkgs):
-            print('Collect: [%d/%d]' % (len(pkgs), p + 1))
+        for pkg in tqdm(pkgs):
             org_pkg_root = os.path.join(org_split_root, pkg)
             tgt_pkg_root = os.path.join(tgt_split_root, pkg)
 
@@ -319,7 +323,7 @@ def collect_frame_error(org_ds_root, tgt_ds_root):
         f.writelines(inconsistent_videos)
 
 
-def collect_category_error(org_ds_root):
+def collect_category_error(org_ds_root, tgt_ds_root):
     classes = ['__background__',  # always index 0
                'bread', 'cake', 'dish', 'fruits',
                'vegetables', 'backpack', 'camera', 'cellphone',
@@ -349,11 +353,11 @@ def collect_category_error(org_ds_root):
     # (org split, target split)
     splits = [('validation', 'val'), ('training', 'train')]
     for split in splits:
+        print('Category: %s' % split[0])
         org_split_root = os.path.join(org_anno_root, split[0])
 
         pkgs = sorted(os.listdir(org_split_root))
-        for p, pkg in enumerate(pkgs):
-            print('Collect: [%d/%d]' % (len(pkgs), p + 1))
+        for pkg in tqdm(pkgs):
             org_pkg_root = os.path.join(org_split_root, pkg)
 
             for vid in sorted(os.listdir(org_pkg_root)):
@@ -370,6 +374,9 @@ def collect_category_error(org_ds_root):
     print('>>>>>>>>>> category <<<<<<<<<<')
     for c in categories:
         print(c)
+    categories = {'categories': sorted(list(categories))}
+    with open(os.path.join(tgt_ds_root, 'object_labels.json'), 'w') as f:
+        json.dump(categories, f)
 
     print('>>>>>>>>>> unseen category <<<<<<<<<<')
     for c in unseen_categories:
@@ -377,14 +384,14 @@ def collect_category_error(org_ds_root):
 
 
 if __name__ == '__main__':
-    org_ds_root = '/home/magus/sunx-workspace/datasets/vidor/vidor-dataset'
-    tgt_ds_root = '/home/magus/sunx-workspace/datasets/vidor/vidor-ilsvrc'
-    prepare_Data(org_ds_root, tgt_ds_root)
-    prepare_Annotations(org_ds_root, tgt_ds_root)
-    prepare_Annotations_test(tgt_ds_root)
-    prepare_ImageSets(tgt_ds_root)
+    org_ds_root = '/media/sunx/Data/dataset/vidor-hoid/vidor-dataset'
+    tgt_ds_root = '/media/sunx/Data/dataset/vidor-hoid/vidor-ilsvrc'
+    # prepare_Data(org_ds_root, tgt_ds_root)
+    # prepare_Annotations(org_ds_root, tgt_ds_root)
+    # prepare_Annotations_test(tgt_ds_root)
+    # prepare_ImageSets(tgt_ds_root)
 
-    collect_frame_error(org_ds_root, tgt_ds_root)
-    collect_category_error(org_ds_root)
+    # collect_frame_error(org_ds_root, tgt_ds_root)
+    collect_category_error(org_ds_root, tgt_ds_root)
 
 
