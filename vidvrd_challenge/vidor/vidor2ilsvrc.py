@@ -45,8 +45,20 @@ def prepare_Data(org_ds_root, tgt_ds_root):
                     os.mkdir(video_frame_root)
 
                     # load video
-                    video_path = os.path.join(org_data_root, split, pkg_id, vid+'.mp4')
-                    split_video_ffmpeg(video_path, video_frame_root)
+                    # fix: vidor-hoid
+                    # re-arrange the splits, we need to look for the original video
+                    video_path = None
+                    for s in splits:
+                        tmp_path = os.path.join(org_data_root, s[0], pkg_id, vid+'.mp4')
+                        if os.path.exists(tmp_path):
+                            video_path = tmp_path
+                            break
+
+                    if video_path is not None:
+                        split_video_ffmpeg(video_path, video_frame_root)
+                    else:
+                        print('[ERROR] %s/%s not found' %(pkg_id, vid))
+                        exit(-1)
 
 
 def prepare_ImageSets(tgt_ds_root):
@@ -59,12 +71,12 @@ def prepare_ImageSets(tgt_ds_root):
     print('ImageSets: VID_val_frames.txt')
     val_frames = []
     val_frame_cnt = 1   # start from 1
-    val_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', 'val')
-    for pkg in sorted(os.listdir(val_root)):
-        pkg_root = os.path.join(val_root, pkg)
+    val_anno_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', 'val')
+    for pkg in sorted(os.listdir(val_anno_root)):
+        pkg_anno_root = os.path.join(val_anno_root, pkg)
 
-        for vid in sorted(os.listdir(pkg_root)):
-            vid_path = os.path.join(pkg_root, vid)
+        for vid in sorted(os.listdir(pkg_anno_root)):
+            vid_path = os.path.join(pkg_anno_root, vid)
 
             n_frame = len(os.listdir(vid_path))
             for i in range(n_frame):
@@ -80,11 +92,11 @@ def prepare_ImageSets(tgt_ds_root):
     print('ImageSets: VID_val_videos.txt')
     val_videos = []
     video_frame_start = 1   # start from 1
-    for pkg in sorted(os.listdir(val_root)):
-        pkg_root = os.path.join(val_root, pkg)
+    for pkg in sorted(os.listdir(val_anno_root)):
+        pkg_anno_root = os.path.join(val_anno_root, pkg)
 
-        for vid in sorted(os.listdir(pkg_root)):
-            frame_root = os.path.join(pkg_root, vid)
+        for vid in sorted(os.listdir(pkg_anno_root)):
+            frame_root = os.path.join(pkg_anno_root, vid)
 
             n_frame = len(os.listdir(frame_root))
             video_info = os.path.join('val/%s/%s %d %d %d\n' % (pkg, vid, video_frame_start, 0, n_frame))
@@ -98,15 +110,15 @@ def prepare_ImageSets(tgt_ds_root):
     # 3. VID_train_15frames.txt
     print('ImageSets: VID_train_15frames.txt')
     train_key_frames = []
-    train_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', 'train')
+    train_anno_root = os.path.join(tgt_ds_root, 'Annotations', 'VID', 'train')
     n_seg = 35  # TODO: need tune
     n_seg_frame = 20
     # n_frm_max = 900
-    for pkg in sorted(os.listdir(train_root)):
-        pkg_root = os.path.join(train_root, pkg)
+    for pkg in sorted(os.listdir(train_anno_root)):
+        pkg_anno_root = os.path.join(train_anno_root, pkg)
 
-        for vid in sorted(os.listdir(pkg_root)):
-            frame_root = os.path.join(pkg_root, vid)
+        for vid in sorted(os.listdir(pkg_anno_root)):
+            frame_root = os.path.join(pkg_anno_root, vid)
             n_frame = len(os.listdir(frame_root))
             # n_frame = min(n_frame, n_frm_max)
 
@@ -390,8 +402,8 @@ def collect_category_error(org_ds_root, tgt_ds_root):
 
 
 if __name__ == '__main__':
-    org_ds_root = '/media/sunx/Data/dataset/vidor-hoid/vidor-dataset'
-    tgt_ds_root = '/media/sunx/Data/dataset/vidor-hoid/vidor-ilsvrc'
+    org_ds_root = '/home/magus/dataset3/VidOR-HOID/vidor-dataset'
+    tgt_ds_root = '/home/magus/dataset3/VidOR-HOID/vidor-ilsvrc'
     prepare_Data(org_ds_root, tgt_ds_root)
     # prepare_Annotations(org_ds_root, tgt_ds_root)
     # prepare_Annotations_test(tgt_ds_root)
