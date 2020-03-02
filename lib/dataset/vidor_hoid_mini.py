@@ -39,36 +39,25 @@ class VidORHOIDMini(IMDB):
                         "adult", "aircraft", "baby", "baby_seat",
                         "baby_walker", "backpack", "ball/sports_ball",
                         "bat", "bench", "bicycle", "bird", "bottle",
-                        "bread", "bus/truck", "cake", "camera", "car",
-                        "cat", "cattle/cow", "cellphone", "chair",
-                        "chicken", "child", "crab", "cup", "dish",
-                        "dog", "duck", "elephant", "faucet", "fish",
-                        "frisbee", "fruits", "guitar", "hamster/rat",
-                        "handbag", "horse", "laptop", "motorcycle",
-                        "penguin", "piano", "pig", "rabbit", "racket",
-                        "refrigerator", "scooter", "screen/monitor",
-                        "sheep/goat", "skateboard", "ski", "snake",
+                        "cake", "camera", "car", "cat", "cellphone",
+                        "chair", "child", "cup", "dish", "dog", "duck",
+                        "fruits", "guitar", "handbag", "horse", "laptop",
+                        "piano", "rabbit", "racket", "refrigerator",
+                        "scooter", "screen/monitor", "skateboard", "ski",
                         "snowboard", "sofa", "stool", "surfboard",
-                        "table", "tiger", "toy", "train",
-                        "vegetables", "watercraft"]
-
+                        "table", "toy", "watercraft"]
 
         self.classes_map = ["__background__",  # always index 0
                         "adult", "aircraft", "baby", "baby_seat",
                         "baby_walker", "backpack", "ball/sports_ball",
                         "bat", "bench", "bicycle", "bird", "bottle",
-                        "bread", "bus/truck", "cake", "camera", "car",
-                        "cat", "cattle/cow", "cellphone", "chair",
-                        "chicken", "child", "crab", "cup", "dish",
-                        "dog", "duck", "elephant", "faucet", "fish",
-                        "frisbee", "fruits", "guitar", "hamster/rat",
-                        "handbag", "horse", "laptop", "motorcycle",
-                        "penguin", "piano", "pig", "rabbit", "racket",
-                        "refrigerator", "scooter", "screen/monitor",
-                        "sheep/goat", "skateboard", "ski", "snake",
+                        "cake", "camera", "car", "cat", "cellphone",
+                        "chair", "child", "cup", "dish", "dog", "duck",
+                        "fruits", "guitar", "handbag", "horse", "laptop",
+                        "piano", "rabbit", "racket", "refrigerator",
+                        "scooter", "screen/monitor", "skateboard", "ski",
                         "snowboard", "sofa", "stool", "surfboard",
-                        "table", "tiger", "toy", "train",
-                        "vegetables", "watercraft"]
+                        "table", "toy", "watercraft"]
 
         self.num_classes = len(self.classes)
         self.load_image_set_index()

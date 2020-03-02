@@ -48,7 +48,7 @@ network:
   NUM_ANCHORS: 9
 dataset:
   NUM_CLASSES: 44
-  dataset: VidORHOIDMini
+  dataset: VidORVIDMini
   dataset_path: "./data/VidOR-HOID-mini"
   image_set: VID_train_15frames
   root_path: "./data"
@@ -134,7 +134,7 @@ TEST:
   # size of images for each device
   BATCH_IMAGES: 1
   SEQ_NMS: true
-
+  
   # RPN proposal
   CXX_PROPOSAL: true
   RPN_NMS_THRESH: 0.7
@@ -144,3 +144,9 @@ TEST:
   # RCNN nms
   NMS: 0.3
   test_epoch: 2
+
+  # ==== sunx ====
+  batch_id: 0
+  no_anno: false
+  eval_only: false
+  # ==== sunx ====
