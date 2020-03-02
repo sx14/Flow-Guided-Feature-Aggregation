@@ -16,7 +16,7 @@ def prepare_Data(org_ds_root, tgt_ds_root):
     splits = [('validation', 'val'), ('training', 'train')]
     for split in splits:
         print('Data: %s' % split[0])
-        time.sleep(1)
+        time.sleep(2)
 
         # target split
         tgt_split_root = os.path.join(tgt_data_root, split[1])
@@ -181,6 +181,7 @@ def prepare_Annotations(org_ds_root, tgt_ds_root):
     splits = [('validation', 'val'), ('training', 'train')]
     for split in splits:
         print('Annotations: %s' % split[0])
+        time.sleep(2)
 
         # target path
         tgt_split_root = os.path.join(tgt_anno_root, split[1])
@@ -402,8 +403,8 @@ def collect_category_error(org_ds_root, tgt_ds_root):
 
 
 if __name__ == '__main__':
-    org_ds_root = '/home/magus/dataset3/VidOR-HOID/vidor-dataset'
-    tgt_ds_root = '/home/magus/dataset3/VidOR-HOID/vidor-ilsvrc'
+    org_ds_root = '/home/magus/dataset3/VidOR-HOID-mini/vidor-dataset'
+    tgt_ds_root = '/home/magus/dataset3/VidOR-HOID-mini/vidor-ilsvrc'
     prepare_Data(org_ds_root, tgt_ds_root)
     # prepare_Annotations(org_ds_root, tgt_ds_root)
     # prepare_Annotations_test(tgt_ds_root)
