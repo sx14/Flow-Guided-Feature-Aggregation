@@ -335,7 +335,7 @@ class VidORVID(IMDB):
         cpu_num = min(20, cpu_count())
         print('seq-nms use cpu: %d' % cpu_num)
         pool = Pool(processes=cpu_num)
-        results = [pool.apply_async(seq_nms_nms, args=(video[0], 0.7)) for video in videos]
+        results = [pool.apply_async(seq_nms_nms, args=(video[0], 0.3)) for video in videos]
         pool.close()
         pool.join()
 
@@ -349,7 +349,7 @@ class VidORVID(IMDB):
         # the last one
         print('seq-nms last one ...')
         video = [all_boxes[j][start_idx:] for j in range(1, self.num_classes)]
-        video = seq_nms_nms(video, 0.7)
+        video = seq_nms_nms(video, 0.3)
         for c in xrange(1, self.num_classes):
             all_boxes[c][start_idx:] = video[c - 1]
         t2 = time.time()

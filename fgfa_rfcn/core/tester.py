@@ -362,6 +362,7 @@ def pred_eval(gpu_id, feat_predictors, aggr_predictors, test_data, imdb, cfg, vi
 
     return all_boxes, frame_ids
 
+
 def run_dill_encode(payload):
     fun,args=dill.loads(payload)
     return fun(*args)
@@ -389,7 +390,6 @@ def pred_eval_multiprocess(gpu_num, key_predictors, cur_predictors, test_datas, 
         if not cfg.TEST.no_anno:
             info_str = imdb.evaluate_detections_multiprocess(res)
 
-
     else :
         if gpu_num == 1:
             if not cfg.TEST.eval_only:
@@ -402,7 +402,6 @@ def pred_eval_multiprocess(gpu_num, key_predictors, cur_predictors, test_datas, 
                 if not cfg.TEST.no_anno:
                     info_str = imdb.do_python_eval(gpu_num, cfg.TEST.batch_id)
         else:
-
             if not cfg.TEST.eval_only:
                 from multiprocessing.pool import ThreadPool as Pool
 

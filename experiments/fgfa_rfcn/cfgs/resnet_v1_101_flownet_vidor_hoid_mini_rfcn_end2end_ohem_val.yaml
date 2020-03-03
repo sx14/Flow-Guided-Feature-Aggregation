@@ -48,7 +48,7 @@ network:
   NUM_ANCHORS: 9
 dataset:
   NUM_CLASSES: 44
-  dataset: VidORVIDMini
+  dataset: VidORHOIDMini
   dataset_path: "./data/VidOR-HOID-mini"
   image_set: VID_train_15frames
   root_path: "./data"
