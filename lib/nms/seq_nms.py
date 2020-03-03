@@ -30,27 +30,27 @@ from lib.nms.nms import nms
 #            'motorcycle', 'rabbit', 'red panda', 'sheep', 'snake', 'squirrel',
 #            'tiger', 'train', 'turtle', 'watercraft', 'whale', 'zebra')
 
-CLASSES = ['__background__',  # always index 0
-           'bread', 'cake', 'dish', 'fruits',
-           'vegetables', 'backpack', 'camera', 'cellphone',
-           'handbag', 'laptop', 'suitcase', 'ball/sports_ball',
-           'bat', 'frisbee', 'racket', 'skateboard',
-           'ski', 'snowboard', 'surfboard', 'toy',
-           'baby_seat', 'bottle', 'chair', 'cup',
-           'electric_fan', 'faucet', 'microwave', 'oven',
-           'refrigerator', 'screen/monitor', 'sink', 'sofa',
-           'stool', 'table', 'toilet', 'guitar',
-           'piano', 'baby_walker', 'bench', 'stop_sign',
-           'traffic_light', 'aircraft', 'bicycle', 'bus/truck',
-           'car', 'motorcycle', 'scooter', 'train',
-           'watercraft', 'crab', 'bird', 'chicken',
-           'duck', 'penguin', 'fish', 'stingray',
-           'crocodile', 'snake', 'turtle', 'antelope',
-           'bear', 'camel', 'cat', 'cattle/cow',
-           'dog', 'elephant', 'hamster/rat', 'horse',
-           'kangaroo', 'leopard', 'lion', 'panda',
-           'pig', 'rabbit', 'sheep/goat', 'squirrel',
-           'tiger', 'adult', 'baby', 'child']
+# CLASSES = ['__background__',  # always index 0
+#            'bread', 'cake', 'dish', 'fruits',
+#            'vegetables', 'backpack', 'camera', 'cellphone',
+#            'handbag', 'laptop', 'suitcase', 'ball/sports_ball',
+#            'bat', 'frisbee', 'racket', 'skateboard',
+#            'ski', 'snowboard', 'surfboard', 'toy',
+#            'baby_seat', 'bottle', 'chair', 'cup',
+#            'electric_fan', 'faucet', 'microwave', 'oven',
+#            'refrigerator', 'screen/monitor', 'sink', 'sofa',
+#            'stool', 'table', 'toilet', 'guitar',
+#            'piano', 'baby_walker', 'bench', 'stop_sign',
+#            'traffic_light', 'aircraft', 'bicycle', 'bus/truck',
+#            'car', 'motorcycle', 'scooter', 'train',
+#            'watercraft', 'crab', 'bird', 'chicken',
+#            'duck', 'penguin', 'fish', 'stingray',
+#            'crocodile', 'snake', 'turtle', 'antelope',
+#            'bear', 'camel', 'cat', 'cattle/cow',
+#            'dog', 'elephant', 'hamster/rat', 'horse',
+#            'kangaroo', 'leopard', 'lion', 'panda',
+#            'pig', 'rabbit', 'sheep/goat', 'squirrel',
+#            'tiger', 'adult', 'baby', 'child']
            
 NMS_THRESH = 0.3
 IOU_THRESH = 0.8
@@ -86,8 +86,8 @@ def delete_individuals(dets):
 def createLinks(dets_all):
     links_all = []
 
+    cls_num = len(dets_all)
     frame_num = len(dets_all[0])
-    cls_num = len(CLASSES) - 1
     for cls_ind in range(cls_num):
         links_cls = []
         for frame_ind in range(frame_num - 1):
