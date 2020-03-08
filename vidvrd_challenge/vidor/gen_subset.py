@@ -130,7 +130,7 @@ def prepare_vidor_gt(tgt_ds_root):
 
 
 if __name__ == '__main__':
-    tgt_ds_root = '../../data/VidOR-mini'
+    tgt_ds_root = '../../data/VidOR-HOID-mini'
     tgt_ds_root = os.path.abspath(tgt_ds_root)
 
     prepare_ImageSets(tgt_ds_root, 'val')

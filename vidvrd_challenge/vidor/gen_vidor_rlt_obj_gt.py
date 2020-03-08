@@ -17,13 +17,17 @@ def is_spatial(predicate):
 
 
 def gen_vidor_rlt_obj_gt(video_anno_root, video_list, save_file_name):
-
+    splits = ['validation, training']
     vid_val_gt = {}
     for i, vid in enumerate(video_list):
         # for each video
         print('Gen [%d/%d]' % (len(video_list), i+1))
 
-        vid_anno_path = os.path.join(video_anno_root, vid+'.json')
+        for split in splits:
+            vid = vid[4:]
+            vid_anno_path = os.path.join(video_anno_root, split, vid+'.json')
+            if os.path.exists(vid_anno_path):
+                break
         vid_anno = json.load(open(vid_anno_path))
         vid_frame_n = vid_anno['frame_count']
         vid_obj_clss = vid_anno['subject/objects']
@@ -80,9 +84,11 @@ def gen_vidor_rlt_obj_gt(video_anno_root, video_list, save_file_name):
 
 
 if __name__ == '__main__':
-    vid_anno_root = '../../data/VidOR/anno'
-    vid_list_path = '../../data/VidOR/ImageSets/VID_val_videos.txt'
+    dataset_name = 'VidOR-HOID-mini'
+    dataset_name1 = 'vidor_hoid_mini'
+    vid_anno_root = '../../data/%s/anno' % dataset_name
+    vid_list_path = '../../data/%s/ImageSets/VID_val_videos.txt' % dataset_name
     with open(vid_list_path) as f:
         video_list = [l.strip().split(' ')[0] for l in f.readlines()]
-    save_path = '../evaluation/vidor_val_object_segment_gt.json'
+    save_path = '../evaluation/%sr_val_object_segment_gt.json' % dataset_name1
     gen_vidor_rlt_obj_gt(vid_anno_root, video_list, save_path)
