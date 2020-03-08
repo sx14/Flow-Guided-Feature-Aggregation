@@ -130,11 +130,11 @@ def prepare_vidor_gt(tgt_ds_root):
 
 
 if __name__ == '__main__':
-    tgt_ds_root = '../../data/VidOR'
+    tgt_ds_root = '../../data/VidOR-mini'
     tgt_ds_root = os.path.abspath(tgt_ds_root)
 
-    # prepare_ImageSets(tgt_ds_root, 'val', 0, 5)
-    prepare_ImageSets_for_one_video(tgt_ds_root, 'val', '0004', '11566980553')
+    prepare_ImageSets(tgt_ds_root, 'val')
+    # prepare_ImageSets_for_one_video(tgt_ds_root, 'val', '0004', '11566980553')
     prepare_vidor_gt(tgt_ds_root)
 
     # prepare_ImageSets(tgt_ds_root, 'test', 0, 200)

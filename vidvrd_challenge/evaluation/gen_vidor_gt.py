@@ -1,15 +1,17 @@
 import os
+import time
 import json
+from tqdm import tqdm
 import xml.etree.ElementTree as ET
 
 import cv2
 
 
 def gen_vidor_gt(video_anno_root, video_data_root, video_list, save_file_name):
-
+    print('Generating gt json ...')
+    time.sleep(2)
     vid_val_gt = {}
-    for i, vid in enumerate(video_list):
-        print('Gen [%d/%d]' % (len(video_list), i+1))
+    for vid in tqdm(video_list):
         # for each video
         vid_data_frame_dir = os.path.join(video_data_root, vid)
         vid_fst_frame_path = os.path.join(vid_data_frame_dir, '000000.JPEG')

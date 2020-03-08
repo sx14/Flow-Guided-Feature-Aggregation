@@ -1,5 +1,6 @@
 import os
 import json
+from tqdm import tqdm
 import shutil
 import random
 from pynput import keyboard
@@ -51,8 +52,8 @@ def show_trajectories(frame_dir, frame_dets, tid2color, save=False):
     fids = sorted([int(fid) for fid in frame_dets if fid != 'viou'])
 
     plt.figure(0)
-    for i, fid in enumerate(fids):
-
+    for i in tqdm(range(len(fids))):
+        fid = fids[i]
         if i % 100 == 0 and i > 0:
             with keyboard.Listener(on_press=stop) as listener:
                 listener.join()
@@ -152,5 +153,5 @@ if __name__ == '__main__':
     video_root = '../../data/VidOR/Data/VID/val'
     res_path = 'vidor_val_object_pred_all.json'
     gt_path = 'vidor_val_object_gt.json'
-    vid = u'0001/2793806282'
+    vid = u'0004/11566980553'
     show_prediction(video_root, res_path, gt_path, vid)
