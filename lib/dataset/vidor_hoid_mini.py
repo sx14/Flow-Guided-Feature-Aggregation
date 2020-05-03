@@ -281,15 +281,15 @@ class VidORHOIDMini(IMDB):
         start_video = np.searchsorted(sum_frame_ids, first_true_id)
 
         # ==== sunx: conf filler ====
-        for c in range(len(all_boxes)):
-            for f in range(len(all_boxes[c])):
-                frame_boxes = all_boxes[c][f]
-                if len(frame_boxes) > 0:
-                    if c >= 78:
-                        frame_boxes = frame_boxes[frame_boxes[:, 4] > 0.2]
-                    else:
-                        frame_boxes = frame_boxes[frame_boxes[:, 4] > 0.1]
-                all_boxes[c][f] = frame_boxes
+        # for c in range(len(all_boxes)):
+        #     for f in range(len(all_boxes[c])):
+        #         frame_boxes = all_boxes[c][f]
+        #         if len(frame_boxes) > 0:
+        #             if c >= 78:
+        #                 frame_boxes = frame_boxes[frame_boxes[:, 4] > 0.2]
+        #             else:
+        #                 frame_boxes = frame_boxes[frame_boxes[:, 4] > 0.1]
+        #         all_boxes[c][f] = frame_boxes
         # ===========================
 
         # ==== sunx: multiprocess ====
@@ -315,7 +315,7 @@ class VidORHOIDMini(IMDB):
         cpu_num = min(20, cpu_count())
         print('seq-nms use cpu: %d' % cpu_num)
         pool = Pool(processes=cpu_num)
-        results = [pool.apply_async(seq_nms_nms, args=(video[0], 0.3)) for video in videos]
+        results = [pool.apply_async(seq_nms_nms, args=(video[0], 0.3, v)) for v, video in enumerate(videos)]
         pool.close()
         pool.join()
 
@@ -329,7 +329,7 @@ class VidORHOIDMini(IMDB):
         # the last one
         print('seq-nms last one ...')
         video = [all_boxes[j][start_idx:] for j in range(1, self.num_classes)]
-        video = seq_nms_nms(video, 0.3)
+        video = seq_nms_nms(video, 0.3, len(videos))
         for c in xrange(1, self.num_classes):
             all_boxes[c][start_idx:] = video[c - 1]
         t2 = time.time()
